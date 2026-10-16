@@ -32,6 +32,10 @@
 | HU-22 | Redesign summary and upcoming charges | P1 | 4-6 h | HU-20, HU-21 | 2 |
 | HU-23 | Redesign simulator and usage experience | P1 | 5-7 h | HU-20, HU-21, HU-22 | 2 |
 | HU-24 | Verify responsive accessibility and visual quality | P1 | 4-6 h | HU-16, HU-17, HU-18, HU-19, HU-20, HU-21, HU-22, HU-23 | 2 |
+| EP-02 | Localization and Motion Layer | P1 | 12-18 h | EP-01 complete | 0 |
+| HU-25 | Add English and Spanish interface localization | P1 | 6-8 h | EP-02 | 2 |
+| HU-26 | Provide a visible return-to-landing path | P1 | 1-2 h | EP-01 complete | 1 |
+| HU-27 | Add purposeful and accessible landing motion | P1 | 5-8 h | HU-25, HU-26 | 2 |
 
 ## EP-00: Preparación del repositorio, entorno y arquitectura
 
@@ -645,3 +649,87 @@
 |---|---|---|---|
 | 17 | frontend | Run responsive and accessibility verification | 3 h |
 | 17 | frontend | Run regression checks and update visual documentation | 2 h |
+
+## EP-02: Localization and Motion Layer
+
+**Prioridad:** P1 · **Estimación:** 12-18 h · **Dependencias:** EP-01 complete
+
+> As a FlowTrim user, I want to choose my language, return to the product landing page and experience purposeful motion so that the product feels complete and expressive.
+
+**Criterios de aceptación**
+
+- [ ] The user can switch the interface between English and Spanish from the landing and workspace.
+- [ ] The selected language persists between browser sessions without backend changes.
+- [ ] The workspace provides a visible way back to the landing page.
+- [ ] The landing page includes meaningful motion and an interactive scrollable feature rail.
+- [ ] Motion respects prefers-reduced-motion and does not block content or navigation.
+- [ ] The frontend passes tests, build and browser checks in both languages.
+
+**Reglas y notas**
+
+- Localization is presentation-only and remains in the Angular client. No external translation service is required.
+
+## HU-25: Add English and Spanish interface localization
+
+**Prioridad:** P1 · **Estimación:** 6-8 h · **Dependencias:** EP-02
+
+> As a FlowTrim user, I want to switch between English and Spanish so that I can use the product in my preferred language.
+
+**Criterios de aceptación**
+
+- [ ] The language selector is available on the landing page and workspace shell.
+- [ ] The selected language changes navigation, headings, buttons, labels, empty states and errors without a reload.
+- [ ] The default language is English when no preference exists.
+- [ ] The selected language persists between browser sessions.
+- [ ] Financial values, dates and API data remain unchanged by language switching.
+- [ ] The language selector has an accessible name and visible focus state.
+- [ ] Missing translation keys fall back safely to English.
+
+**Tareas técnicas**
+
+| Día | Repo | Tarea | Est. |
+|---|---|---|---|
+| 18 | frontend | Implement typed client-side localization | 4 h |
+| 18 | frontend | Localize current feature screens and verify fallback behavior | 3 h |
+
+## HU-26: Provide a visible return-to-landing path
+
+**Prioridad:** P1 · **Estimación:** 1-2 h · **Dependencias:** EP-01 complete
+
+> As a workspace user, I want a clear way to return to the FlowTrim landing page so that I can revisit the product introduction.
+
+**Criterios de aceptación**
+
+- [ ] The workspace logo provides a clear route to `/` or a dedicated Back to landing action is visible.
+- [ ] The return action works from desktop and mobile workspace layouts.
+- [ ] The action has an accessible name and visible focus state.
+- [ ] Returning to the landing page does not lose persisted theme or language preferences.
+
+**Tareas técnicas**
+
+| Día | Repo | Tarea | Est. |
+|---|---|---|---|
+| 18 | frontend | Add explicit workspace-to-landing navigation | 1.5 h |
+
+## HU-27: Add purposeful and accessible landing motion
+
+**Prioridad:** P1 · **Estimación:** 5-8 h · **Dependencias:** HU-25, HU-26
+
+> As a landing-page visitor, I want the product story to move and respond with intent so that FlowTrim feels alive without becoming distracting.
+
+**Criterios de aceptación**
+
+- [ ] The hero includes restrained entrance and ambient motion that supports hierarchy.
+- [ ] The landing includes an interactive horizontal feature rail using scroll snap or an equivalent native interaction.
+- [ ] Cards have meaningful hover or focus feedback without hiding content.
+- [ ] Motion is implemented with CSS, SVG or a justified lightweight mechanism rather than a large animation dependency.
+- [ ] prefers-reduced-motion disables or minimizes non-essential animation.
+- [ ] Motion does not introduce console errors, layout overflow or blocked keyboard navigation.
+- [ ] The landing remains responsive at mobile, tablet and desktop widths.
+
+**Tareas técnicas**
+
+| Día | Repo | Tarea | Est. |
+|---|---|---|---|
+| 19 | frontend | Build landing motion and interactive feature rail | 4 h |
+| 19 | frontend | Verify reduced motion and responsive behavior | 2.5 h |
