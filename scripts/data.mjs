@@ -41,12 +41,14 @@ export const milestones = {
     { key: 'mvp', title: 'MVP v1.0', description: 'Historias P0/P1 del MVP: registrar, consultar, resumen, próximos cobros, uso, simulador, pruebas y documentación.' },
     { key: 'post', title: 'Post-MVP', description: 'Backlog posterior al MVP.' },
     { key: 'visual', title: 'Visual Experience Redesign', description: 'Landing, application shell, theme modes, responsive navigation and visual redesign of the MVP screens.' },
+    { key: 'enhancements', title: 'Localization and Motion', description: 'Bilingual interface, explicit return-to-landing navigation and accessible landing motion.' },
   ],
   code: [
     { key: 's1', title: 'Sprint 1 - Base, CRUD y motor financiero (Días 1-5)', description: 'Fases 0, 1 y 2: repositorio, dominio, persistencia, CRUD, reglas financieras, resumen y próximos cobros.' },
     { key: 's2', title: 'Sprint 2 - Uso, frontend y cierre (Días 6-10)', description: 'Fases 3 a 6: uso y costo por uso, Angular integrado, dashboard, simulador, calidad y publicación.' },
     { key: 'post', title: 'Post-MVP', description: 'Backlog posterior al MVP.' },
     { key: 'visual', title: 'Visual Experience Redesign', description: 'Landing, application shell, theme modes, responsive navigation and visual redesign of the MVP screens.' },
+    { key: 'enhancements', title: 'Localization and Motion', description: 'Bilingual interface, explicit return-to-landing navigation and accessible landing motion.' },
   ],
 };
 
@@ -1011,6 +1013,93 @@ export const stories = [
         repo: 'frontend', day: 17, est: 2, extra: ['testing', 'docs'],
         title: 'Run regression checks and update visual documentation',
         items: ['Run unit tests and production build.', 'Run browser acceptance checks.', 'Replace outdated screenshots and update the README.'],
+      },
+    ],
+  },
+
+  // ---------------- Localization and Motion ----------------
+  {
+    id: 'EP-02', kind: 'epic', title: 'Localization and Motion Layer',
+    priority: 'P1', estimate: '12-18 h', estimateH: 15, deps: 'EP-01 complete', milestone: 'enhancements',
+    story: 'As a FlowTrim user, I want to choose my language, return to the product landing page and experience purposeful motion so that the product feels complete and expressive.',
+    criteria: [
+      'The user can switch the interface between English and Spanish from the landing and workspace.',
+      'The selected language persists between browser sessions without backend changes.',
+      'The workspace provides a visible way back to the landing page.',
+      'The landing page includes meaningful motion and an interactive scrollable feature rail.',
+      'Motion respects prefers-reduced-motion and does not block content or navigation.',
+      'The frontend passes tests, build and browser checks in both languages.',
+    ],
+    notes: ['Localization is presentation-only and remains in the Angular client. No external translation service is required.'],
+    tasks: [],
+  },
+  {
+    id: 'HU-25', kind: 'story', title: 'Add English and Spanish interface localization',
+    priority: 'P1', estimate: '6-8 h', estimateH: 7, deps: 'EP-02', milestone: 'enhancements',
+    story: 'As a FlowTrim user, I want to switch between English and Spanish so that I can use the product in my preferred language.',
+    criteria: [
+      'The language selector is available on the landing page and workspace shell.',
+      'The selected language changes navigation, headings, buttons, labels, empty states and errors without a reload.',
+      'The default language is English when no preference exists.',
+      'The selected language persists between browser sessions.',
+      'Financial values, dates and API data remain unchanged by language switching.',
+      'The language selector has an accessible name and visible focus state.',
+      'Missing translation keys fall back safely to English.',
+    ],
+    tasks: [
+      {
+        repo: 'frontend', day: 18, est: 4, extra: ['design'],
+        title: 'Implement typed client-side localization',
+        items: ['Create language state and persistence in the existing core structure.', 'Add English and Spanish dictionaries.', 'Add a standalone translation pipe or equivalent typed presentation helper.'],
+      },
+      {
+        repo: 'frontend', day: 18, est: 3, extra: ['testing'],
+        title: 'Localize current feature screens and verify fallback behavior',
+        items: ['Localize shell, landing, subscriptions, summary, upcoming, simulator and usage screens.', 'Translate known API-provided simulator assumptions where applicable.', 'Test language switching and persistence.'],
+      },
+    ],
+  },
+  {
+    id: 'HU-26', kind: 'story', title: 'Provide a visible return-to-landing path',
+    priority: 'P1', estimate: '1-2 h', estimateH: 1.5, deps: 'EP-01 complete', milestone: 'enhancements',
+    story: 'As a workspace user, I want a clear way to return to the FlowTrim landing page so that I can revisit the product introduction.',
+    criteria: [
+      'The workspace logo provides a clear route to `/` or a dedicated Back to landing action is visible.',
+      'The return action works from desktop and mobile workspace layouts.',
+      'The action has an accessible name and visible focus state.',
+      'Returning to the landing page does not lose persisted theme or language preferences.',
+    ],
+    tasks: [
+      {
+        repo: 'frontend', day: 18, est: 1.5,
+        title: 'Add explicit workspace-to-landing navigation',
+        items: ['Link the workspace brand and a labeled secondary action to `/`.', 'Verify desktop and mobile behavior.'],
+      },
+    ],
+  },
+  {
+    id: 'HU-27', kind: 'story', title: 'Add purposeful and accessible landing motion',
+    priority: 'P1', estimate: '5-8 h', estimateH: 6.5, deps: 'HU-25, HU-26', milestone: 'enhancements',
+    story: 'As a landing-page visitor, I want the product story to move and respond with intent so that FlowTrim feels alive without becoming distracting.',
+    criteria: [
+      'The hero includes restrained entrance and ambient motion that supports hierarchy.',
+      'The landing includes an interactive horizontal feature rail using scroll snap or an equivalent native interaction.',
+      'Cards have meaningful hover or focus feedback without hiding content.',
+      'Motion is implemented with CSS, SVG or a justified lightweight mechanism rather than a large animation dependency.',
+      'prefers-reduced-motion disables or minimizes non-essential animation.',
+      'Motion does not introduce console errors, layout overflow or blocked keyboard navigation.',
+      'The landing remains responsive at mobile, tablet and desktop widths.',
+    ],
+    tasks: [
+      {
+        repo: 'frontend', day: 19, est: 4, extra: ['design'],
+        title: 'Build landing motion and interactive feature rail',
+        items: ['Add CSS keyframe entrance and ambient effects.', 'Add a scroll-snap feature rail with visible controls or natural horizontal scroll.', 'Add card hover and focus states.'],
+      },
+      {
+        repo: 'frontend', day: 19, est: 2.5, extra: ['testing'],
+        title: 'Verify reduced motion and responsive behavior',
+        items: ['Test prefers-reduced-motion.', 'Test keyboard navigation and mobile overflow.', 'Run browser checks without console or network errors.'],
       },
     ],
   },
