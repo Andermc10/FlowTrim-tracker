@@ -42,6 +42,7 @@ export const milestones = {
     { key: 'post', title: 'Post-MVP', description: 'Backlog posterior al MVP.' },
     { key: 'visual', title: 'Visual Experience Redesign', description: 'Landing, application shell, theme modes, responsive navigation and visual redesign of the MVP screens.' },
     { key: 'enhancements', title: 'Localization and Motion', description: 'Bilingual interface, explicit return-to-landing navigation and accessible landing motion.' },
+    { key: 'quality', title: 'Interaction and Responsive Quality', description: 'Fixed workspace shell, modal CRUD, icon actions, responsive verification and landing content refinement.' },
   ],
   code: [
     { key: 's1', title: 'Sprint 1 - Base, CRUD y motor financiero (Días 1-5)', description: 'Fases 0, 1 y 2: repositorio, dominio, persistencia, CRUD, reglas financieras, resumen y próximos cobros.' },
@@ -49,6 +50,7 @@ export const milestones = {
     { key: 'post', title: 'Post-MVP', description: 'Backlog posterior al MVP.' },
     { key: 'visual', title: 'Visual Experience Redesign', description: 'Landing, application shell, theme modes, responsive navigation and visual redesign of the MVP screens.' },
     { key: 'enhancements', title: 'Localization and Motion', description: 'Bilingual interface, explicit return-to-landing navigation and accessible landing motion.' },
+    { key: 'quality', title: 'Interaction and Responsive Quality', description: 'Fixed workspace shell, modal CRUD, icon actions, responsive verification and landing content refinement.' },
   ],
 };
 
@@ -1100,6 +1102,147 @@ export const stories = [
         repo: 'frontend', day: 19, est: 2.5, extra: ['testing'],
         title: 'Verify reduced motion and responsive behavior',
         items: ['Test prefers-reduced-motion.', 'Test keyboard navigation and mobile overflow.', 'Run browser checks without console or network errors.'],
+      },
+    ],
+  },
+
+  // ---------------- Interaction and Responsive Quality ----------------
+  {
+    id: 'EP-03', kind: 'epic', title: 'Interaction and Responsive Quality',
+    priority: 'P1', estimate: '20-30 h', estimateH: 25, deps: 'EP-02 complete', milestone: 'quality',
+    story: 'As a FlowTrim user, I want fluid interactions, modal CRUD and reliable responsive behavior so that the polished visual experience remains practical and trustworthy.',
+    criteria: [
+      'Landing motion is smooth and does not animate layout properties unnecessarily.',
+      'Workspace navigation remains fixed while page content and tables scroll independently.',
+      'CRUD operations use accessible icon actions and reusable modal components.',
+      'Unsaved form information is protected when a modal is dismissed.',
+      'Responsive, keyboard, reduced-motion and code-quality checks pass without warnings.',
+    ],
+    notes: ['No backend or database changes are required.'],
+    tasks: [],
+  },
+  {
+    id: 'HU-28', kind: 'story', title: 'Optimize landing motion performance',
+    priority: 'P1', estimate: '3-5 h', estimateH: 4, deps: 'EP-02', milestone: 'quality',
+    story: 'As a visitor, I want landing motion to feel fluid so that the visual experience feels intentional rather than slow.',
+    criteria: [
+      'Motion uses transform and opacity instead of layout-triggering properties where possible.',
+      'Hero and card animations remain smooth on supported desktop and mobile browsers.',
+      'No unnecessary animation library is added unless a measured requirement justifies it.',
+      'prefers-reduced-motion disables non-essential motion.',
+      'Browser checks show no visual regressions or console errors.',
+    ],
+    tasks: [
+      {
+        repo: 'frontend', day: 20, est: 2, extra: ['design'],
+        title: 'Optimize motion primitives and performance',
+        items: ['Replace margin-based motion with compositor-friendly transforms.', 'Tune easing and durations.', 'Keep animation ownership near the landing components.'],
+      },
+      {
+        repo: 'frontend', day: 20, est: 2, extra: ['testing'],
+        title: 'Verify motion and reduced-motion behavior',
+        items: ['Check desktop and mobile browsers.', 'Check reduced-motion preference.', 'Check console and layout stability.'],
+      },
+    ],
+  },
+  {
+    id: 'HU-29', kind: 'story', title: 'Fix workspace navigation and scroll containment',
+    priority: 'P1', estimate: '3-5 h', estimateH: 4, deps: 'EP-01', milestone: 'quality',
+    story: 'As a workspace user, I want the sidebar to stay fixed and tables to scroll independently so that navigation remains available while reviewing data.',
+    criteria: [
+      'Desktop sidebar remains fixed for the full viewport height.',
+      'Mobile navigation remains fixed without covering content unexpectedly.',
+      'Tables have an isolated scroll viewport with sticky headers where appropriate.',
+      'The body does not gain accidental horizontal overflow.',
+      'The workspace logo returns to `/app` and the separate landing action returns to `/`.',
+    ],
+    tasks: [
+      {
+        repo: 'frontend', day: 20, est: 2, extra: ['design'],
+        title: 'Fix fixed shell and table scroll behavior',
+        items: ['Use fixed desktop rail and responsive content offsets.', 'Add table viewport and sticky headers.', 'Verify mobile navigation.'],
+      },
+      {
+        repo: 'frontend', day: 20, est: 2, extra: ['testing'],
+        title: 'Verify route behavior and overflow containment',
+        items: ['Verify workspace and landing links.', 'Check table scroll at supported breakpoints.', 'Check no horizontal overflow.'],
+      },
+    ],
+  },
+  {
+    id: 'HU-30', kind: 'story', title: 'Add reusable CRUD modals and icon actions',
+    priority: 'P1', estimate: '7-10 h', estimateH: 8.5, deps: 'EP-02, HU-29', milestone: 'quality',
+    story: 'As a user, I want CRUD actions in accessible modals so that I can manage subscriptions without losing context.',
+    criteria: [
+      'Create and edit actions open a reusable modal over the subscription list.',
+      'Delete opens a confirmation modal with an explicit destructive action.',
+      'CRUD actions use accessible icons with labels and tooltips.',
+      'Cancel appears before the primary action in modal footers.',
+      'Modals close through X, Escape or backdrop click.',
+      'Dirty forms ask for confirmation before discarding information.',
+      'API validation errors keep the modal open and preserve entered values.',
+      'Existing validation and API behavior remains unchanged.',
+    ],
+    tasks: [
+      {
+        repo: 'frontend', day: 21, est: 3, extra: ['design'],
+        title: 'Create reusable modal and icon UI primitives',
+        items: ['Build native dialog modal shell.', 'Build SVG icon component.', 'Add focus, close and backdrop behavior.'],
+      },
+      {
+        repo: 'frontend', day: 21, est: 5.5, extra: ['testing'],
+        title: 'Integrate CRUD modal flows',
+        items: ['Move create/edit flows into modal mode.', 'Add delete confirmation.', 'Protect dirty forms and verify API errors.'],
+      },
+    ],
+  },
+  {
+    id: 'HU-31', kind: 'story', title: 'Refine landing commercial content',
+    priority: 'P1', estimate: '4-6 h', estimateH: 5, deps: 'EP-02', milestone: 'quality',
+    story: 'As a new visitor, I want a clear commercial story so that I understand the problem, the solution and why FlowTrim is useful.',
+    criteria: [
+      'Landing explains the objective, the recurring-spend problem and the FlowTrim solution.',
+      'Sections use visual storytelling without fabricating financial claims.',
+      'The interactive rail supports the commercial narrative.',
+      'Calls to action route to the workspace and remain visible in both languages.',
+      'Responsive and reduced-motion behavior remains intact.',
+    ],
+    tasks: [
+      {
+        repo: 'frontend', day: 22, est: 3, extra: ['design'],
+        title: 'Add objective, problem and solution sections',
+        items: ['Create narrative sections.', 'Add visual diagrams/cards.', 'Keep claims honest and product-aligned.'],
+      },
+      {
+        repo: 'frontend', day: 22, est: 2, extra: ['testing'],
+        title: 'Verify commercial landing content',
+        items: ['Check both languages.', 'Check responsive layout.', 'Check CTA and scroll behavior.'],
+      },
+    ],
+  },
+  {
+    id: 'HU-32', kind: 'story', title: 'Complete responsive, accessibility and code-quality QA',
+    priority: 'P1', estimate: '3-5 h', estimateH: 4, deps: 'HU-28, HU-29, HU-30, HU-31', milestone: 'quality',
+    story: 'As a maintainer, I want the frontend to be verified for responsiveness, accessibility and scalable code practices so that future features do not regress the experience.',
+    criteria: [
+      'Strict TypeScript and Angular template checks pass.',
+      'Unit tests and production build pass without errors or warnings.',
+      'Code uses English identifiers and existing architecture patterns.',
+      'Reusable modal, icon, localization and table behaviors are covered by focused tests.',
+      'Browser QA covers desktop, tablet and mobile layouts.',
+      'Keyboard, focus, modal, reduced-motion and language switching behavior are verified.',
+      'No console errors, failed requests or accidental overflow remain.',
+    ],
+    tasks: [
+      {
+        repo: 'frontend', day: 23, est: 2, extra: ['testing'],
+        title: 'Run responsive accessibility and code-quality checks',
+        items: ['Check supported viewport matrix.', 'Check keyboard and screen-reader labels.', 'Run formatting and strict build checks.'],
+      },
+      {
+        repo: 'frontend', day: 23, est: 2, extra: ['testing', 'docs'],
+        title: 'Run regression QA and update documentation',
+        items: ['Run unit tests and production build.', 'Run browser smoke tests for CRUD and landing.', 'Update screenshots and README if visual behavior changed.'],
       },
     ],
   },

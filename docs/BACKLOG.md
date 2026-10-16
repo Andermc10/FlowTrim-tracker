@@ -36,6 +36,12 @@
 | HU-25 | Add English and Spanish interface localization | P1 | 6-8 h | EP-02 | 2 |
 | HU-26 | Provide a visible return-to-landing path | P1 | 1-2 h | EP-01 complete | 1 |
 | HU-27 | Add purposeful and accessible landing motion | P1 | 5-8 h | HU-25, HU-26 | 2 |
+| EP-03 | Interaction and Responsive Quality | P1 | 20-30 h | EP-02 complete | 0 |
+| HU-28 | Optimize landing motion performance | P1 | 3-5 h | EP-02 | 2 |
+| HU-29 | Fix workspace navigation and scroll containment | P1 | 3-5 h | EP-01 | 2 |
+| HU-30 | Add reusable CRUD modals and icon actions | P1 | 7-10 h | EP-02, HU-29 | 2 |
+| HU-31 | Refine landing commercial content | P1 | 4-6 h | EP-02 | 2 |
+| HU-32 | Complete responsive, accessibility and code-quality QA | P1 | 3-5 h | HU-28, HU-29, HU-30, HU-31 | 2 |
 
 ## EP-00: Preparación del repositorio, entorno y arquitectura
 
@@ -733,3 +739,131 @@
 |---|---|---|---|
 | 19 | frontend | Build landing motion and interactive feature rail | 4 h |
 | 19 | frontend | Verify reduced motion and responsive behavior | 2.5 h |
+
+## EP-03: Interaction and Responsive Quality
+
+**Prioridad:** P1 · **Estimación:** 20-30 h · **Dependencias:** EP-02 complete
+
+> As a FlowTrim user, I want fluid interactions, modal CRUD and reliable responsive behavior so that the polished visual experience remains practical and trustworthy.
+
+**Criterios de aceptación**
+
+- [ ] Landing motion is smooth and does not animate layout properties unnecessarily.
+- [ ] Workspace navigation remains fixed while page content and tables scroll independently.
+- [ ] CRUD operations use accessible icon actions and reusable modal components.
+- [ ] Unsaved form information is protected when a modal is dismissed.
+- [ ] Responsive, keyboard, reduced-motion and code-quality checks pass without warnings.
+
+**Reglas y notas**
+
+- No backend or database changes are required.
+
+## HU-28: Optimize landing motion performance
+
+**Prioridad:** P1 · **Estimación:** 3-5 h · **Dependencias:** EP-02
+
+> As a visitor, I want landing motion to feel fluid so that the visual experience feels intentional rather than slow.
+
+**Criterios de aceptación**
+
+- [ ] Motion uses transform and opacity instead of layout-triggering properties where possible.
+- [ ] Hero and card animations remain smooth on supported desktop and mobile browsers.
+- [ ] No unnecessary animation library is added unless a measured requirement justifies it.
+- [ ] prefers-reduced-motion disables non-essential motion.
+- [ ] Browser checks show no visual regressions or console errors.
+
+**Tareas técnicas**
+
+| Día | Repo | Tarea | Est. |
+|---|---|---|---|
+| 20 | frontend | Optimize motion primitives and performance | 2 h |
+| 20 | frontend | Verify motion and reduced-motion behavior | 2 h |
+
+## HU-29: Fix workspace navigation and scroll containment
+
+**Prioridad:** P1 · **Estimación:** 3-5 h · **Dependencias:** EP-01
+
+> As a workspace user, I want the sidebar to stay fixed and tables to scroll independently so that navigation remains available while reviewing data.
+
+**Criterios de aceptación**
+
+- [ ] Desktop sidebar remains fixed for the full viewport height.
+- [ ] Mobile navigation remains fixed without covering content unexpectedly.
+- [ ] Tables have an isolated scroll viewport with sticky headers where appropriate.
+- [ ] The body does not gain accidental horizontal overflow.
+- [ ] The workspace logo returns to `/app` and the separate landing action returns to `/`.
+
+**Tareas técnicas**
+
+| Día | Repo | Tarea | Est. |
+|---|---|---|---|
+| 20 | frontend | Fix fixed shell and table scroll behavior | 2 h |
+| 20 | frontend | Verify route behavior and overflow containment | 2 h |
+
+## HU-30: Add reusable CRUD modals and icon actions
+
+**Prioridad:** P1 · **Estimación:** 7-10 h · **Dependencias:** EP-02, HU-29
+
+> As a user, I want CRUD actions in accessible modals so that I can manage subscriptions without losing context.
+
+**Criterios de aceptación**
+
+- [ ] Create and edit actions open a reusable modal over the subscription list.
+- [ ] Delete opens a confirmation modal with an explicit destructive action.
+- [ ] CRUD actions use accessible icons with labels and tooltips.
+- [ ] Cancel appears before the primary action in modal footers.
+- [ ] Modals close through X, Escape or backdrop click.
+- [ ] Dirty forms ask for confirmation before discarding information.
+- [ ] API validation errors keep the modal open and preserve entered values.
+- [ ] Existing validation and API behavior remains unchanged.
+
+**Tareas técnicas**
+
+| Día | Repo | Tarea | Est. |
+|---|---|---|---|
+| 21 | frontend | Create reusable modal and icon UI primitives | 3 h |
+| 21 | frontend | Integrate CRUD modal flows | 5.5 h |
+
+## HU-31: Refine landing commercial content
+
+**Prioridad:** P1 · **Estimación:** 4-6 h · **Dependencias:** EP-02
+
+> As a new visitor, I want a clear commercial story so that I understand the problem, the solution and why FlowTrim is useful.
+
+**Criterios de aceptación**
+
+- [ ] Landing explains the objective, the recurring-spend problem and the FlowTrim solution.
+- [ ] Sections use visual storytelling without fabricating financial claims.
+- [ ] The interactive rail supports the commercial narrative.
+- [ ] Calls to action route to the workspace and remain visible in both languages.
+- [ ] Responsive and reduced-motion behavior remains intact.
+
+**Tareas técnicas**
+
+| Día | Repo | Tarea | Est. |
+|---|---|---|---|
+| 22 | frontend | Add objective, problem and solution sections | 3 h |
+| 22 | frontend | Verify commercial landing content | 2 h |
+
+## HU-32: Complete responsive, accessibility and code-quality QA
+
+**Prioridad:** P1 · **Estimación:** 3-5 h · **Dependencias:** HU-28, HU-29, HU-30, HU-31
+
+> As a maintainer, I want the frontend to be verified for responsiveness, accessibility and scalable code practices so that future features do not regress the experience.
+
+**Criterios de aceptación**
+
+- [ ] Strict TypeScript and Angular template checks pass.
+- [ ] Unit tests and production build pass without errors or warnings.
+- [ ] Code uses English identifiers and existing architecture patterns.
+- [ ] Reusable modal, icon, localization and table behaviors are covered by focused tests.
+- [ ] Browser QA covers desktop, tablet and mobile layouts.
+- [ ] Keyboard, focus, modal, reduced-motion and language switching behavior are verified.
+- [ ] No console errors, failed requests or accidental overflow remain.
+
+**Tareas técnicas**
+
+| Día | Repo | Tarea | Est. |
+|---|---|---|---|
+| 23 | frontend | Run responsive accessibility and code-quality checks | 2 h |
+| 23 | frontend | Run regression QA and update documentation | 2 h |
