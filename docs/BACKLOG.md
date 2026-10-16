@@ -22,6 +22,16 @@
 | HU-13 | Notificaciones externas programadas | P2 | 6–10 h | Fechas y configuración | 0 |
 | HU-14 | Importar movimientos desde CSV | P2 | 6–10 h | Modelo de transacciones futuro | 0 |
 | HU-15 | Extraer motor analítico a Python/FastAPI | P3 | 8–12 h | Necesidad técnica validada | 0 |
+| EP-01 | FlowTrim Visual Experience Redesign | P1 | 40-55 h | MVP complete | 0 |
+| HU-16 | Define FlowTrim visual identity | P1 | 4-6 h | EP-01 | 2 |
+| HU-17 | Create the application shell and navigation | P1 | 5-7 h | HU-16 | 2 |
+| HU-18 | Add dark and light theme modes | P1 | 3-5 h | HU-16, HU-17 | 2 |
+| HU-19 | Create the FlowTrim landing page | P1 | 5-8 h | HU-16, HU-17, HU-18 | 2 |
+| HU-20 | Redesign the workspace overview | P1 | 5-8 h | HU-17, HU-18, HU-19 | 2 |
+| HU-21 | Redesign subscriptions and forms | P1 | 5-7 h | HU-16, HU-17, HU-18 | 2 |
+| HU-22 | Redesign summary and upcoming charges | P1 | 4-6 h | HU-20, HU-21 | 2 |
+| HU-23 | Redesign simulator and usage experience | P1 | 5-7 h | HU-20, HU-21, HU-22 | 2 |
+| HU-24 | Verify responsive accessibility and visual quality | P1 | 4-6 h | HU-16, HU-17, HU-18, HU-19, HU-20, HU-21, HU-22, HU-23 | 2 |
 
 ## EP-00: Preparación del repositorio, entorno y arquitectura
 
@@ -398,3 +408,240 @@
 **Reglas y notas**
 
 - No es dependencia del MVP; la proyección determinista es suficiente.
+
+## EP-01: FlowTrim Visual Experience Redesign
+
+**Prioridad:** P1 · **Estimación:** 40-55 h · **Dependencias:** MVP complete
+
+> As a FlowTrim user or recruiter, I want a distinctive and accessible product experience so that the application feels professional, clear and memorable.
+
+**Criterios de aceptación**
+
+- [ ] The application has a documented FlowTrim visual identity with dark and light palettes.
+- [ ] The public landing page and application workspace have clearly separated layouts.
+- [ ] The workspace has responsive desktop and mobile navigation.
+- [ ] The MVP screens are visually redesigned without changing financial rules or API contracts.
+- [ ] The complete frontend passes build, unit tests and browser acceptance checks after the redesign.
+
+**Reglas y notas**
+
+- Initial implementation uses SCSS, CSS custom properties and SVG without adding a state manager.
+- Backend behavior, persistence and financial calculations remain unchanged.
+
+## HU-16: Define FlowTrim visual identity
+
+**Prioridad:** P1 · **Estimación:** 4-6 h · **Dependencias:** EP-01
+
+> As a FlowTrim user, I want a consistent visual identity so that the application feels clear, professional and recognizable.
+
+**Criterios de aceptación**
+
+- [ ] All application screens use centralized color, spacing, typography and elevation tokens.
+- [ ] The dark theme uses the Carbon Signal palette with black, teal and green accents.
+- [ ] The light theme uses an accessible palette that preserves the same brand identity.
+- [ ] The application includes a FlowTrim wordmark and custom SVG brand mark.
+- [ ] Interactive states include consistent hover, focus, disabled, success, warning and error treatments.
+- [ ] Normal text and controls meet WCAG AA contrast requirements in both themes.
+
+**Reglas y notas**
+
+- No backend or API changes are required.
+
+**Tareas técnicas**
+
+| Día | Repo | Tarea | Est. |
+|---|---|---|---|
+| 11 | frontend | Create FlowTrim design tokens and brand assets | 2 h |
+| 11 | frontend | Apply shared visual states and accessibility foundations | 3 h |
+
+## HU-17: Create the application shell and navigation
+
+**Prioridad:** P1 · **Estimación:** 5-7 h · **Dependencias:** HU-16
+
+> As a FlowTrim user, I want a clear application shell so that I can move between financial tools without feeling lost.
+
+**Criterios de aceptación**
+
+- [ ] Desktop workspace navigation is presented as a vertical navigation rail.
+- [ ] The active route has a visible brand-colored indicator.
+- [ ] The FlowTrim logo links to the landing page or workspace overview according to the route design.
+- [ ] The Add subscription action is accessible from the workspace shell.
+- [ ] Mobile view uses a mobile-friendly top bar, drawer or bottom navigation.
+- [ ] All existing features remain reachable through the redesigned navigation.
+- [ ] Unknown routes render a controlled not-found state.
+
+**Reglas y notas**
+
+- Existing routes must remain supported or redirect cleanly to their new workspace equivalents.
+
+**Tareas técnicas**
+
+| Día | Repo | Tarea | Est. |
+|---|---|---|---|
+| 11 | frontend | Build the workspace shell and desktop navigation | 3 h |
+| 11 | frontend | Build responsive navigation and route compatibility | 3 h |
+
+## HU-18: Add dark and light theme modes
+
+**Prioridad:** P1 · **Estimación:** 3-5 h · **Dependencias:** HU-16, HU-17
+
+> As a FlowTrim user, I want to switch between dark and light mode so that I can use the application comfortably in different environments.
+
+**Criterios de aceptación**
+
+- [ ] The initial theme follows the system preference when the user has no saved preference.
+- [ ] Users can switch between dark and light mode without a full page reload.
+- [ ] The selected theme persists between browser sessions.
+- [ ] All screens, forms, tables, cards and alerts use the active theme.
+- [ ] The theme toggle has an accessible name and visible focus state.
+- [ ] The application still renders when local storage is unavailable.
+
+**Tareas técnicas**
+
+| Día | Repo | Tarea | Est. |
+|---|---|---|---|
+| 12 | frontend | Implement theme state and persistence | 2 h |
+| 12 | frontend | Add and test the accessible theme toggle | 2 h |
+
+## HU-19: Create the FlowTrim landing page
+
+**Prioridad:** P1 · **Estimación:** 5-8 h · **Dependencias:** HU-16, HU-17, HU-18
+
+> As a new user or recruiter, I want to understand FlowTrim immediately so that I know what problem it solves and how to enter the application.
+
+**Criterios de aceptación**
+
+- [ ] The root route displays a dedicated landing page instead of the subscriptions table.
+- [ ] The hero explains that FlowTrim tracks subscriptions, recurring costs and underused services.
+- [ ] The main call to action opens the workspace.
+- [ ] Feature sections describe only functionality that already exists.
+- [ ] Example metrics or mockups are clearly identified as examples when they are not API data.
+- [ ] The landing page is responsive and does not require the backend to render.
+- [ ] The page includes an appropriate document title and description.
+
+**Tareas técnicas**
+
+| Día | Repo | Tarea | Est. |
+|---|---|---|---|
+| 12 | frontend | Build the landing hero and product sections | 4 h |
+| 12 | frontend | Add responsive landing behavior and metadata | 2.5 h |
+
+## HU-20: Redesign the workspace overview
+
+**Prioridad:** P1 · **Estimación:** 5-8 h · **Dependencias:** HU-17, HU-18, HU-19
+
+> As a FlowTrim user, I want an overview screen that prioritizes important financial information so that I can understand my situation quickly.
+
+**Criterios de aceptación**
+
+- [ ] The workspace overview displays the monthly equivalent and annual projection from the existing API.
+- [ ] Financial values remain grouped by currency.
+- [ ] Upcoming charges are visible without opening another screen.
+- [ ] Potential savings are represented visually when available.
+- [ ] Loading, empty, success and error states remain available.
+- [ ] The overview uses responsive visual hierarchy without hardcoded business data.
+- [ ] Overview actions open the corresponding detailed feature.
+
+**Tareas técnicas**
+
+| Día | Repo | Tarea | Est. |
+|---|---|---|---|
+| 13 | frontend | Create the overview metric hierarchy | 4 h |
+| 13 | frontend | Add CSS and SVG financial indicators | 2.5 h |
+
+## HU-21: Redesign subscriptions and forms
+
+**Prioridad:** P1 · **Estimación:** 5-7 h · **Dependencias:** HU-16, HU-17, HU-18
+
+> As a FlowTrim user, I want the subscription list and forms to be visually clear so that I can manage recurring services quickly.
+
+**Criterios de aceptación**
+
+- [ ] Desktop subscription rows clearly prioritize name, amount, status and next billing date.
+- [ ] Mobile subscriptions render as readable cards without horizontal scrolling.
+- [ ] Upcoming or overdue charges receive the corresponding visual treatment.
+- [ ] Search behavior continues to filter the current subscription list.
+- [ ] Create and edit forms group fields visually and keep accessible labels.
+- [ ] Backend validation errors remain visible and actionable in the redesigned form.
+- [ ] Usage, edit and delete actions continue to work after the redesign.
+- [ ] The empty state encourages adding the first subscription.
+
+**Tareas técnicas**
+
+| Día | Repo | Tarea | Est. |
+|---|---|---|---|
+| 14 | frontend | Redesign the subscription list | 3 h |
+| 14 | frontend | Redesign subscription forms and states | 3 h |
+
+## HU-22: Redesign summary and upcoming charges
+
+**Prioridad:** P1 · **Estimación:** 4-6 h · **Dependencias:** HU-20, HU-21
+
+> As a FlowTrim user, I want summary and upcoming charges to be visually prioritized so that I can identify financial pressure and imminent renewals at a glance.
+
+**Criterios de aceptación**
+
+- [ ] Summary cards prioritize monthly equivalent and annual projection.
+- [ ] Multiple currencies remain visually separated.
+- [ ] The summary empty state is branded and actionable.
+- [ ] Upcoming charges are presented as a timeline or grouped alert layout.
+- [ ] Overdue, today and upcoming charges have distinct semantic treatments.
+- [ ] Alert meaning does not depend only on color.
+- [ ] Loading and error states remain available in both themes.
+- [ ] The server-calculated countdown remains the source of truth.
+
+**Tareas técnicas**
+
+| Día | Repo | Tarea | Est. |
+|---|---|---|---|
+| 15 | frontend | Redesign financial summary visual hierarchy | 2.5 h |
+| 15 | frontend | Redesign upcoming charges as visual alert groups | 2.5 h |
+
+## HU-23: Redesign simulator and usage experience
+
+**Prioridad:** P1 · **Estimación:** 5-7 h · **Dependencias:** HU-20, HU-21, HU-22
+
+> As a FlowTrim user, I want the simulator and usage screens to make decisions easier to understand so that I can identify what to trim.
+
+**Criterios de aceptación**
+
+- [ ] Simulator selections are visually distinct and remain accessible.
+- [ ] Base and scenario values are visually comparable after every selection change.
+- [ ] The selected horizon is clearly highlighted.
+- [ ] Savings use the success treatment without implying a guarantee.
+- [ ] Simulator assumptions state that no cancellation is persisted.
+- [ ] Empty simulator selection displays zero savings and a useful state.
+- [ ] Calculable cost per use is the primary metric on the usage screen.
+- [ ] Insufficient usage data is clearly presented without an alarming error treatment.
+- [ ] The usage screen states that usage is declared and not verified.
+
+**Tareas técnicas**
+
+| Día | Repo | Tarea | Est. |
+|---|---|---|---|
+| 16 | frontend | Redesign simulator selection and comparison | 3 h |
+| 16 | frontend | Redesign usage and cost-per-use presentation | 3 h |
+
+## HU-24: Verify responsive accessibility and visual quality
+
+**Prioridad:** P1 · **Estimación:** 4-6 h · **Dependencias:** HU-16, HU-17, HU-18, HU-19, HU-20, HU-21, HU-22, HU-23
+
+> As a FlowTrim user, I want the redesigned application to remain usable across devices and assistive technologies so that visual improvements do not reduce usability.
+
+**Criterios de aceptación**
+
+- [ ] Main screens work at mobile, tablet and desktop widths without unwanted horizontal scrolling.
+- [ ] Keyboard navigation has logical order and visible focus states.
+- [ ] Buttons, links and icon-only controls have accessible names.
+- [ ] Dark and light themes meet the defined contrast requirements.
+- [ ] Reduced-motion preferences reduce non-essential animation.
+- [ ] npm test and npm run build pass after the redesign.
+- [ ] Browser acceptance checks produce no redesign-related console or network errors.
+- [ ] README screenshots represent the current interface.
+
+**Tareas técnicas**
+
+| Día | Repo | Tarea | Est. |
+|---|---|---|---|
+| 17 | frontend | Run responsive and accessibility verification | 3 h |
+| 17 | frontend | Run regression checks and update visual documentation | 2 h |

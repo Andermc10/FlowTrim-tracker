@@ -30,6 +30,7 @@ export const labels = [
   { name: 'infra', color: '006B75', description: 'Entorno, Docker, configuración' },
   { name: 'testing', color: 'BFD4F2', description: 'Pruebas automatizadas o manuales' },
   { name: 'docs', color: '0075CA', description: 'Documentación' },
+  { name: 'design', color: 'A2EEEF', description: 'Visual identity and user experience' },
   { name: 'post-mvp', color: 'CFD3D7', description: 'Fuera del MVP inicial' },
   { name: 'optional', color: 'EDEDED', description: 'Solo si el tiempo lo permite' },
   { name: 'blocked', color: '000000', description: 'Bloqueado: indicar causa y siguiente acción' },
@@ -39,11 +40,13 @@ export const milestones = {
   tracker: [
     { key: 'mvp', title: 'MVP v1.0', description: 'Historias P0/P1 del MVP: registrar, consultar, resumen, próximos cobros, uso, simulador, pruebas y documentación.' },
     { key: 'post', title: 'Post-MVP', description: 'Backlog posterior al MVP.' },
+    { key: 'visual', title: 'Visual Experience Redesign', description: 'Landing, application shell, theme modes, responsive navigation and visual redesign of the MVP screens.' },
   ],
   code: [
     { key: 's1', title: 'Sprint 1 - Base, CRUD y motor financiero (Días 1-5)', description: 'Fases 0, 1 y 2: repositorio, dominio, persistencia, CRUD, reglas financieras, resumen y próximos cobros.' },
     { key: 's2', title: 'Sprint 2 - Uso, frontend y cierre (Días 6-10)', description: 'Fases 3 a 6: uso y costo por uso, Angular integrado, dashboard, simulador, calidad y publicación.' },
     { key: 'post', title: 'Post-MVP', description: 'Backlog posterior al MVP.' },
+    { key: 'visual', title: 'Visual Experience Redesign', description: 'Landing, application shell, theme modes, responsive navigation and visual redesign of the MVP screens.' },
   ],
 };
 
@@ -752,6 +755,264 @@ export const stories = [
     ],
     notes: ['No es dependencia del MVP; la proyección determinista es suficiente.'],
     tasks: [],
+  },
+
+  // ---------------- Visual Experience Redesign ----------------
+  {
+    id: 'EP-01', kind: 'epic', title: 'FlowTrim Visual Experience Redesign',
+    priority: 'P1', estimate: '40-55 h', estimateH: 47.5, deps: 'MVP complete', milestone: 'visual',
+    story: 'As a FlowTrim user or recruiter, I want a distinctive and accessible product experience so that the application feels professional, clear and memorable.',
+    criteria: [
+      'The application has a documented FlowTrim visual identity with dark and light palettes.',
+      'The public landing page and application workspace have clearly separated layouts.',
+      'The workspace has responsive desktop and mobile navigation.',
+      'The MVP screens are visually redesigned without changing financial rules or API contracts.',
+      'The complete frontend passes build, unit tests and browser acceptance checks after the redesign.',
+    ],
+    notes: [
+      'Initial implementation uses SCSS, CSS custom properties and SVG without adding a state manager.',
+      'Backend behavior, persistence and financial calculations remain unchanged.',
+    ],
+    tasks: [],
+  },
+  {
+    id: 'HU-16', kind: 'story', title: 'Define FlowTrim visual identity',
+    priority: 'P1', estimate: '4-6 h', estimateH: 5, deps: 'EP-01', milestone: 'visual',
+    story: 'As a FlowTrim user, I want a consistent visual identity so that the application feels clear, professional and recognizable.',
+    criteria: [
+      'All application screens use centralized color, spacing, typography and elevation tokens.',
+      'The dark theme uses the Carbon Signal palette with black, teal and green accents.',
+      'The light theme uses an accessible palette that preserves the same brand identity.',
+      'The application includes a FlowTrim wordmark and custom SVG brand mark.',
+      'Interactive states include consistent hover, focus, disabled, success, warning and error treatments.',
+      'Normal text and controls meet WCAG AA contrast requirements in both themes.',
+    ],
+    notes: ['No backend or API changes are required.'],
+    tasks: [
+      {
+        repo: 'frontend', day: 11, est: 2, extra: ['design'],
+        title: 'Create FlowTrim design tokens and brand assets',
+        items: ['Define CSS custom properties for colors, spacing, typography and elevation.', 'Create the FlowTrim SVG mark and wordmark.', 'Document the visual tokens.'],
+      },
+      {
+        repo: 'frontend', day: 11, est: 3, extra: ['design'],
+        title: 'Apply shared visual states and accessibility foundations',
+        items: ['Replace unrelated hardcoded colors with semantic tokens.', 'Define focus, hover, disabled, success, warning and error states.', 'Check contrast in both themes.'],
+      },
+    ],
+  },
+  {
+    id: 'HU-17', kind: 'story', title: 'Create the application shell and navigation',
+    priority: 'P1', estimate: '5-7 h', estimateH: 6, deps: 'HU-16', milestone: 'visual',
+    story: 'As a FlowTrim user, I want a clear application shell so that I can move between financial tools without feeling lost.',
+    criteria: [
+      'Desktop workspace navigation is presented as a vertical navigation rail.',
+      'The active route has a visible brand-colored indicator.',
+      'The FlowTrim logo links to the landing page or workspace overview according to the route design.',
+      'The Add subscription action is accessible from the workspace shell.',
+      'Mobile view uses a mobile-friendly top bar, drawer or bottom navigation.',
+      'All existing features remain reachable through the redesigned navigation.',
+      'Unknown routes render a controlled not-found state.',
+    ],
+    notes: ['Existing routes must remain supported or redirect cleanly to their new workspace equivalents.'],
+    tasks: [
+      {
+        repo: 'frontend', day: 11, est: 3, extra: ['design'],
+        title: 'Build the workspace shell and desktop navigation',
+        items: ['Separate landing and workspace layouts.', 'Create the desktop navigation rail.', 'Add active route styling and primary actions.'],
+      },
+      {
+        repo: 'frontend', day: 11, est: 3, extra: ['design'],
+        title: 'Build responsive navigation and route compatibility',
+        items: ['Create mobile navigation behavior.', 'Preserve or redirect existing routes.', 'Verify keyboard and screen-reader navigation.'],
+      },
+    ],
+  },
+  {
+    id: 'HU-18', kind: 'story', title: 'Add dark and light theme modes',
+    priority: 'P1', estimate: '3-5 h', estimateH: 4, deps: 'HU-16, HU-17', milestone: 'visual',
+    story: 'As a FlowTrim user, I want to switch between dark and light mode so that I can use the application comfortably in different environments.',
+    criteria: [
+      'The initial theme follows the system preference when the user has no saved preference.',
+      'Users can switch between dark and light mode without a full page reload.',
+      'The selected theme persists between browser sessions.',
+      'All screens, forms, tables, cards and alerts use the active theme.',
+      'The theme toggle has an accessible name and visible focus state.',
+      'The application still renders when local storage is unavailable.',
+    ],
+    tasks: [
+      {
+        repo: 'frontend', day: 12, est: 2, extra: ['design'],
+        title: 'Implement theme state and persistence',
+        items: ['Create a theme service inside the existing core structure.', 'Persist the selected theme in local storage.', 'Support system preference detection.'],
+      },
+      {
+        repo: 'frontend', day: 12, est: 2, extra: ['design'],
+        title: 'Add and test the accessible theme toggle',
+        items: ['Add the theme toggle to the workspace shell.', 'Test both themes across all current screens.', 'Verify focus and contrast states.'],
+      },
+    ],
+  },
+  {
+    id: 'HU-19', kind: 'story', title: 'Create the FlowTrim landing page',
+    priority: 'P1', estimate: '5-8 h', estimateH: 6.5, deps: 'HU-16, HU-17, HU-18', milestone: 'visual',
+    story: 'As a new user or recruiter, I want to understand FlowTrim immediately so that I know what problem it solves and how to enter the application.',
+    criteria: [
+      'The root route displays a dedicated landing page instead of the subscriptions table.',
+      'The hero explains that FlowTrim tracks subscriptions, recurring costs and underused services.',
+      'The main call to action opens the workspace.',
+      'Feature sections describe only functionality that already exists.',
+      'Example metrics or mockups are clearly identified as examples when they are not API data.',
+      'The landing page is responsive and does not require the backend to render.',
+      'The page includes an appropriate document title and description.',
+    ],
+    tasks: [
+      {
+        repo: 'frontend', day: 12, est: 4, extra: ['design'],
+        title: 'Build the landing hero and product sections',
+        items: ['Create the hero, calls to action and product preview.', 'Add the three product pillars.', 'Add the transparent formula and limitations sections.'],
+      },
+      {
+        repo: 'frontend', day: 12, est: 2.5, extra: ['design'],
+        title: 'Add responsive landing behavior and metadata',
+        items: ['Tune mobile and desktop layouts.', 'Add page metadata.', 'Verify the landing page without an API connection.'],
+      },
+    ],
+  },
+  {
+    id: 'HU-20', kind: 'story', title: 'Redesign the workspace overview',
+    priority: 'P1', estimate: '5-8 h', estimateH: 6.5, deps: 'HU-17, HU-18, HU-19', milestone: 'visual',
+    story: 'As a FlowTrim user, I want an overview screen that prioritizes important financial information so that I can understand my situation quickly.',
+    criteria: [
+      'The workspace overview displays the monthly equivalent and annual projection from the existing API.',
+      'Financial values remain grouped by currency.',
+      'Upcoming charges are visible without opening another screen.',
+      'Potential savings are represented visually when available.',
+      'Loading, empty, success and error states remain available.',
+      'The overview uses responsive visual hierarchy without hardcoded business data.',
+      'Overview actions open the corresponding detailed feature.',
+    ],
+    tasks: [
+      {
+        repo: 'frontend', day: 13, est: 4, extra: ['design'],
+        title: 'Create the overview metric hierarchy',
+        items: ['Build the primary monthly spend metric.', 'Add secondary annual and active-service metrics.', 'Add upcoming charges and savings previews.'],
+      },
+      {
+        repo: 'frontend', day: 13, est: 2.5, extra: ['design'],
+        title: 'Add CSS and SVG financial indicators',
+        items: ['Add bars, sparklines or indicators without a new chart dependency.', 'Preserve all data states.', 'Verify both themes.'],
+      },
+    ],
+  },
+  {
+    id: 'HU-21', kind: 'story', title: 'Redesign subscriptions and forms',
+    priority: 'P1', estimate: '5-7 h', estimateH: 6, deps: 'HU-16, HU-17, HU-18', milestone: 'visual',
+    story: 'As a FlowTrim user, I want the subscription list and forms to be visually clear so that I can manage recurring services quickly.',
+    criteria: [
+      'Desktop subscription rows clearly prioritize name, amount, status and next billing date.',
+      'Mobile subscriptions render as readable cards without horizontal scrolling.',
+      'Upcoming or overdue charges receive the corresponding visual treatment.',
+      'Search behavior continues to filter the current subscription list.',
+      'Create and edit forms group fields visually and keep accessible labels.',
+      'Backend validation errors remain visible and actionable in the redesigned form.',
+      'Usage, edit and delete actions continue to work after the redesign.',
+      'The empty state encourages adding the first subscription.',
+    ],
+    tasks: [
+      {
+        repo: 'frontend', day: 14, est: 3, extra: ['design'],
+        title: 'Redesign the subscription list',
+        items: ['Build the desktop list and mobile card treatment.', 'Add category, status and billing-date visual cues.', 'Redesign search and actions.'],
+      },
+      {
+        repo: 'frontend', day: 14, est: 3, extra: ['design'],
+        title: 'Redesign subscription forms and states',
+        items: ['Redesign create and edit forms.', 'Improve loading, empty, validation and error states.', 'Preserve current API behavior.'],
+      },
+    ],
+  },
+  {
+    id: 'HU-22', kind: 'story', title: 'Redesign summary and upcoming charges',
+    priority: 'P1', estimate: '4-6 h', estimateH: 5, deps: 'HU-20, HU-21', milestone: 'visual',
+    story: 'As a FlowTrim user, I want summary and upcoming charges to be visually prioritized so that I can identify financial pressure and imminent renewals at a glance.',
+    criteria: [
+      'Summary cards prioritize monthly equivalent and annual projection.',
+      'Multiple currencies remain visually separated.',
+      'The summary empty state is branded and actionable.',
+      'Upcoming charges are presented as a timeline or grouped alert layout.',
+      'Overdue, today and upcoming charges have distinct semantic treatments.',
+      'Alert meaning does not depend only on color.',
+      'Loading and error states remain available in both themes.',
+      'The server-calculated countdown remains the source of truth.',
+    ],
+    tasks: [
+      {
+        repo: 'frontend', day: 15, est: 2.5, extra: ['design'],
+        title: 'Redesign financial summary visual hierarchy',
+        items: ['Redesign currency cards.', 'Add stronger metric hierarchy.', 'Improve empty and explanatory states.'],
+      },
+      {
+        repo: 'frontend', day: 15, est: 2.5, extra: ['design'],
+        title: 'Redesign upcoming charges as visual alert groups',
+        items: ['Build timeline or grouped alert sections.', 'Add semantic labels and icons.', 'Verify countdown and theme behavior.'],
+      },
+    ],
+  },
+  {
+    id: 'HU-23', kind: 'story', title: 'Redesign simulator and usage experience',
+    priority: 'P1', estimate: '5-7 h', estimateH: 6, deps: 'HU-20, HU-21, HU-22', milestone: 'visual',
+    story: 'As a FlowTrim user, I want the simulator and usage screens to make decisions easier to understand so that I can identify what to trim.',
+    criteria: [
+      'Simulator selections are visually distinct and remain accessible.',
+      'Base and scenario values are visually comparable after every selection change.',
+      'The selected horizon is clearly highlighted.',
+      'Savings use the success treatment without implying a guarantee.',
+      'Simulator assumptions state that no cancellation is persisted.',
+      'Empty simulator selection displays zero savings and a useful state.',
+      'Calculable cost per use is the primary metric on the usage screen.',
+      'Insufficient usage data is clearly presented without an alarming error treatment.',
+      'The usage screen states that usage is declared and not verified.',
+    ],
+    tasks: [
+      {
+        repo: 'frontend', day: 16, est: 3, extra: ['design'],
+        title: 'Redesign simulator selection and comparison',
+        items: ['Redesign selection controls.', 'Add base-versus-scenario comparison.', 'Add horizon selector and assumptions panel.'],
+      },
+      {
+        repo: 'frontend', day: 16, est: 3, extra: ['design'],
+        title: 'Redesign usage and cost-per-use presentation',
+        items: ['Promote the cost-per-use result.', 'Improve not-calculable and declared-usage states.', 'Preserve record history and form behavior.'],
+      },
+    ],
+  },
+  {
+    id: 'HU-24', kind: 'story', title: 'Verify responsive accessibility and visual quality',
+    priority: 'P1', estimate: '4-6 h', estimateH: 5, deps: 'HU-16, HU-17, HU-18, HU-19, HU-20, HU-21, HU-22, HU-23', milestone: 'visual',
+    story: 'As a FlowTrim user, I want the redesigned application to remain usable across devices and assistive technologies so that visual improvements do not reduce usability.',
+    criteria: [
+      'Main screens work at mobile, tablet and desktop widths without unwanted horizontal scrolling.',
+      'Keyboard navigation has logical order and visible focus states.',
+      'Buttons, links and icon-only controls have accessible names.',
+      'Dark and light themes meet the defined contrast requirements.',
+      'Reduced-motion preferences reduce non-essential animation.',
+      'npm test and npm run build pass after the redesign.',
+      'Browser acceptance checks produce no redesign-related console or network errors.',
+      'README screenshots represent the current interface.',
+    ],
+    tasks: [
+      {
+        repo: 'frontend', day: 17, est: 3, extra: ['testing'],
+        title: 'Run responsive and accessibility verification',
+        items: ['Check 360px, tablet, desktop and wide desktop layouts.', 'Check keyboard flow and accessible names.', 'Check reduced-motion behavior.'],
+      },
+      {
+        repo: 'frontend', day: 17, est: 2, extra: ['testing', 'docs'],
+        title: 'Run regression checks and update visual documentation',
+        items: ['Run unit tests and production build.', 'Run browser acceptance checks.', 'Replace outdated screenshots and update the README.'],
+      },
+    ],
   },
 ];
 
