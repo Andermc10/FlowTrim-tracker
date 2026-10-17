@@ -27,6 +27,7 @@ export const labels = [
   { name: 'P3', color: 'C5DEF5', description: 'Futuro / solo si hay necesidad validada' },
   { name: 'backend', color: '5319E7', description: 'ASP.NET Core / EF Core / PostgreSQL' },
   { name: 'frontend', color: '0052CC', description: 'Angular / TypeScript / SCSS' },
+  { name: 'tracker', color: '7057FF', description: 'Backlog, specifications and project documentation' },
   { name: 'infra', color: '006B75', description: 'Entorno, Docker, configuración' },
   { name: 'testing', color: 'BFD4F2', description: 'Pruebas automatizadas o manuales' },
   { name: 'docs', color: '0075CA', description: 'Documentación' },
@@ -43,6 +44,7 @@ export const milestones = {
     { key: 'visual', title: 'Visual Experience Redesign', description: 'Landing, application shell, theme modes, responsive navigation and visual redesign of the MVP screens.' },
     { key: 'enhancements', title: 'Localization and Motion', description: 'Bilingual interface, explicit return-to-landing navigation and accessible landing motion.' },
     { key: 'quality', title: 'Interaction and Responsive Quality', description: 'Fixed workspace shell, modal CRUD, icon actions, responsive verification and landing content refinement.' },
+    { key: 'flowtrim2', title: 'FlowTrim 2.0', description: 'Secure multi-user access, explainable AI insights, CI/CD, public delivery, subscription catalog import and portfolio evidence.' },
   ],
   code: [
     { key: 's1', title: 'Sprint 1 - Base, CRUD y motor financiero (Días 1-5)', description: 'Fases 0, 1 y 2: repositorio, dominio, persistencia, CRUD, reglas financieras, resumen y próximos cobros.' },
@@ -51,6 +53,7 @@ export const milestones = {
     { key: 'visual', title: 'Visual Experience Redesign', description: 'Landing, application shell, theme modes, responsive navigation and visual redesign of the MVP screens.' },
     { key: 'enhancements', title: 'Localization and Motion', description: 'Bilingual interface, explicit return-to-landing navigation and accessible landing motion.' },
     { key: 'quality', title: 'Interaction and Responsive Quality', description: 'Fixed workspace shell, modal CRUD, icon actions, responsive verification and landing content refinement.' },
+    { key: 'flowtrim2', title: 'FlowTrim 2.0', description: 'Secure multi-user access, explainable AI insights, CI/CD, public delivery, subscription catalog import and portfolio evidence.' },
   ],
 };
 
@@ -715,17 +718,87 @@ export const stories = [
   },
 
   // ---------------- Post-MVP ----------------
+  // FlowTrim 2.0 starts with secure ownership. HU-12 is intentionally kept as
+  // the existing product story and refined instead of creating a duplicate.
   {
     id: 'HU-12', kind: 'story', title: 'Autenticación y aislamiento multiusuario',
-    priority: 'P2', estimate: '8–14 h', estimateH: 11, deps: 'MVP estable', milestone: 'post',
+    priority: 'P0', estimate: '16–22 h', estimateH: 19, deps: 'MVP estable', milestone: 'flowtrim2',
     story: 'Como usuario, quiero iniciar sesión y ver solo mis suscripciones para proteger mis datos financieros.',
     criteria: [
-      '(Propuesto, por refinar) Registro e inicio de sesión seguros.',
-      '(Propuesto, por refinar) Cada usuario solo puede leer/modificar sus propios datos.',
-      '(Propuesto, por refinar) Endpoints protegidos y pruebas de autorización.',
+      'El usuario puede registrarse, iniciar sesión y cerrar sesión mediante un proveedor OIDC/JWT seleccionado para el proyecto.',
+      'La API valida issuer, audience, firma y expiración del token antes de ejecutar endpoints privados.',
+      'Cada suscripción y registro de uso queda asociado a un propietario y todas las consultas filtran por el usuario autenticado.',
+      'Un usuario no puede leer, editar, eliminar ni simular datos pertenecientes a otra cuenta, aunque conozca sus identificadores.',
+      'Las rutas privadas de Angular requieren autenticación y el interceptor envía el token sin registrar credenciales ni tokens.',
+      'Las pruebas de integración cubren acceso permitido, acceso anónimo y acceso cruzado entre dos usuarios.',
     ],
-    notes: ['Necesario antes de ofrecer el servicio públicamente con datos privados.'],
-    tasks: [],
+    notes: [
+      'Usar un proveedor gestionado compatible con OIDC/JWT; no construir recuperación de contraseñas propia en esta iteración.',
+      'Agregar un usuario interno o una asociación estable con el subject externo para mantener una frontera clara entre identidad y dominio.',
+      'Definir una estrategia explícita para datos existentes: base de demo reiniciable o asignación controlada al primer usuario.',
+      'La autorización debe existir en backend; una guarda de Angular solo mejora la experiencia y nunca es la única protección.',
+    ],
+    tasks: [
+      {
+        repo: 'backend', day: 2, est: 3, extra: ['infra'],
+        title: 'Configure OIDC/JWT authentication and identity mapping',
+        items: [
+          'Select one provider and document issuer, audience, local development setup and required claims.',
+          'Configure ASP.NET Core authentication and authorization without storing provider secrets in Git.',
+          'Create the current-user abstraction and map the external subject to a stable application identity.',
+          'Keep `/api/health` public and require authorization for private endpoints.',
+        ],
+      },
+      {
+        repo: 'backend', day: 3, est: 5, extra: ['infra'],
+        title: 'Add ownership model and database migration',
+        items: [
+          'Add the application user mapping and owner foreign keys using English snake_case identifiers.',
+          'Add indexes and explicit foreign-key delete behavior.',
+          'Define the migration strategy for existing single-user development data.',
+          'Review generated SQL before applying the migration.',
+        ],
+      },
+      {
+        repo: 'backend', day: 4, est: 5,
+        title: 'Scope repositories and handlers by authenticated owner',
+        items: [
+          'Update subscription and usage repository contracts to require the current owner.',
+          'Apply owner predicates to list, detail, summary, upcoming, usage, cost-per-use and simulation flows.',
+          'Return the same safe not-found behavior for missing and non-owned resources.',
+          'Do not trust owner identifiers sent by the client.',
+        ],
+      },
+      {
+        repo: 'frontend', day: 4, est: 3,
+        title: 'Add authentication screens, guard and token interceptor',
+        items: [
+          'Add login, registration handoff and logout states using the selected provider flow.',
+          'Protect the existing `/app` routes with a route guard.',
+          'Attach bearer tokens through the existing HTTP layer and handle 401/403 states.',
+          'Preserve the existing standalone component, signals and localization patterns.',
+        ],
+      },
+      {
+        repo: 'backend', day: 5, est: 2, extra: ['testing'],
+        title: 'Test authentication and cross-user authorization',
+        items: [
+          'Test anonymous rejection for private endpoints.',
+          'Test two users with isolated subscriptions and usage records.',
+          'Test read, update, delete, summary, upcoming and simulation isolation.',
+          'Use fake tokens or a test authentication handler; never use real credentials.',
+        ],
+      },
+      {
+        repo: 'frontend', day: 5, est: 1, extra: ['testing'],
+        title: 'Verify authenticated route and error states',
+        items: [
+          'Test redirect behavior, logout and expired-session handling.',
+          'Test that tokens are not written to logs or user-facing errors.',
+          'Verify loading, error, forbidden and empty states in the protected workspace.',
+        ],
+      },
+    ],
   },
   {
     id: 'HU-13', kind: 'story', title: 'Notificaciones externas programadas',
@@ -746,7 +819,7 @@ export const stories = [
       '(Propuesto, por refinar) Validación y vista previa antes de importar.',
       '(Propuesto, por refinar) Separar historial de transacciones confirmadas de fechas previstas.',
     ],
-    notes: [],
+    notes: ['Se mantiene fuera de FlowTrim 2.0 porque requiere un modelo de transacciones confirmadas separado de las renovaciones esperadas. La importación de suscripciones usa HU-43 a HU-46.'],
     tasks: [],
   },
   {
@@ -759,6 +832,358 @@ export const stories = [
     ],
     notes: ['No es dependencia del MVP; la proyección determinista es suficiente.'],
     tasks: [],
+  },
+
+  // ---------------- FlowTrim 2.0: Secure platform ----------------
+  {
+    id: 'EP-04', kind: 'epic', title: 'Secure Multi-User Foundation',
+    priority: 'P0', estimate: '16-22 h', estimateH: 19, deps: 'MVP v1.0', milestone: 'flowtrim2',
+    story: 'As a FlowTrim owner, I want secure identity and server-side ownership boundaries so that private financial data can be used in a public demo safely.',
+    criteria: [
+      'Authentication and authorization are enforced by the ASP.NET Core API.',
+      'Subscriptions, usage records and financial calculations are scoped to the authenticated owner.',
+      'The Angular workspace is protected without changing the existing feature architecture.',
+      'Cross-user authorization tests pass against a database-backed application boundary.',
+      'The identity provider, claims and migration strategy are documented.',
+    ],
+    notes: ['HU-12 is the implementation story for this epic. No custom password or recovery system is introduced.'],
+    tasks: [],
+  },
+
+  // ---------------- FlowTrim 2.0: AI insights ----------------
+  {
+    id: 'EP-05', kind: 'epic', title: 'FlowTrim Insights',
+    priority: 'P1', estimate: '18-24 h', estimateH: 21, deps: 'HU-12', milestone: 'flowtrim2',
+    story: 'As a FlowTrim user, I want to ask questions about my recurring spending and receive transparent explanations based on my own data.',
+    criteria: [
+      'The assistant uses authenticated owner-scoped data only.',
+      'Financial values come from deterministic application tools rather than model-generated arithmetic.',
+      'Responses expose relevant figures, assumptions and data sources.',
+      'Provider failures, missing data, timeouts and usage limits have controlled behavior.',
+      'The feature is available from a focused Angular workspace route without replacing existing navigation.',
+    ],
+    notes: ['No RAG, vector database, autonomous agent or conversation persistence is required for this MVP.'],
+    tasks: [],
+  },
+  {
+    id: 'HU-33', kind: 'story', title: 'Configure the AI provider boundary',
+    priority: 'P1', estimate: '3-4 h', estimateH: 3.5, deps: 'HU-12', milestone: 'flowtrim2',
+    story: 'As a maintainer, I want the AI provider behind a small application contract so that provider details do not leak into financial rules or API endpoints.',
+    criteria: [
+      'The provider is configured through environment settings and no API key is committed.',
+      'Application code depends on a small typed provider contract.',
+      'The provider request supports cancellation, timeout and bounded output.',
+      'A fake provider can be injected for tests without external network calls.',
+    ],
+    notes: ['The provider may interpret a question and select an allowed tool, but it cannot execute SQL or mutate domain data.'],
+    tasks: [
+      { repo: 'backend', day: 6, est: 2, extra: ['infra'], title: 'Add typed AI provider configuration and adapter', items: ['Add environment-backed options.', 'Add a small provider interface and one adapter.', 'Add timeout and cancellation handling.', 'Keep secrets out of logs and responses.'] },
+      { repo: 'backend', day: 6, est: 1.5, extra: ['testing'], title: 'Add fake provider tests', items: ['Create deterministic fake responses.', 'Test provider failure and timeout mapping.', 'Verify no real credentials are needed.'] },
+    ],
+  },
+  {
+    id: 'HU-34', kind: 'story', title: 'Expose deterministic financial tools',
+    priority: 'P1', estimate: '4-5 h', estimateH: 4.5, deps: 'HU-12', milestone: 'flowtrim2',
+    story: 'As the Insights orchestrator, I want typed financial tools so that every answer is based on the existing FlowTrim calculation engine.',
+    criteria: [
+      'Tools exist for spending summary, upcoming renewals, cost per use and savings simulation.',
+      'Every tool receives the authenticated owner context from the server.',
+      'Tools reuse existing handlers and domain calculators instead of duplicating formulas.',
+      'Tool results identify currencies, assumptions and whether values are estimates or declared data.',
+      'Tool inputs are bounded and invalid subscription identifiers cannot escape the owner scope.',
+    ],
+    notes: ['Tool names and schemas are internal contracts; they are not arbitrary public database operations.'],
+    tasks: [
+      { repo: 'backend', day: 7, est: 3, title: 'Implement owner-scoped financial tool contracts', items: ['Define typed tool input/output records.', 'Wrap existing summary, upcoming, cost-per-use and simulation handlers.', 'Return explicit no-data and non-calculable states.', 'Add owner-scoped validation.'] },
+      { repo: 'backend', day: 7, est: 1.5, extra: ['testing'], title: 'Test deterministic tool outputs', items: ['Cover currencies, empty data, zero usage and simulations.', 'Verify tools cannot access another owner.', 'Verify values match existing domain tests.'] },
+    ],
+  },
+  {
+    id: 'HU-35', kind: 'story', title: 'Answer protected financial questions',
+    priority: 'P1', estimate: '4-5 h', estimateH: 4.5, deps: 'HU-33, HU-34', milestone: 'flowtrim2',
+    story: 'As an authenticated user, I want to ask a bounded financial question so that FlowTrim explains my registered data without inventing calculations.',
+    criteria: [
+      'The protected endpoint accepts a non-empty question with a documented maximum length.',
+      'The orchestrator can invoke only the allow-listed financial tools.',
+      'The response includes an answer, figures used, assumptions and source references.',
+      'Provider errors, unsupported questions, empty data and rate limits return actionable safe responses.',
+      'Questions and responses are not persisted in the MVP unless a later privacy decision approves retention.',
+    ],
+    notes: ['The generated prose is explanatory; the backend tool results remain authoritative for money and dates.'],
+    tasks: [
+      { repo: 'backend', day: 8, est: 3, title: 'Implement protected Insights endpoint and orchestration', items: ['Add the endpoint and request/response DTOs.', 'Build the allow-listed tool orchestration.', 'Add bounded request validation and provider timeout mapping.', 'Add a per-user request limit suitable for the demo.'] },
+      { repo: 'backend', day: 8, est: 1.5, extra: ['testing'], title: 'Test safe AI response behavior', items: ['Test supported and unsupported questions.', 'Test provider failure, empty data and rate-limit responses.', 'Test that owner scope is preserved through orchestration.'] },
+    ],
+  },
+  {
+    id: 'HU-36', kind: 'story', title: 'Add the FlowTrim Insights workspace',
+    priority: 'P1', estimate: '4-5 h', estimateH: 4.5, deps: 'HU-35', milestone: 'flowtrim2',
+    story: 'As a user, I want a focused Insights screen so that I can ask questions and understand the evidence behind each response.',
+    criteria: [
+      'The workspace exposes an authenticated Insights route using the existing Angular standalone feature pattern.',
+      'The screen includes suggested questions and a typed question input.',
+      'Loading, empty, success, provider error, unauthorized and rate-limit states are visible and actionable.',
+      'Responses render highlighted figures, assumptions and source details without unsafe HTML injection.',
+      'The view supports keyboard navigation, visible focus, responsive layouts and both existing languages.',
+    ],
+    tasks: [
+      { repo: 'frontend', day: 9, est: 3, title: 'Build the Insights feature and API service', items: ['Add route, navigation item and typed models.', 'Add HTTP service and request cancellation where practical.', 'Render answer, figures, assumptions and sources.', 'Reuse existing theme and localization services.'] },
+      { repo: 'frontend', day: 9, est: 1.5, extra: ['testing'], title: 'Test Insights states and accessibility', items: ['Test loading, empty, success and failure states.', 'Test keyboard/focus behavior and responsive layout.', 'Test localized labels and safe rendering.'] },
+    ],
+  },
+  {
+    id: 'HU-37', kind: 'story', title: 'Verify Insights evidence and limits',
+    priority: 'P1', estimate: '3-4 h', estimateH: 3.5, deps: 'HU-35, HU-36', milestone: 'flowtrim2',
+    story: 'As a recruiter or maintainer, I want evidence that Insights is controlled and explainable so that the AI integration is trustworthy rather than decorative.',
+    criteria: [
+      'At least four representative questions are documented with expected tool results.',
+      'Tests prove that generated answers cannot replace deterministic financial values.',
+      'Rate limits, timeout behavior and provider outages are demonstrated.',
+      'The README documents privacy boundaries and what data is sent to the provider.',
+      'The demo checklist includes a successful question and a controlled failure.',
+    ],
+    tasks: [
+      { repo: 'backend', day: 10, est: 2, extra: ['testing', 'docs'], title: 'Create Insights verification matrix', items: ['Document representative prompts and expected evidence.', 'Add contract tests for response shape and limits.', 'Record provider failure and timeout behavior.'] },
+      { repo: 'tracker', day: 10, est: 1.5, extra: ['docs'], title: 'Document AI privacy and demo boundaries', items: ['Document data minimization and retention decisions.', 'Add demo questions and expected explanations.', 'Document non-goals such as banking advice and autonomous actions.'] },
+    ],
+  },
+
+  // ---------------- FlowTrim 2.0: Delivery ----------------
+  {
+    id: 'EP-06', kind: 'epic', title: 'CI/CD, Public Delivery and Observability',
+    priority: 'P0', estimate: '12-16 h', estimateH: 14, deps: 'MVP v1.0', milestone: 'flowtrim2',
+    story: 'As a recruiter or maintainer, I want FlowTrim tested and deployable from version control so that the project demonstrates delivery discipline, not only local development.',
+    criteria: [
+      'Pull requests run backend tests, frontend tests and production builds.',
+      'Deployment uses environment variables and managed secrets rather than committed credentials.',
+      'The deployed API exposes a safe health check for API and PostgreSQL availability.',
+      'CORS, logging and runtime configuration differ safely between development and production.',
+      'A reproducible demo and rollback/diagnostic notes are documented.',
+    ],
+    notes: ['Keep the current single-deployable backend architecture. Do not add Kubernetes or a message broker for this milestone.'],
+    tasks: [],
+  },
+  {
+    id: 'HU-38', kind: 'story', title: 'Run automated CI for backend and frontend',
+    priority: 'P0', estimate: '3-4 h', estimateH: 3.5, deps: 'MVP v1.0', milestone: 'flowtrim2',
+    story: 'As a maintainer, I want every change checked automatically so that regressions are detected before deployment.',
+    criteria: [
+      'Backend CI restores, builds and runs all xUnit tests.',
+      'Frontend CI installs from the lockfile, runs tests and builds production output.',
+      'CI fails on a broken build, failed test or missing required configuration.',
+      'Secrets and personal data are not printed in workflow logs.',
+      'The workflow is documented for both repository locations.',
+    ],
+    tasks: [
+      { repo: 'backend', day: 1, est: 1.5, extra: ['infra'], title: 'Add backend GitHub Actions workflow', items: ['Use the repository-supported .NET SDK.', 'Run restore, build and test.', 'Upload useful test artifacts only when safe.'] },
+      { repo: 'frontend', day: 1, est: 1.5, extra: ['infra'], title: 'Add frontend GitHub Actions workflow', items: ['Use the lockfile and supported Node/npm versions.', 'Run tests in non-watch mode and production build.', 'Avoid exposing environment secrets.'] },
+    ],
+  },
+  {
+    id: 'HU-39', kind: 'story', title: 'Harden environment configuration and CORS',
+    priority: 'P0', estimate: '2-3 h', estimateH: 2.5, deps: 'HU-12, HU-38', milestone: 'flowtrim2',
+    story: 'As an operator, I want environment-specific configuration so that a public deployment does not reuse unsafe local defaults.',
+    criteria: [
+      'Database, identity, AI and allowed-origin settings come from environment configuration or managed secrets.',
+      'Production startup fails clearly when a required secret or setting is missing.',
+      'Production CORS allows only the deployed frontend origin and required headers such as Authorization.',
+      'Local `.env.example` and User Secrets instructions contain placeholders only.',
+      'Logs never include connection strings, tokens, API keys or full private prompts.',
+    ],
+    tasks: [
+      { repo: 'backend', day: 2, est: 1.5, extra: ['infra'], title: 'Configure production settings and CORS', items: ['Add typed options and startup validation.', 'Allow Authorization and required preflight headers.', 'Document local and deployed configuration.'] },
+      { repo: 'frontend', day: 2, est: 1, extra: ['infra'], title: 'Configure frontend API and identity environments', items: ['Keep API base URLs environment-specific.', 'Document public client configuration separately from secrets.', 'Verify no private values enter the bundle.'] },
+    ],
+  },
+  {
+    id: 'HU-40', kind: 'story', title: 'Deploy the public demonstration environment',
+    priority: 'P0', estimate: '4-6 h', estimateH: 5, deps: 'HU-12, HU-38, HU-39', milestone: 'flowtrim2',
+    story: 'As a recruiter, I want to open a working FlowTrim demo so that I can evaluate the product without reproducing the local environment first.',
+    criteria: [
+      'Frontend, API and PostgreSQL run in a documented hosted environment.',
+      'Database schema is applied through an explicit migration process.',
+      'The public demo uses non-sensitive seed data or an empty onboarding flow.',
+      'Health checks and logs make startup and database failures diagnosable without exposing internals.',
+      'Deployment can be repeated from the repository using documented steps or CI.',
+    ],
+    tasks: [
+      { repo: 'backend', day: 11, est: 2.5, extra: ['infra'], title: 'Deploy API and PostgreSQL with safe runtime configuration', items: ['Select a simple hosting arrangement and document the trade-off.', 'Configure migrations, connection string and health checks.', 'Verify restart behavior and database persistence.'] },
+      { repo: 'frontend', day: 11, est: 1.5, extra: ['infra'], title: 'Deploy Angular production build', items: ['Configure production API URL.', 'Verify client-side route fallback.', 'Verify browser access to protected workspace.'] },
+      { repo: 'tracker', day: 11, est: 1, extra: ['docs'], title: 'Document demo access and operational runbook', items: ['Record demo URL and non-sensitive test account instructions.', 'Document health, logs, restart and rollback checks.', 'Document known hosting limitations.'] },
+    ],
+  },
+  {
+    id: 'HU-41', kind: 'story', title: 'Add structured logs and correlation evidence',
+    priority: 'P1', estimate: '2-3 h', estimateH: 2.5, deps: 'HU-40', milestone: 'flowtrim2',
+    story: 'As a maintainer, I want safe request correlation and latency evidence so that production failures can be investigated without exposing financial data.',
+    criteria: [
+      'Requests have a correlation identifier that is returned or traceable without exposing user secrets.',
+      'Logs include route, status, duration and failure category at appropriate levels.',
+      'Sensitive headers, tokens, prompts and response bodies are excluded or redacted.',
+      'Health checks distinguish API and database availability.',
+      'The README explains how to inspect a failed demo request safely.',
+    ],
+    tasks: [
+      { repo: 'backend', day: 12, est: 2, extra: ['infra'], title: 'Implement safe request correlation and structured logging', items: ['Add correlation middleware or equivalent existing pipeline component.', 'Log bounded operational metadata.', 'Redact sensitive values and verify exception behavior.'] },
+      { repo: 'tracker', day: 12, est: 0.5, extra: ['docs'], title: 'Document operational evidence', items: ['Add example health response.', 'Document correlation lookup and privacy rules.'] },
+    ],
+  },
+  {
+    id: 'HU-42', kind: 'story', title: 'Prepare portfolio delivery evidence',
+    priority: 'P1', estimate: '2-3 h', estimateH: 2.5, deps: 'HU-38, HU-40, HU-41', milestone: 'flowtrim2',
+    story: 'As a recruiter, I want a concise technical narrative and verification evidence so that the project decisions are easy to evaluate in an interview.',
+    criteria: [
+      'The README explains the problem, architecture, security boundary, AI boundary and deployment.',
+      'The repository links to CI status, demo instructions and relevant screenshots or recorded evidence.',
+      'The documentation distinguishes confirmed transactions, expected renewals and declared usage.',
+      'Known limitations and deferred features are listed honestly.',
+      'A five-minute demo path is documented from login to Insights response.',
+    ],
+    tasks: [
+      { repo: 'tracker', day: 13, est: 2.5, extra: ['docs'], title: 'Write FlowTrim 2.0 portfolio and demo documentation', items: ['Summarize architecture and key trade-offs.', 'Add evidence links and demo script.', 'List limitations, privacy boundaries and deferred work.'] },
+    ],
+  },
+
+  // ---------------- FlowTrim 2.0: Subscription import ----------------
+  {
+    id: 'EP-07', kind: 'epic', title: 'Subscription Catalog Import',
+    priority: 'P1', estimate: '12-16 h', estimateH: 14, deps: 'HU-12', milestone: 'flowtrim2',
+    story: 'As a user, I want to import my subscription catalog from a documented CSV so that I can onboard without entering every service manually.',
+    criteria: [
+      'The feature imports subscriptions, not confirmed bank transactions.',
+      'Rows are validated before persistence and errors identify row and field.',
+      'The user can preview valid rows, invalid rows and possible duplicates.',
+      'Confirmation persists only accepted rows within a controlled transaction.',
+      'The import is owner-scoped, bounded in size and documented with a sample file.',
+    ],
+    notes: ['HU-14 remains reserved for a future transaction model. This epic does not infer real payment history.'],
+    tasks: [],
+  },
+  {
+    id: 'HU-43', kind: 'story', title: 'Define and validate subscription CSV input',
+    priority: 'P1', estimate: '3-4 h', estimateH: 3.5, deps: 'HU-12', milestone: 'flowtrim2',
+    story: 'As a user, I want a documented CSV format with row-level validation so that I can correct my file before importing it.',
+    criteria: [
+      'The documented MVP format contains name, amount, currency, billing cycle and next billing date.',
+      'The API rejects unsupported file types, excessive size and excessive row count.',
+      'Dates, amounts, currencies and billing cycles use explicit parsing rules.',
+      'Each invalid row returns a stable row number, field and safe error code/message.',
+      'No invalid row is persisted during preview.',
+    ],
+    tasks: [
+      { repo: 'backend', day: 14, est: 3, title: 'Implement bounded CSV parser and validation contract', items: ['Define the documented columns and sample.', 'Parse with explicit culture/date rules.', 'Enforce file and row limits.', 'Reuse domain validation after parsing.'] },
+      { repo: 'tracker', day: 14, est: 0.5, extra: ['docs'], title: 'Document subscription CSV format', items: ['Add sample CSV.', 'Document delimiters, headers, decimal/date formats and limitations.'] },
+    ],
+  },
+  {
+    id: 'HU-44', kind: 'story', title: 'Preview duplicates and import results',
+    priority: 'P1', estimate: '3-4 h', estimateH: 3.5, deps: 'HU-43', milestone: 'flowtrim2',
+    story: 'As a user, I want a preview that identifies duplicates and valid rows so that I can decide what will be imported before committing it.',
+    criteria: [
+      'The preview returns a bounded import identifier and does not persist accepted subscriptions yet.',
+      'Rows are classified as valid, invalid or possible duplicate.',
+      'Duplicate detection is owner-scoped and uses documented matching fields.',
+      'The preview summary reports accepted, rejected and duplicate counts.',
+      'Preview data expires or is discarded safely if confirmation does not occur.',
+    ],
+    tasks: [
+      { repo: 'backend', day: 15, est: 3, title: 'Implement owner-scoped import preview', items: ['Add preview request/response DTOs.', 'Detect duplicates against existing owner data and within the file.', 'Avoid persisting unconfirmed records.', 'Define preview expiration or bounded in-memory representation.'] },
+      { repo: 'frontend', day: 15, est: 0.5, title: 'Render import preview summary contract', items: ['Prepare typed preview models and row classifications.', 'Keep the confirmation action disabled until a valid preview exists.'] },
+    ],
+  },
+  {
+    id: 'HU-45', kind: 'story', title: 'Confirm owner-scoped subscription import',
+    priority: 'P1', estimate: '3-4 h', estimateH: 3.5, deps: 'HU-44', milestone: 'flowtrim2',
+    story: 'As a user, I want to confirm valid CSV rows so that FlowTrim adds them atomically to my subscription catalog.',
+    criteria: [
+      'Only a valid, unexpired preview owned by the authenticated user can be confirmed.',
+      'Accepted rows are persisted in one transaction or none are persisted.',
+      'Duplicate rows are skipped or rejected according to the documented user choice.',
+      'The response reports created, skipped and failed counts without exposing another owner’s data.',
+      'A repeated confirmation cannot create duplicate records from the same preview.',
+    ],
+    tasks: [
+      { repo: 'backend', day: 16, est: 3, title: 'Implement transactional import confirmation', items: ['Persist accepted rows with owner identity.', 'Add idempotency/confirmation state.', 'Return import summary and safe errors.', 'Test rollback and repeated confirmation.'] },
+      { repo: 'backend', day: 16, est: 0.5, extra: ['testing'], title: 'Test import authorization and transaction boundaries', items: ['Test cross-user preview rejection.', 'Test rollback on persistence failure.', 'Test duplicate behavior.'] },
+    ],
+  },
+  {
+    id: 'HU-46', kind: 'story', title: 'Add subscription import workspace flow',
+    priority: 'P1', estimate: '3-4 h', estimateH: 3.5, deps: 'HU-44, HU-45', milestone: 'flowtrim2',
+    story: 'As a user, I want to upload, review and confirm a CSV through the workspace so that onboarding is clear and reversible before persistence.',
+    criteria: [
+      'The UI supports file selection, preview, correction/replacement and explicit confirmation.',
+      'The table shows row number, field errors, duplicate status and accepted values.',
+      'Loading, empty, success, validation error, expired preview and server error states are handled.',
+      'The flow is accessible by keyboard and usable on mobile without requiring a wide table viewport.',
+      'The UI clearly states that the import creates expected subscriptions, not confirmed transactions.',
+    ],
+    tasks: [
+      { repo: 'frontend', day: 17, est: 3, title: 'Build CSV import preview and confirmation UI', items: ['Add file picker and upload service.', 'Render responsive preview table and summary.', 'Add confirmation and replacement flows.', 'Localize labels and error messages.'] },
+      { repo: 'frontend', day: 17, est: 0.5, extra: ['testing'], title: 'Test import UX states and accessibility', items: ['Test invalid file, duplicate, success and expired preview states.', 'Test keyboard focus and mobile layout.', 'Verify no optimistic persistence before confirmation.'] },
+    ],
+  },
+
+  // ---------------- FlowTrim 2.0: Quality evidence ----------------
+  {
+    id: 'EP-08', kind: 'epic', title: 'Integration and Portfolio Evidence',
+    priority: 'P0', estimate: '10-14 h', estimateH: 12, deps: 'EP-04, EP-05, EP-06', milestone: 'flowtrim2',
+    story: 'As a maintainer, I want integration and release evidence so that FlowTrim 2.0 can be defended with reproducible results in an interview.',
+    criteria: [
+      'The main authenticated flow is tested against PostgreSQL and the real API boundary.',
+      'Negative authorization scenarios are automated rather than only manually described.',
+      'The critical demo path is verified in a browser against the deployed environment or a reproducible local stack.',
+      'Performance, security and known limitations are documented without invented metrics.',
+    ],
+    notes: ['Testing increases confidence in the existing architecture; it does not justify introducing a new test framework unless required.'],
+    tasks: [],
+  },
+  {
+    id: 'HU-47', kind: 'story', title: 'Add database-backed integration tests',
+    priority: 'P0', estimate: '4-5 h', estimateH: 4.5, deps: 'HU-12', milestone: 'flowtrim2',
+    story: 'As a developer, I want API integration tests against PostgreSQL so that ownership filters and migrations are verified beyond in-memory unit tests.',
+    criteria: [
+      'Tests run against a disposable PostgreSQL instance or an equivalent isolated CI service.',
+      'Migrations and database constraints are applied before tests.',
+      'Tests cover create, list, update, delete, summary, usage and simulation through the API boundary.',
+      'Tests cover two-user isolation and anonymous rejection.',
+      'Tests do not require real provider credentials or personal data.',
+    ],
+    tasks: [
+      { repo: 'backend', day: 18, est: 3.5, extra: ['testing'], title: 'Create PostgreSQL API integration test harness', items: ['Use the existing xUnit structure and a disposable database strategy.', 'Apply migrations and isolate test data.', 'Exercise the API boundary with fake authentication.'] },
+      { repo: 'backend', day: 18, est: 1, extra: ['testing'], title: 'Add ownership and migration regression cases', items: ['Test constraints, indexes and owner predicates.', 'Test reset/cleanup and repeatability in CI.'] },
+    ],
+  },
+  {
+    id: 'HU-48', kind: 'story', title: 'Verify the critical browser flow',
+    priority: 'P0', estimate: '3-4 h', estimateH: 3.5, deps: 'HU-12, HU-36, HU-40', milestone: 'flowtrim2',
+    story: 'As a recruiter, I want the main user journey verified in a browser so that the deployed product is more than a collection of passing unit tests.',
+    criteria: [
+      'The browser flow covers login, workspace load, subscription data and one Insights question.',
+      'A second account cannot see the first account’s data.',
+      'The flow records loading, empty and controlled error states where relevant.',
+      'Browser checks report no unexpected console errors or failed requests.',
+      'The flow is reproducible from documented seed or setup instructions.',
+    ],
+    tasks: [
+      { repo: 'frontend', day: 19, est: 2.5, extra: ['testing'], title: 'Add browser smoke flow for authenticated workspace', items: ['Reuse the project browser QA approach where available.', 'Verify login, route guard, workspace, Insights and logout.', 'Verify responsive critical states.'] },
+      { repo: 'tracker', day: 19, est: 1, extra: ['docs'], title: 'Document browser acceptance evidence', items: ['Record setup, expected checkpoints and known provider limitations.', 'Link screenshots or a short recording when available.'] },
+    ],
+  },
+  {
+    id: 'HU-49', kind: 'story', title: 'Complete FlowTrim 2.0 release readiness review',
+    priority: 'P0', estimate: '2-3 h', estimateH: 2.5, deps: 'EP-04, EP-05, EP-06, HU-47, HU-48', milestone: 'flowtrim2',
+    story: 'As a maintainer, I want a release checklist so that FlowTrim 2.0 is published only when security, tests, deployment and documentation agree with the actual implementation.',
+    criteria: [
+      'All P0 acceptance criteria are checked against the code and deployed environment.',
+      'The backend, frontend and tracker documentation describe the same routes, configuration and limitations.',
+      'No real credentials, private data or misleading financial claims remain in the repositories.',
+      'CI is green for the release commit and the demo health check is healthy.',
+      'The release notes summarize implemented features and explicitly list deferred work.',
+    ],
+    tasks: [
+      { repo: 'tracker', day: 20, est: 2.5, extra: ['docs', 'testing'], title: 'Run FlowTrim 2.0 release readiness checklist', items: ['Review P0 stories and evidence.', 'Reconcile README, specs and backlog.', 'Prepare release notes and deferred roadmap.', 'Confirm no secrets or unsupported claims are committed.'] },
+    ],
   },
 
   // ---------------- Visual Experience Redesign ----------------

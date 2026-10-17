@@ -9,7 +9,7 @@
 Estructura de FlowTrim:
 
 ```
-FlowTrim-tracker   ← HU-01…HU-15 + EP-00 (qué valor se entrega y cuándo está "hecho")
+   FlowTrim-tracker   ← HU/EP (qué valor se entrega y cuándo está "hecho")
    └─ sub-issues / checklist de tareas
 FlowTrim-backend   ← tareas técnicas de API/dominio/BD/pruebas
 FlowTrim-frontend  ← tareas técnicas de Angular
@@ -20,7 +20,7 @@ Una historia (HU) vive en el tracker porque casi siempre toca backend y frontend
 
 ## 2. Configuración inicial (una vez)
 
-1. Ejecuta `node scripts/setup-github.mjs` (ver README). Crea etiquetas, milestones, 55 Issues (16 historias/épicas + 39 tareas) y el Project con campos **Priority**, **Estimate (h)** y **Plan day**.
+1. Ejecuta `node scripts/setup-github.mjs` (ver README). Crea o actualiza Issues del backlog vigente, milestones y el Project con campos **Priority**, **Estimate (h)** y **Plan day**. El script es idempotente y detecta Issues existentes por título.
 2. En el Project: **+ New view → Board**, agrupado por **Status**. Esa es tu vista Kanban. Mantén también una vista Table para planificar.
 3. **Settings → Workflows → Auto-add to project**: actívalo para cada uno de los tres repos para que todo Issue nuevo entre al tablero solo.
 4. **Settings → Status**: columnas sugeridas `Backlog · Todo · In Progress · In Review · Done` (y `Blocked` si lo necesitas).
@@ -59,6 +59,12 @@ Reglas del tablero:
 
 - Rápido: *New issue → Historia de usuario* en el tracker y completa la plantilla.
 - Reproducible: añádela en `scripts/data.mjs` y vuelve a ejecutar `node scripts/setup-github.mjs`; solo crea lo que falta.
+
+## 6. FlowTrim 2.0
+
+La segunda etapa se organiza en EP-04 a EP-08 y usa el milestone **FlowTrim 2.0**. La fuente de alcance es `docs/FLOWTRIM-2-ROADMAP.md`; las decisiones de arquitectura están en `docs/FLOWTRIM-2-ARCHITECTURE.md` y la verificación de demo en `docs/FLOWTRIM-2-DEMO-CHECKLIST.md`.
+
+Las tareas de FlowTrim 2.0 con `day` mayor que 10 se asignan al milestone `FlowTrim 2.0` en backend/frontend. Las tareas del MVP y del rediseño conservan su comportamiento histórico.
 
 ## 6. Notas sobre los documentos originales
 

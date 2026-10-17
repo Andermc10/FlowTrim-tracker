@@ -3,7 +3,10 @@ import { dod, config } from './data.mjs';
 
 export const repoSlug = (key) => `${config.owner}/${config.repos[key]}`;
 
-export const milestoneKeyForTask = (day) => (day <= 5 ? 's1' : 's2');
+export const milestoneKeyForTask = (day, storyMilestone) => {
+  if (storyMilestone === 'flowtrim2') return 'flowtrim2';
+  return day <= 5 ? 's1' : 's2';
+};
 
 export function storyLabels(s) {
   const l = [s.kind === 'epic' ? 'epic' : 'user-story', s.priority];
