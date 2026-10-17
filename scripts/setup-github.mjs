@@ -130,7 +130,7 @@ for (const s of stories) {
 
   const refs = [];
   for (const t of s.tasks) {
-    const issue = ensureIssue(t.repo, taskTitle(t, s), taskBody(t, s, story.number), taskLabels(t, s), milestoneKeyForTask(t.day));
+    const issue = ensureIssue(t.repo, taskTitle(t, s), taskBody(t, s, story.number), taskLabels(t, s), milestoneKeyForTask(t.day, s.milestone));
     log(`    ${issue.created ? '+' : '·'} ${slugs[t.repo]}#${issue.number} ${taskTitle(t, s)}`);
     refs.push({ ref: `${slugs[t.repo]}#${issue.number}`, title: t.title, repo: t.repo, day: t.day });
     allItems.push({ url: issue.url, priority: s.priority, est: t.est, day: `Día ${t.day}` });

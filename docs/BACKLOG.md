@@ -18,10 +18,32 @@
 | HU-09 | Validaciones y manejo de errores | P0 | 3–5 h | Transversal | 3 |
 | HU-10 | Pruebas automatizadas de reglas financieras | P0 | 4–6 h | HU-03, HU-04, HU-06, HU-07 | 5 |
 | HU-11 | Documentar y presentar el proyecto | P0 | 3–5 h | Todas las historias principales | 5 |
-| HU-12 | Autenticación y aislamiento multiusuario | P2 | 8–14 h | MVP estable | 0 |
+| HU-12 | Autenticación y aislamiento multiusuario | P0 | 16–22 h | MVP estable | 6 |
 | HU-13 | Notificaciones externas programadas | P2 | 6–10 h | Fechas y configuración | 0 |
 | HU-14 | Importar movimientos desde CSV | P2 | 6–10 h | Modelo de transacciones futuro | 0 |
 | HU-15 | Extraer motor analítico a Python/FastAPI | P3 | 8–12 h | Necesidad técnica validada | 0 |
+| EP-04 | Secure Multi-User Foundation | P0 | 16-22 h | MVP v1.0 | 0 |
+| EP-05 | FlowTrim Insights | P1 | 18-24 h | HU-12 | 0 |
+| HU-33 | Configure the AI provider boundary | P1 | 3-4 h | HU-12 | 2 |
+| HU-34 | Expose deterministic financial tools | P1 | 4-5 h | HU-12 | 2 |
+| HU-35 | Answer protected financial questions | P1 | 4-5 h | HU-33, HU-34 | 2 |
+| HU-36 | Add the FlowTrim Insights workspace | P1 | 4-5 h | HU-35 | 2 |
+| HU-37 | Verify Insights evidence and limits | P1 | 3-4 h | HU-35, HU-36 | 2 |
+| EP-06 | CI/CD, Public Delivery and Observability | P0 | 12-16 h | MVP v1.0 | 0 |
+| HU-38 | Run automated CI for backend and frontend | P0 | 3-4 h | MVP v1.0 | 2 |
+| HU-39 | Harden environment configuration and CORS | P0 | 2-3 h | HU-12, HU-38 | 2 |
+| HU-40 | Deploy the public demonstration environment | P0 | 4-6 h | HU-12, HU-38, HU-39 | 3 |
+| HU-41 | Add structured logs and correlation evidence | P1 | 2-3 h | HU-40 | 2 |
+| HU-42 | Prepare portfolio delivery evidence | P1 | 2-3 h | HU-38, HU-40, HU-41 | 1 |
+| EP-07 | Subscription Catalog Import | P1 | 12-16 h | HU-12 | 0 |
+| HU-43 | Define and validate subscription CSV input | P1 | 3-4 h | HU-12 | 2 |
+| HU-44 | Preview duplicates and import results | P1 | 3-4 h | HU-43 | 2 |
+| HU-45 | Confirm owner-scoped subscription import | P1 | 3-4 h | HU-44 | 2 |
+| HU-46 | Add subscription import workspace flow | P1 | 3-4 h | HU-44, HU-45 | 2 |
+| EP-08 | Integration and Portfolio Evidence | P0 | 10-14 h | EP-04, EP-05, EP-06 | 0 |
+| HU-47 | Add database-backed integration tests | P0 | 4-5 h | HU-12 | 2 |
+| HU-48 | Verify the critical browser flow | P0 | 3-4 h | HU-12, HU-36, HU-40 | 2 |
+| HU-49 | Complete FlowTrim 2.0 release readiness review | P0 | 2-3 h | EP-04, EP-05, EP-06, HU-47, HU-48 | 1 |
 | EP-01 | FlowTrim Visual Experience Redesign | P1 | 40-55 h | MVP complete | 0 |
 | HU-16 | Define FlowTrim visual identity | P1 | 4-6 h | EP-01 | 2 |
 | HU-17 | Create the application shell and navigation | P1 | 5-7 h | HU-16 | 2 |
@@ -364,19 +386,36 @@
 
 ## HU-12: Autenticación y aislamiento multiusuario
 
-**Prioridad:** P2 · **Estimación:** 8–14 h · **Dependencias:** MVP estable · _Post-MVP_
+**Prioridad:** P0 · **Estimación:** 16–22 h · **Dependencias:** MVP estable
 
 > Como usuario, quiero iniciar sesión y ver solo mis suscripciones para proteger mis datos financieros.
 
 **Criterios de aceptación**
 
-- [ ] (Propuesto, por refinar) Registro e inicio de sesión seguros.
-- [ ] (Propuesto, por refinar) Cada usuario solo puede leer/modificar sus propios datos.
-- [ ] (Propuesto, por refinar) Endpoints protegidos y pruebas de autorización.
+- [ ] El usuario puede registrarse, iniciar sesión y cerrar sesión mediante un proveedor OIDC/JWT seleccionado para el proyecto.
+- [ ] La API valida issuer, audience, firma y expiración del token antes de ejecutar endpoints privados.
+- [ ] Cada suscripción y registro de uso queda asociado a un propietario y todas las consultas filtran por el usuario autenticado.
+- [ ] Un usuario no puede leer, editar, eliminar ni simular datos pertenecientes a otra cuenta, aunque conozca sus identificadores.
+- [ ] Las rutas privadas de Angular requieren autenticación y el interceptor envía el token sin registrar credenciales ni tokens.
+- [ ] Las pruebas de integración cubren acceso permitido, acceso anónimo y acceso cruzado entre dos usuarios.
 
 **Reglas y notas**
 
-- Necesario antes de ofrecer el servicio públicamente con datos privados.
+- Usar un proveedor gestionado compatible con OIDC/JWT; no construir recuperación de contraseñas propia en esta iteración.
+- Agregar un usuario interno o una asociación estable con el subject externo para mantener una frontera clara entre identidad y dominio.
+- Definir una estrategia explícita para datos existentes: base de demo reiniciable o asignación controlada al primer usuario.
+- La autorización debe existir en backend; una guarda de Angular solo mejora la experiencia y nunca es la única protección.
+
+**Tareas técnicas**
+
+| Día | Repo | Tarea | Est. |
+|---|---|---|---|
+| 2 | backend | Configure OIDC/JWT authentication and identity mapping | 3 h |
+| 3 | backend | Add ownership model and database migration | 5 h |
+| 4 | backend | Scope repositories and handlers by authenticated owner | 5 h |
+| 4 | frontend | Add authentication screens, guard and token interceptor | 3 h |
+| 5 | backend | Test authentication and cross-user authorization | 2 h |
+| 5 | frontend | Verify authenticated route and error states | 1 h |
 
 ## HU-13: Notificaciones externas programadas
 
@@ -404,6 +443,10 @@
 - [ ] (Propuesto, por refinar) Validación y vista previa antes de importar.
 - [ ] (Propuesto, por refinar) Separar historial de transacciones confirmadas de fechas previstas.
 
+**Reglas y notas**
+
+- Se mantiene fuera de FlowTrim 2.0 porque requiere un modelo de transacciones confirmadas separado de las renovaciones esperadas. La importación de suscripciones usa HU-43 a HU-46.
+
 ## HU-15: Extraer motor analítico a Python/FastAPI
 
 **Prioridad:** P3 · **Estimación:** 8–12 h · **Dependencias:** Necesidad técnica validada · _Post-MVP_
@@ -418,6 +461,462 @@
 **Reglas y notas**
 
 - No es dependencia del MVP; la proyección determinista es suficiente.
+
+## EP-04: Secure Multi-User Foundation
+
+**Prioridad:** P0 · **Estimación:** 16-22 h · **Dependencias:** MVP v1.0
+
+> As a FlowTrim owner, I want secure identity and server-side ownership boundaries so that private financial data can be used in a public demo safely.
+
+**Criterios de aceptación**
+
+- [ ] Authentication and authorization are enforced by the ASP.NET Core API.
+- [ ] Subscriptions, usage records and financial calculations are scoped to the authenticated owner.
+- [ ] The Angular workspace is protected without changing the existing feature architecture.
+- [ ] Cross-user authorization tests pass against a database-backed application boundary.
+- [ ] The identity provider, claims and migration strategy are documented.
+
+**Reglas y notas**
+
+- HU-12 is the implementation story for this epic. No custom password or recovery system is introduced.
+
+## EP-05: FlowTrim Insights
+
+**Prioridad:** P1 · **Estimación:** 18-24 h · **Dependencias:** HU-12
+
+> As a FlowTrim user, I want to ask questions about my recurring spending and receive transparent explanations based on my own data.
+
+**Criterios de aceptación**
+
+- [ ] The assistant uses authenticated owner-scoped data only.
+- [ ] Financial values come from deterministic application tools rather than model-generated arithmetic.
+- [ ] Responses expose relevant figures, assumptions and data sources.
+- [ ] Provider failures, missing data, timeouts and usage limits have controlled behavior.
+- [ ] The feature is available from a focused Angular workspace route without replacing existing navigation.
+
+**Reglas y notas**
+
+- No RAG, vector database, autonomous agent or conversation persistence is required for this MVP.
+
+## HU-33: Configure the AI provider boundary
+
+**Prioridad:** P1 · **Estimación:** 3-4 h · **Dependencias:** HU-12
+
+> As a maintainer, I want the AI provider behind a small application contract so that provider details do not leak into financial rules or API endpoints.
+
+**Criterios de aceptación**
+
+- [ ] The provider is configured through environment settings and no API key is committed.
+- [ ] Application code depends on a small typed provider contract.
+- [ ] The provider request supports cancellation, timeout and bounded output.
+- [ ] A fake provider can be injected for tests without external network calls.
+
+**Reglas y notas**
+
+- The provider may interpret a question and select an allowed tool, but it cannot execute SQL or mutate domain data.
+
+**Tareas técnicas**
+
+| Día | Repo | Tarea | Est. |
+|---|---|---|---|
+| 6 | backend | Add typed AI provider configuration and adapter | 2 h |
+| 6 | backend | Add fake provider tests | 1.5 h |
+
+## HU-34: Expose deterministic financial tools
+
+**Prioridad:** P1 · **Estimación:** 4-5 h · **Dependencias:** HU-12
+
+> As the Insights orchestrator, I want typed financial tools so that every answer is based on the existing FlowTrim calculation engine.
+
+**Criterios de aceptación**
+
+- [ ] Tools exist for spending summary, upcoming renewals, cost per use and savings simulation.
+- [ ] Every tool receives the authenticated owner context from the server.
+- [ ] Tools reuse existing handlers and domain calculators instead of duplicating formulas.
+- [ ] Tool results identify currencies, assumptions and whether values are estimates or declared data.
+- [ ] Tool inputs are bounded and invalid subscription identifiers cannot escape the owner scope.
+
+**Reglas y notas**
+
+- Tool names and schemas are internal contracts; they are not arbitrary public database operations.
+
+**Tareas técnicas**
+
+| Día | Repo | Tarea | Est. |
+|---|---|---|---|
+| 7 | backend | Implement owner-scoped financial tool contracts | 3 h |
+| 7 | backend | Test deterministic tool outputs | 1.5 h |
+
+## HU-35: Answer protected financial questions
+
+**Prioridad:** P1 · **Estimación:** 4-5 h · **Dependencias:** HU-33, HU-34
+
+> As an authenticated user, I want to ask a bounded financial question so that FlowTrim explains my registered data without inventing calculations.
+
+**Criterios de aceptación**
+
+- [ ] The protected endpoint accepts a non-empty question with a documented maximum length.
+- [ ] The orchestrator can invoke only the allow-listed financial tools.
+- [ ] The response includes an answer, figures used, assumptions and source references.
+- [ ] Provider errors, unsupported questions, empty data and rate limits return actionable safe responses.
+- [ ] Questions and responses are not persisted in the MVP unless a later privacy decision approves retention.
+
+**Reglas y notas**
+
+- The generated prose is explanatory; the backend tool results remain authoritative for money and dates.
+
+**Tareas técnicas**
+
+| Día | Repo | Tarea | Est. |
+|---|---|---|---|
+| 8 | backend | Implement protected Insights endpoint and orchestration | 3 h |
+| 8 | backend | Test safe AI response behavior | 1.5 h |
+
+## HU-36: Add the FlowTrim Insights workspace
+
+**Prioridad:** P1 · **Estimación:** 4-5 h · **Dependencias:** HU-35
+
+> As a user, I want a focused Insights screen so that I can ask questions and understand the evidence behind each response.
+
+**Criterios de aceptación**
+
+- [ ] The workspace exposes an authenticated Insights route using the existing Angular standalone feature pattern.
+- [ ] The screen includes suggested questions and a typed question input.
+- [ ] Loading, empty, success, provider error, unauthorized and rate-limit states are visible and actionable.
+- [ ] Responses render highlighted figures, assumptions and source details without unsafe HTML injection.
+- [ ] The view supports keyboard navigation, visible focus, responsive layouts and both existing languages.
+
+**Tareas técnicas**
+
+| Día | Repo | Tarea | Est. |
+|---|---|---|---|
+| 9 | frontend | Build the Insights feature and API service | 3 h |
+| 9 | frontend | Test Insights states and accessibility | 1.5 h |
+
+## HU-37: Verify Insights evidence and limits
+
+**Prioridad:** P1 · **Estimación:** 3-4 h · **Dependencias:** HU-35, HU-36
+
+> As a recruiter or maintainer, I want evidence that Insights is controlled and explainable so that the AI integration is trustworthy rather than decorative.
+
+**Criterios de aceptación**
+
+- [ ] At least four representative questions are documented with expected tool results.
+- [ ] Tests prove that generated answers cannot replace deterministic financial values.
+- [ ] Rate limits, timeout behavior and provider outages are demonstrated.
+- [ ] The README documents privacy boundaries and what data is sent to the provider.
+- [ ] The demo checklist includes a successful question and a controlled failure.
+
+**Tareas técnicas**
+
+| Día | Repo | Tarea | Est. |
+|---|---|---|---|
+| 10 | backend | Create Insights verification matrix | 2 h |
+| 10 | tracker | Document AI privacy and demo boundaries | 1.5 h |
+
+## EP-06: CI/CD, Public Delivery and Observability
+
+**Prioridad:** P0 · **Estimación:** 12-16 h · **Dependencias:** MVP v1.0
+
+> As a recruiter or maintainer, I want FlowTrim tested and deployable from version control so that the project demonstrates delivery discipline, not only local development.
+
+**Criterios de aceptación**
+
+- [ ] Pull requests run backend tests, frontend tests and production builds.
+- [ ] Deployment uses environment variables and managed secrets rather than committed credentials.
+- [ ] The deployed API exposes a safe health check for API and PostgreSQL availability.
+- [ ] CORS, logging and runtime configuration differ safely between development and production.
+- [ ] A reproducible demo and rollback/diagnostic notes are documented.
+
+**Reglas y notas**
+
+- Keep the current single-deployable backend architecture. Do not add Kubernetes or a message broker for this milestone.
+
+## HU-38: Run automated CI for backend and frontend
+
+**Prioridad:** P0 · **Estimación:** 3-4 h · **Dependencias:** MVP v1.0
+
+> As a maintainer, I want every change checked automatically so that regressions are detected before deployment.
+
+**Criterios de aceptación**
+
+- [ ] Backend CI restores, builds and runs all xUnit tests.
+- [ ] Frontend CI installs from the lockfile, runs tests and builds production output.
+- [ ] CI fails on a broken build, failed test or missing required configuration.
+- [ ] Secrets and personal data are not printed in workflow logs.
+- [ ] The workflow is documented for both repository locations.
+
+**Tareas técnicas**
+
+| Día | Repo | Tarea | Est. |
+|---|---|---|---|
+| 1 | backend | Add backend GitHub Actions workflow | 1.5 h |
+| 1 | frontend | Add frontend GitHub Actions workflow | 1.5 h |
+
+## HU-39: Harden environment configuration and CORS
+
+**Prioridad:** P0 · **Estimación:** 2-3 h · **Dependencias:** HU-12, HU-38
+
+> As an operator, I want environment-specific configuration so that a public deployment does not reuse unsafe local defaults.
+
+**Criterios de aceptación**
+
+- [ ] Database, identity, AI and allowed-origin settings come from environment configuration or managed secrets.
+- [ ] Production startup fails clearly when a required secret or setting is missing.
+- [ ] Production CORS allows only the deployed frontend origin and required headers such as Authorization.
+- [ ] Local `.env.example` and User Secrets instructions contain placeholders only.
+- [ ] Logs never include connection strings, tokens, API keys or full private prompts.
+
+**Tareas técnicas**
+
+| Día | Repo | Tarea | Est. |
+|---|---|---|---|
+| 2 | backend | Configure production settings and CORS | 1.5 h |
+| 2 | frontend | Configure frontend API and identity environments | 1 h |
+
+## HU-40: Deploy the public demonstration environment
+
+**Prioridad:** P0 · **Estimación:** 4-6 h · **Dependencias:** HU-12, HU-38, HU-39
+
+> As a recruiter, I want to open a working FlowTrim demo so that I can evaluate the product without reproducing the local environment first.
+
+**Criterios de aceptación**
+
+- [ ] Frontend, API and PostgreSQL run in a documented hosted environment.
+- [ ] Database schema is applied through an explicit migration process.
+- [ ] The public demo uses non-sensitive seed data or an empty onboarding flow.
+- [ ] Health checks and logs make startup and database failures diagnosable without exposing internals.
+- [ ] Deployment can be repeated from the repository using documented steps or CI.
+
+**Tareas técnicas**
+
+| Día | Repo | Tarea | Est. |
+|---|---|---|---|
+| 11 | backend | Deploy API and PostgreSQL with safe runtime configuration | 2.5 h |
+| 11 | frontend | Deploy Angular production build | 1.5 h |
+| 11 | tracker | Document demo access and operational runbook | 1 h |
+
+## HU-41: Add structured logs and correlation evidence
+
+**Prioridad:** P1 · **Estimación:** 2-3 h · **Dependencias:** HU-40
+
+> As a maintainer, I want safe request correlation and latency evidence so that production failures can be investigated without exposing financial data.
+
+**Criterios de aceptación**
+
+- [ ] Requests have a correlation identifier that is returned or traceable without exposing user secrets.
+- [ ] Logs include route, status, duration and failure category at appropriate levels.
+- [ ] Sensitive headers, tokens, prompts and response bodies are excluded or redacted.
+- [ ] Health checks distinguish API and database availability.
+- [ ] The README explains how to inspect a failed demo request safely.
+
+**Tareas técnicas**
+
+| Día | Repo | Tarea | Est. |
+|---|---|---|---|
+| 12 | backend | Implement safe request correlation and structured logging | 2 h |
+| 12 | tracker | Document operational evidence | 0.5 h |
+
+## HU-42: Prepare portfolio delivery evidence
+
+**Prioridad:** P1 · **Estimación:** 2-3 h · **Dependencias:** HU-38, HU-40, HU-41
+
+> As a recruiter, I want a concise technical narrative and verification evidence so that the project decisions are easy to evaluate in an interview.
+
+**Criterios de aceptación**
+
+- [ ] The README explains the problem, architecture, security boundary, AI boundary and deployment.
+- [ ] The repository links to CI status, demo instructions and relevant screenshots or recorded evidence.
+- [ ] The documentation distinguishes confirmed transactions, expected renewals and declared usage.
+- [ ] Known limitations and deferred features are listed honestly.
+- [ ] A five-minute demo path is documented from login to Insights response.
+
+**Tareas técnicas**
+
+| Día | Repo | Tarea | Est. |
+|---|---|---|---|
+| 13 | tracker | Write FlowTrim 2.0 portfolio and demo documentation | 2.5 h |
+
+## EP-07: Subscription Catalog Import
+
+**Prioridad:** P1 · **Estimación:** 12-16 h · **Dependencias:** HU-12
+
+> As a user, I want to import my subscription catalog from a documented CSV so that I can onboard without entering every service manually.
+
+**Criterios de aceptación**
+
+- [ ] The feature imports subscriptions, not confirmed bank transactions.
+- [ ] Rows are validated before persistence and errors identify row and field.
+- [ ] The user can preview valid rows, invalid rows and possible duplicates.
+- [ ] Confirmation persists only accepted rows within a controlled transaction.
+- [ ] The import is owner-scoped, bounded in size and documented with a sample file.
+
+**Reglas y notas**
+
+- HU-14 remains reserved for a future transaction model. This epic does not infer real payment history.
+
+## HU-43: Define and validate subscription CSV input
+
+**Prioridad:** P1 · **Estimación:** 3-4 h · **Dependencias:** HU-12
+
+> As a user, I want a documented CSV format with row-level validation so that I can correct my file before importing it.
+
+**Criterios de aceptación**
+
+- [ ] The documented MVP format contains name, amount, currency, billing cycle and next billing date.
+- [ ] The API rejects unsupported file types, excessive size and excessive row count.
+- [ ] Dates, amounts, currencies and billing cycles use explicit parsing rules.
+- [ ] Each invalid row returns a stable row number, field and safe error code/message.
+- [ ] No invalid row is persisted during preview.
+
+**Tareas técnicas**
+
+| Día | Repo | Tarea | Est. |
+|---|---|---|---|
+| 14 | backend | Implement bounded CSV parser and validation contract | 3 h |
+| 14 | tracker | Document subscription CSV format | 0.5 h |
+
+## HU-44: Preview duplicates and import results
+
+**Prioridad:** P1 · **Estimación:** 3-4 h · **Dependencias:** HU-43
+
+> As a user, I want a preview that identifies duplicates and valid rows so that I can decide what will be imported before committing it.
+
+**Criterios de aceptación**
+
+- [ ] The preview returns a bounded import identifier and does not persist accepted subscriptions yet.
+- [ ] Rows are classified as valid, invalid or possible duplicate.
+- [ ] Duplicate detection is owner-scoped and uses documented matching fields.
+- [ ] The preview summary reports accepted, rejected and duplicate counts.
+- [ ] Preview data expires or is discarded safely if confirmation does not occur.
+
+**Tareas técnicas**
+
+| Día | Repo | Tarea | Est. |
+|---|---|---|---|
+| 15 | backend | Implement owner-scoped import preview | 3 h |
+| 15 | frontend | Render import preview summary contract | 0.5 h |
+
+## HU-45: Confirm owner-scoped subscription import
+
+**Prioridad:** P1 · **Estimación:** 3-4 h · **Dependencias:** HU-44
+
+> As a user, I want to confirm valid CSV rows so that FlowTrim adds them atomically to my subscription catalog.
+
+**Criterios de aceptación**
+
+- [ ] Only a valid, unexpired preview owned by the authenticated user can be confirmed.
+- [ ] Accepted rows are persisted in one transaction or none are persisted.
+- [ ] Duplicate rows are skipped or rejected according to the documented user choice.
+- [ ] The response reports created, skipped and failed counts without exposing another owner’s data.
+- [ ] A repeated confirmation cannot create duplicate records from the same preview.
+
+**Tareas técnicas**
+
+| Día | Repo | Tarea | Est. |
+|---|---|---|---|
+| 16 | backend | Implement transactional import confirmation | 3 h |
+| 16 | backend | Test import authorization and transaction boundaries | 0.5 h |
+
+## HU-46: Add subscription import workspace flow
+
+**Prioridad:** P1 · **Estimación:** 3-4 h · **Dependencias:** HU-44, HU-45
+
+> As a user, I want to upload, review and confirm a CSV through the workspace so that onboarding is clear and reversible before persistence.
+
+**Criterios de aceptación**
+
+- [ ] The UI supports file selection, preview, correction/replacement and explicit confirmation.
+- [ ] The table shows row number, field errors, duplicate status and accepted values.
+- [ ] Loading, empty, success, validation error, expired preview and server error states are handled.
+- [ ] The flow is accessible by keyboard and usable on mobile without requiring a wide table viewport.
+- [ ] The UI clearly states that the import creates expected subscriptions, not confirmed transactions.
+
+**Tareas técnicas**
+
+| Día | Repo | Tarea | Est. |
+|---|---|---|---|
+| 17 | frontend | Build CSV import preview and confirmation UI | 3 h |
+| 17 | frontend | Test import UX states and accessibility | 0.5 h |
+
+## EP-08: Integration and Portfolio Evidence
+
+**Prioridad:** P0 · **Estimación:** 10-14 h · **Dependencias:** EP-04, EP-05, EP-06
+
+> As a maintainer, I want integration and release evidence so that FlowTrim 2.0 can be defended with reproducible results in an interview.
+
+**Criterios de aceptación**
+
+- [ ] The main authenticated flow is tested against PostgreSQL and the real API boundary.
+- [ ] Negative authorization scenarios are automated rather than only manually described.
+- [ ] The critical demo path is verified in a browser against the deployed environment or a reproducible local stack.
+- [ ] Performance, security and known limitations are documented without invented metrics.
+
+**Reglas y notas**
+
+- Testing increases confidence in the existing architecture; it does not justify introducing a new test framework unless required.
+
+## HU-47: Add database-backed integration tests
+
+**Prioridad:** P0 · **Estimación:** 4-5 h · **Dependencias:** HU-12
+
+> As a developer, I want API integration tests against PostgreSQL so that ownership filters and migrations are verified beyond in-memory unit tests.
+
+**Criterios de aceptación**
+
+- [ ] Tests run against a disposable PostgreSQL instance or an equivalent isolated CI service.
+- [ ] Migrations and database constraints are applied before tests.
+- [ ] Tests cover create, list, update, delete, summary, usage and simulation through the API boundary.
+- [ ] Tests cover two-user isolation and anonymous rejection.
+- [ ] Tests do not require real provider credentials or personal data.
+
+**Tareas técnicas**
+
+| Día | Repo | Tarea | Est. |
+|---|---|---|---|
+| 18 | backend | Create PostgreSQL API integration test harness | 3.5 h |
+| 18 | backend | Add ownership and migration regression cases | 1 h |
+
+## HU-48: Verify the critical browser flow
+
+**Prioridad:** P0 · **Estimación:** 3-4 h · **Dependencias:** HU-12, HU-36, HU-40
+
+> As a recruiter, I want the main user journey verified in a browser so that the deployed product is more than a collection of passing unit tests.
+
+**Criterios de aceptación**
+
+- [ ] The browser flow covers login, workspace load, subscription data and one Insights question.
+- [ ] A second account cannot see the first account’s data.
+- [ ] The flow records loading, empty and controlled error states where relevant.
+- [ ] Browser checks report no unexpected console errors or failed requests.
+- [ ] The flow is reproducible from documented seed or setup instructions.
+
+**Tareas técnicas**
+
+| Día | Repo | Tarea | Est. |
+|---|---|---|---|
+| 19 | frontend | Add browser smoke flow for authenticated workspace | 2.5 h |
+| 19 | tracker | Document browser acceptance evidence | 1 h |
+
+## HU-49: Complete FlowTrim 2.0 release readiness review
+
+**Prioridad:** P0 · **Estimación:** 2-3 h · **Dependencias:** EP-04, EP-05, EP-06, HU-47, HU-48
+
+> As a maintainer, I want a release checklist so that FlowTrim 2.0 is published only when security, tests, deployment and documentation agree with the actual implementation.
+
+**Criterios de aceptación**
+
+- [ ] All P0 acceptance criteria are checked against the code and deployed environment.
+- [ ] The backend, frontend and tracker documentation describe the same routes, configuration and limitations.
+- [ ] No real credentials, private data or misleading financial claims remain in the repositories.
+- [ ] CI is green for the release commit and the demo health check is healthy.
+- [ ] The release notes summarize implemented features and explicitly list deferred work.
+
+**Tareas técnicas**
+
+| Día | Repo | Tarea | Est. |
+|---|---|---|---|
+| 20 | tracker | Run FlowTrim 2.0 release readiness checklist | 2.5 h |
 
 ## EP-01: FlowTrim Visual Experience Redesign
 

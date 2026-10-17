@@ -12,6 +12,10 @@ Repositorio de seguimiento ágil de **FlowTrim**: historias de usuario con crite
 ## Contenido
 
 - `docs/BACKLOG.md`: backlog completo legible (historias, criterios, tareas).
+- `docs/FLOWTRIM-2-ROADMAP.md`: objetivo, alcance, orden y prioridades de FlowTrim 2.0.
+- `docs/FLOWTRIM-2-ARCHITECTURE.md`: decisiones de seguridad, IA, despliegue e importación.
+- `docs/FLOWTRIM-2-DEMO-CHECKLIST.md`: recorrido de demo y evidencia para entrevistas.
+- `specs/`: contratos de épicas e historias con alcance, criterios, API, datos y pruebas.
 - `docs/GUIA-KANBAN.md`: cómo trabajar día a día con Issues, ramas, PR y el tablero.
 - `scripts/data.mjs`: **fuente única** del backlog (editable).
 - `scripts/setup-github.mjs`: crea etiquetas, milestones, Issues y el Project en GitHub.
@@ -40,3 +44,7 @@ Requisitos: Node 20+ y GitHub CLI. Después sigue los 4 pasos manuales que el sc
 ## Principios
 
 Incrementos verticales, alcance pequeño, commits frecuentes y una historia solo está **Done** cuando cumple su Definition of Done. Las cifras de la app son estimaciones basadas en datos declarados por el usuario.
+
+## FlowTrim 2.0
+
+La evolución posterior al MVP prioriza autenticación y aislamiento multiusuario, FlowTrim Insights, CI/CD, despliegue público, observabilidad, importación de suscripciones y evidencia de integración. No convierte las renovaciones esperadas en transacciones confirmadas ni introduce microservicios por anticipado.
