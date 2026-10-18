@@ -1,0 +1,18 @@
+# Python (report scripts)
+__pycache__/
+*.py[cod]
+.venv/
+
+# Node (backlog and GitHub setup scripts)
+node_modules/
+
+# Local secrets (e.g. GitHub tokens used by the setup scripts)
+.env
+.env.*
+!.env.example
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
