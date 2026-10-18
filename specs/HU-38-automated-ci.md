@@ -1,6 +1,6 @@
 # HU-38: Run Automated CI for Backend and Frontend
 
-- **Status:** Approved _(2026-10-18, by Ander)_
+- **Status:** Implemented _(2026-10-18; approved the same day by Ander)_
 - **Story / Issue:** FlowTrim-tracker#62 · tasks: backend#53 (backend workflow), frontend#64 (frontend workflow)
 - **Priority:** P0
 - **Epic:** EP-06
@@ -95,9 +95,19 @@ None (CI badge only).
 - No open questions.
 
 ## 13. Task breakdown
-- [ ] backend#53: `ci.yml`, README badge, branch protection on `main`.
-- [ ] frontend#64: `ci.yml`, README badge, branch protection on `main`.
-- [ ] tracker: `docs/CI.md` (workflows, required checks, how to read a failed run); `TECH-DEBT` note for `NU1903`.
+- [x] backend#53: `ci.yml`, README badge, branch protection on `main`.
+- [x] frontend#64: `ci.yml`, README badge, branch protection on `main`.
+- [x] tracker: `docs/CI.md` (workflows, required checks, how to read a failed run); `TECH-DEBT` note for `NU1903`.
 
 ## 14. Implementation notes
-To be completed after delivery.
+- Delivered in backend PR #65 and frontend PR #74; documentation in `docs/CI.md`. No deviation from the
+  spec. Job names (`build-and-test`, `test-and-build`) are the required status checks.
+- AC-1/AC-2: first runs green (120/120 backend tests; 38/38 frontend tests + production build); push runs
+  on `main` green after merging.
+- AC-3: failure-proof PRs backend #66 and frontend #75 (deliberately failing test) → check failed, merge
+  state `BLOCKED`, `gh pr merge` rejected; closed without merging and branches deleted.
+- AC-4: CI logs searched for connection strings, passwords, bearer tokens and client secrets — none.
+- AC-5: badges added to both READMEs.
+- Branch protection on `main` (both repos): required check, administrators included, no required reviews.
+- The administrator bypass (`gh pr merge --admin`) was intentionally not attempted; `enforce_admins` is
+  enabled and verified through the API.
