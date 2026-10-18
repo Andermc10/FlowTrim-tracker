@@ -1,6 +1,6 @@
 # HU-38: Run Automated CI for Backend and Frontend
 
-- **Status:** Draft _(refined 2026-10-18, pending approval)_
+- **Status:** Approved _(2026-10-18, by Ander)_
 - **Story / Issue:** FlowTrim-tracker#62 · tasks: backend#53 (backend workflow), frontend#64 (frontend workflow)
 - **Priority:** P0
 - **Epic:** EP-06
