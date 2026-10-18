@@ -17,6 +17,10 @@ Both workflows:
   scheme and in-memory repositories, frontend tests run in jsdom;
 - cancel an in-progress run when a newer commit arrives on the same branch, and time out after 15 minutes.
 
+The backend job also runs the **PostgreSQL integration tests** (HU-47): Testcontainers starts a disposable
+`postgres:17-alpine` container on the runner (Docker is preinstalled on GitHub-hosted Ubuntu runners), applies
+the real migrations and removes it at the end. This adds about 20 seconds to the job (≈30 s → ≈50 s).
+
 ## Required checks (branch protection)
 
 `main` is protected in both repositories:

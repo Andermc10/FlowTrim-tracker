@@ -1,6 +1,6 @@
 # HU-47: Add Database-Backed Integration Tests
 
-- **Status:** Approved _(2026-10-18, by Ander — option A: Testcontainers)_
+- **Status:** Implemented _(2026-10-18; approved the same day by Ander — option A: Testcontainers)_
 - **Story / Issue:** FlowTrim-tracker#77 · tasks: backend#61 (PostgreSQL API test harness),
   backend#62 (ownership and migration regression cases)
 - **Priority:** P0
@@ -124,9 +124,24 @@ CI: two consecutive green runs; compare job duration before/after — AC-7.
 - No open questions.
 
 ## 13. Task breakdown
-- [ ] backend#61: Testcontainers fixture, migrations, data reset, real-database API factory, README section.
-- [ ] backend#62: schema/constraint, repository, ownership and CRUD regression cases.
-- [ ] tracker: update `docs/CI.md` (integration tests run in CI; Docker on the runner).
+- [x] backend#61: Testcontainers fixture, migrations, data reset, real-database API factory, README section.
+- [x] backend#62: schema/constraint, repository, ownership and CRUD regression cases.
+- [x] tracker: update `docs/CI.md` (integration tests run in CI; Docker on the runner).
 
 ## 14. Implementation notes
-To be completed after delivery.
+- Delivered in backend PR #68: `Testcontainers.PostgreSql` 4.16.0, `PostgresFixture` (collection
+  `PostgreSQL`, trait `Category=Integration`), 19 tests in `tests/FlowTrim.Tests/Integration`
+  (`Database/SchemaTests`, `Persistence/RepositoryTests`, `Api/RealDatabaseApiTests`). No production code
+  changed and no defect was found.
+- Design decisions taken during implementation (reported to Ander): repositories stay `internal` — tests
+  resolve them through `AddInfrastructure(...)` and their interfaces; the existing `FlowTrimApiFactory` gained
+  `DatabaseConnectionString` instead of a second factory.
+- Test names differ slightly from §11 (e.g. one theory `Insert_InvalidSubscription_IsRejectedByCheckConstraint`
+  covers amount, owner, billing cycle and status; an extra FK-violation test was added).
+- Verification: 171/171 locally and in CI (two consecutive green runs); `--filter "Category!=Integration"`
+  runs the 152 fast tests; CI job ≈30 s → ≈50 s (AC-7). Mutation check: removing the owner predicate from
+  `SubscriptionRepository.ListAsync` fails the repository and API isolation tests — the API test initially
+  only checked `totalCount` and was strengthened to compare the returned rows.
+- Local note: on Docker Desktop with the containerd image store, the first automatic pull of
+  `testcontainers/ryuk` failed with `No such image`; a one-time `docker pull testcontainers/ryuk:0.14.0`
+  fixed it (documented in the backend README). CI pulled it automatically.
