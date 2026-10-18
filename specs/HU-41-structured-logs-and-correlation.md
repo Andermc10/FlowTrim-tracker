@@ -1,8 +1,8 @@
 # HU-41: Add Structured Logs and Correlation Evidence
 
-- **Status:** Draft _(refined 2026-10-18, pending approval)_
+- **Status:** Approved _(2026-10-18, by Ander)_
 - **Story / Issue:** FlowTrim-tracker#66 · tasks: backend#56 (correlation and structured logging),
-  tracker#67 (operational evidence notes), frontend task to be created on approval (show the error reference)
+  tracker#67 (operational evidence notes), frontend#77 (show the error reference)
 - **Priority:** P1
 - **Epic:** EP-06
 - **Dependencies:** HU-39 (production log levels). No longer depends on HU-40 (revised order, 2026-10-18).
@@ -118,7 +118,7 @@ Frontend (Vitest): `toUserMessage` appends the reference for `500`/`0` and not f
 ## 13. Task breakdown
 - [ ] backend#56: correlation middleware, request log, JSON console outside Development, `ProblemDetails`
   `correlationId`, CORS expose header, tests.
-- [ ] frontend (new issue): reference in error messages + tests.
+- [ ] frontend#77: reference in error messages + tests.
 - [ ] tracker#67: `docs/OPERATIONS.md` runbook (correlation lookup, what is never logged).
 
 ## 14. Implementation notes
