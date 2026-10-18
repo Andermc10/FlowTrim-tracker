@@ -72,6 +72,27 @@ an active, high-quality GitHub, not a production service. Revised order after HU
 Constraints: no paid services; free tiers are accepted with their limits documented honestly (cold starts,
 storage caps, rate limits).
 
+### AI provider strategy (2026-10-18, approved by Ander)
+
+The local machine cannot run models, and there is no budget for paid AI. EP-05 therefore uses:
+
+1. **Own boundary** — an application-layer interface for the chat model; no provider SDK leaks into the
+   domain or application logic.
+2. **Fake provider by default** — deterministic, no network, no key. Used by tests, CI and anyone who
+   clones the repositories.
+3. **One OpenAI-compatible adapter** — configured only through `BaseUrl`, `Model` and an API key in User
+   Secrets / environment variables (never in Git). Switching between free-tier providers (GitHub Models,
+   Groq, OpenRouter, Gemini's OpenAI-compatible endpoint) is a configuration change, not a code change.
+   Initial choice: **GitHub Models**, with OpenRouter or Groq as alternatives; current free-tier limits are
+   checked when HU-33 is refined.
+4. **The AI explains, it never calculates** — the model can only request allow-listed deterministic C#
+   tools (summary, simulation, upcoming charges, cost per use), always scoped to the authenticated owner;
+   answers carry the figures, the tools used and their assumptions.
+5. **Controlled failures** — rate limits (`429`), timeouts and provider errors produce a clear message;
+   the rest of the app keeps working.
+6. **Privacy** — free tiers may retain prompts; only demo data is used with real providers, and the README
+   says so.
+
 ## Target evidence
 
 | Capability | Evidence |
