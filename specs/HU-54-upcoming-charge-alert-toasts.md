@@ -1,7 +1,7 @@
 # HU-54: Upcoming-Charge Alert Toasts
 
-- **Status:** Draft _(2026-10-18, pending approval)_
-- **Story / Issue:** created on approval · task: frontend
+- **Status:** Approved _(2026-10-18, by Ander)_
+- **Story / Issue:** FlowTrim-tracker#102 · task: frontend#82
 - **Priority:** P1
 - **Epic:** EP-10
 - **Dependencies:** HU-04 (alert windows), HU-53 (toasts)

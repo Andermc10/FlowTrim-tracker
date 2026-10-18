@@ -61,13 +61,15 @@ an active, high-quality GitHub, not a production service. Revised order after HU
 1. **HU-39** — environment and CORS hardening (no cost; production-ready configuration even if not deployed).
 2. **HU-47** — PostgreSQL integration tests (Testcontainers in CI).
 3. **HU-41** — structured logs and correlation ids.
-4. **EP-05 (HU-33 → HU-37)** — FlowTrim Insights. The local machine cannot run models (no Ollama); the AI
+4. **EP-10 / EP-09 (added 2026-10-18)** — HU-53 animated toasts → HU-50 analytics endpoint → HU-51 analytics
+   workspace (Chart.js) → HU-52 CSV export + printable PDF report → HU-54 upcoming-charge alert toasts.
+5. **EP-05 (HU-33 → HU-37)** — FlowTrim Insights. The local machine cannot run models (no Ollama); the AI
    provider strategy (fake provider + a free-tier option) is decided before HU-33.
-5. **HU-48** — browser critical flow in CI.
-6. **EP-07 (HU-43 → HU-46)** — subscription catalog CSV import.
-7. **HU-40** — optional, **free-tier only** deployment (e.g. Firebase Hosting for Angular, Render free web
+6. **HU-48** — browser critical flow in CI.
+7. **EP-07 (HU-43 → HU-46)** — subscription catalog CSV import.
+8. **HU-40** — optional, **free-tier only** deployment (e.g. Firebase Hosting for Angular, Render free web
    service for the API, Neon free PostgreSQL). Until then the demo is documented with screenshots/video.
-8. **HU-42 / HU-49** — portfolio evidence and release readiness.
+9. **HU-42 / HU-49** — portfolio evidence and release readiness.
 
 Constraints: no paid services; free tiers are accepted with their limits documented honestly (cold starts,
 storage caps, rate limits).

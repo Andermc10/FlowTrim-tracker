@@ -1,7 +1,7 @@
 # HU-53: Animated Toast Notification System
 
-- **Status:** Draft _(2026-10-18, pending approval)_
-- **Story / Issue:** created on approval · task: frontend
+- **Status:** Approved _(2026-10-18, by Ander)_
+- **Story / Issue:** FlowTrim-tracker#101 · task: frontend#81
 - **Priority:** P1
 - **Epic:** EP-10
 - **Dependencies:** HU-41 (error reference)

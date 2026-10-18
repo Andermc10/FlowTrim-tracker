@@ -1,7 +1,7 @@
 # EP-10: Feedback and Notifications
 
-- **Status:** Draft _(2026-10-18, pending approval)_
-- **Story / Issue:** issues created on approval · stories: HU-53, HU-54
+- **Status:** Approved _(2026-10-18, by Ander)_
+- **Story / Issue:** FlowTrim-tracker#97 · stories: HU-53 (#101), HU-54 (#102)
 - **Priority:** P1
 - **Author / Date:** Ander (with Claude) · 2026-10-18
 

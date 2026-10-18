@@ -1,7 +1,7 @@
 # HU-50: Owner-Scoped Analytics Endpoint
 
-- **Status:** Draft _(2026-10-18, pending approval)_
-- **Story / Issue:** created on approval · task: backend
+- **Status:** Approved _(2026-10-18, by Ander)_
+- **Story / Issue:** FlowTrim-tracker#98 · task: backend#70
 - **Priority:** P1
 - **Epic:** EP-09
 - **Dependencies:** HU-03 (monthly equivalent), HU-12 (ownership)

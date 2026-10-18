@@ -1,7 +1,7 @@
 # HU-51: Analytics Workspace with Chart.js
 
-- **Status:** Draft _(2026-10-18, pending approval)_
-- **Story / Issue:** created on approval · task: frontend
+- **Status:** Approved _(2026-10-18, by Ander)_
+- **Story / Issue:** FlowTrim-tracker#99 · task: frontend#79
 - **Priority:** P1
 - **Epic:** EP-09
 - **Dependencies:** HU-50

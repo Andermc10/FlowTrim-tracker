@@ -1,7 +1,7 @@
 # EP-09: Analytics and Reports
 
-- **Status:** Draft _(2026-10-18, pending approval)_
-- **Story / Issue:** issues created on approval · stories: HU-50, HU-51, HU-52
+- **Status:** Approved _(2026-10-18, by Ander)_
+- **Story / Issue:** FlowTrim-tracker#96 · stories: HU-50 (#98), HU-51 (#99), HU-52 (#100)
 - **Priority:** P1
 - **Author / Date:** Ander (with Claude) · 2026-10-18
 
