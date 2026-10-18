@@ -1,6 +1,6 @@
 # HU-41: Add Structured Logs and Correlation Evidence
 
-- **Status:** Approved _(2026-10-18, by Ander)_
+- **Status:** Implemented _(2026-10-18; approved the same day by Ander)_
 - **Story / Issue:** FlowTrim-tracker#66 · tasks: backend#56 (correlation and structured logging),
   tracker#67 (operational evidence notes), frontend#77 (show the error reference)
 - **Priority:** P1
@@ -116,10 +116,23 @@ Frontend (Vitest): `toUserMessage` appends the reference for `500`/`0` and not f
 - No open questions.
 
 ## 13. Task breakdown
-- [ ] backend#56: correlation middleware, request log, JSON console outside Development, `ProblemDetails`
+- [x] backend#56: correlation middleware, request log, JSON console outside Development, `ProblemDetails`
   `correlationId`, CORS expose header, tests.
-- [ ] frontend#77: reference in error messages + tests.
-- [ ] tracker#67: `docs/OPERATIONS.md` runbook (correlation lookup, what is never logged).
+- [x] frontend#77: reference in error messages + tests.
+- [x] tracker#67: `docs/OPERATIONS.md` runbook (correlation lookup, what is never logged).
 
 ## 14. Implementation notes
-To be completed after delivery.
+- Delivered in backend PR #69 (`Observability/CorrelationIdMiddleware`, `ProblemDetails.correlationId`,
+  JSON console outside Development, CORS exposed header), frontend PR #78 (`correlationReference`,
+  reference in `toUserMessage`) and `docs/OPERATIONS.md`.
+- Decisions: the middleware runs **before** the exception handler so `500` responses and their error log
+  share the id; the default `traceId` extension is removed from `ProblemDetails` (one visible id); the scope
+  uses a message template (`CorrelationId:{CorrelationId}`) so it reads well in both console formats.
+- Deviation (spec text above kept as the goal): `toUserMessage` messages were already English-only, so the
+  reference follows that style instead of going through i18n; only the subscription form and usage page use
+  `toUserMessage` today. Unifying error feedback across views belongs to the proposed toast notification story.
+- ASP.NET Core adds its own `RequestPath` scope with the raw path (resource GUIDs, never a query string);
+  documented in `docs/OPERATIONS.md`.
+- Verification: backend 182/182 (+11), frontend 41/41 (+3), CI green on PRs and `main`. Mutation check —
+  logging the raw path + query string fails the template and redaction tests. Production run: 6/6 log lines
+  valid JSON, `CorrelationId` scope present, incoming id echoed, query string absent (AC-5).
