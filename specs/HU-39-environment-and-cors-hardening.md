@@ -1,6 +1,6 @@
 # HU-39: Harden Environment Configuration and CORS
 
-- **Status:** Draft _(refined 2026-10-18, pending approval)_
+- **Status:** Approved _(2026-10-18, by Ander)_
 - **Story / Issue:** FlowTrim-tracker#63 · tasks: backend#54 (production settings and CORS),
   frontend#65 (frontend API and identity environments)
 - **Priority:** P0
