@@ -1,6 +1,6 @@
 # HU-47: Add Database-Backed Integration Tests
 
-- **Status:** Draft _(refined 2026-10-18, pending approval)_
+- **Status:** Approved _(2026-10-18, by Ander — option A: Testcontainers)_
 - **Story / Issue:** FlowTrim-tracker#77 · tasks: backend#61 (PostgreSQL API test harness),
   backend#62 (ownership and migration regression cases)
 - **Priority:** P0
