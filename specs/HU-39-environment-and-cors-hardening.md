@@ -1,6 +1,6 @@
 # HU-39: Harden Environment Configuration and CORS
 
-- **Status:** Approved _(2026-10-18, by Ander)_
+- **Status:** Implemented _(2026-10-18; approved the same day by Ander)_
 - **Story / Issue:** FlowTrim-tracker#63 · tasks: backend#54 (production settings and CORS),
   frontend#65 (frontend API and identity environments)
 - **Priority:** P0
@@ -45,7 +45,8 @@ or unsafe values, and CORS allows exactly the deployed frontend with the `Author
   `Accept, Content-Type, Authorization`; no credentials (cookies) — bearer tokens travel in a header.
 - **FR-5:** Startup validation messages name the missing/invalid setting but never print its value.
 - **FR-6:** Production log levels: `Default=Information`, `Microsoft.AspNetCore=Warning`,
-  `Microsoft.EntityFrameworkCore=Warning` (no SQL text in production logs); EF sensitive-data logging stays off.
+  `Microsoft.EntityFrameworkCore=Warning`, `Npgsql=Warning` (no SQL text in production logs); EF
+  sensitive-data logging stays off. Development keeps SQL command logs at `Information`.
 - **FR-7:** HSTS is enabled outside Development (HTTPS redirection already is).
 - **FR-8:** The backend README lists every setting: name, environment-variable form, required where,
   example placeholder, secret yes/no.
@@ -103,8 +104,9 @@ None.
 Backend (xUnit, `WebApplicationFactory`):
 - `Cors_AllowedOrigin_BearerPreflight_IsAllowed` — AC-3
 - `Cors_UnknownOrigin_IsRejected` — AC-4
-- `Startup_ProductionWithoutAllowedOrigins_Fails` — AC-1 (also asserts no value is printed)
-- `Startup_ProductionWithUnsafeOrigin_Fails` (theory: `*`, `http://…`, path, trailing slash) — AC-2
+- `Startup_ProductionWithoutAllowedOrigins_Fails`, `Startup_ProductionWithUnsafeOrigin_Fails` (theory) —
+  AC-1/AC-2: the host refuses to start
+- `ConfigurationValidationTests` — AC-1/AC-2 messages: the setting is named and the value never printed
 - `CorsOrigins_DevelopmentLocalhost_IsValid` (unit test of the validator)
 Manual: run the API with `ASPNETCORE_ENVIRONMENT=Production` and valid variables, execute a query, check
 no SQL text is logged — AC-5. Frontend: `npm run build` and inspect that the production bundle contains
@@ -116,9 +118,24 @@ the Auth0 domain — AC-7.
 - No open questions.
 
 ## 13. Task breakdown
-- [ ] backend#54: CORS options + validation, remove fallback, settings files, HSTS, production log levels,
+- [x] backend#54: CORS options + validation, remove fallback, settings files, HSTS, production log levels,
   README configuration reference, tests.
-- [ ] frontend#65: production environment Auth0 values, README environment section.
+- [x] frontend#65: production environment Auth0 values, README environment section.
 
 ## 14. Implementation notes
-To be completed after delivery.
+- Delivered in backend PR #67 (`Cors/AllowedOriginsOptions`, `Cors/AllowedOriginsValidator`, settings
+  files, HSTS, log levels, README configuration reference) and frontend PR #76 (production Auth0 values).
+- Deviations (spec updated above): (1) the manual production run showed an `Npgsql.Command` log line with
+  SQL text, so `Npgsql` is also set to `Warning`; (2) the first CI run failed on Linux because
+  `WebApplicationFactory` surfaced `ObjectDisposedException` instead of the validation error when the host
+  failed to start — integration tests now only assert that startup fails, and messages are tested
+  deterministically at the options level.
+- Verification: backend tests 152/152 (CI green twice in a row); mutation check — removing the validator
+  registration fails the startup tests; API run as Production from its output folder with environment
+  variables only → health/list/summary `200`, CORS denies `http://localhost:4200` and allows the configured
+  origin, logs contain no SQL, connection string or token (AC-3/4/5); Development still starts and allows
+  `http://localhost:4200`; production frontend bundle contains the Auth0 domain (AC-7).
+- Not verified in a browser: the production build's sign-in redirect (same code path as development,
+  which was verified with the real tenant in HU-12).
+- Note for HU-40: over plain HTTP the API logs "Failed to determine the https port for redirect"; behind the
+  hosting provider's TLS proxy, forwarded headers must be enabled.
