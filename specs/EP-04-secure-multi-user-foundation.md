@@ -1,6 +1,6 @@
 # EP-04: Secure Multi-User Foundation
 
-- **Status:** Draft
+- **Status:** Implemented _(2026-10-18, delivered by HU-12)_
 - **Story / Issue:** FlowTrim-tracker#EP-04 · implementation story: HU-12
 - **Priority:** P0
 - **Author / Date:** FlowTrim team / October 2026
@@ -45,8 +45,10 @@ Existing private routes keep their names and add authorization. `/api/health` re
 
 ## 7. Data model changes
 
-- `users`: `id`, `external_subject`, `created_at`, `updated_at`.
-- `subscriptions.user_id`: non-null FK and index.
+- **Decision (2026-10-17, HU-12):** no `users` table while there is no user profile. The owner key is
+  the provider `sub` claim, stored in `subscriptions.owner_id` (`varchar(200)`, `NOT NULL`, check
+  `owner_id <> ''`, index `(owner_id, next_billing_date)`). A `users` table can be added later without
+  changing the API.
 - Usage records remain protected through their subscription and owner-scoped queries.
 - Migration: `AddUserOwnership`.
 
@@ -80,16 +82,18 @@ Login, redirect, authenticated workspace, expired session, unauthorized, forbidd
 
 ## 12. Assumptions and open questions
 
-- Select one managed OIDC provider before implementation.
-- Decide whether the demo database is reset or legacy rows are assigned to a controlled user.
+- Resolved: provider **Auth0**; local demo database **reset** (pre-auth rows back-filled with the
+  inaccessible owner `legacy-owner`, column default dropped).
 
 ## 13. Task breakdown
 
-- [ ] backend: configure authentication and current-user mapping.
-- [ ] backend: add ownership migration and repository predicates.
-- [ ] backend: add authorization integration tests.
-- [ ] frontend: add provider flow, route guard and token interceptor.
+- [x] backend: configure authentication and current-user mapping.
+- [x] backend: add ownership migration and repository predicates.
+- [x] backend: add authorization integration tests.
+- [x] frontend: add provider flow, route guard and token interceptor.
 
 ## 14. Implementation notes
 
-To be completed after delivery.
+Delivered entirely by HU-12 (see `specs/HU-12-authentication-and-owner-isolation.md` §14). Valid tokens
+for another owner always get `404` (never `403`), so existence is not leaked; a token without `sub` gets
+`403`. Evidence: `docs/E2E-ACCEPTANCE.md` rows 15–17.
