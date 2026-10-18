@@ -22,8 +22,15 @@ via `curl`/`psql`, frontend via a headless browser against the running API).
 | 11 | Errors | force an unexpected error (DB down mid-request) | `500` generic ProblemDetails, no stack trace / secrets | PASS |
 | 12 | CORS | preflight `OPTIONS` from `:4200` vs a disallowed origin | allowed gets CORS headers, disallowed does not | PASS |
 | 13 | Frontend | load `/`, `/upcoming`, `/summary`, `/simulator` in the browser | real data renders, 0 console errors, 0 failed requests | PASS |
-| 14 | Cost per use | (HU-06) declared cost-per-use with zero uses / no records | **PENDING — HU-06 not implemented** | N/A |
+| 14 | Cost per use | (HU-06) declared cost-per-use with zero uses / no records | `200` not calculable with reason; no division | PASS (2026-10-15, HU-06) |
+| 15 | Auth rejection | (HU-12) private route with no token / wrong audience / wrong issuer / expired / foreign signing key; token without `sub`; `GET /api/health` | `401` ×5 / `403` / `200` | PASS (2026-10-18) |
+| 16 | Owner isolation | (HU-12) A creates 2, B creates 1; B reads/updates/deletes A's id; B usage + cost-per-use on A's id; summary, upcoming, simulation per user; `ownerId` in body | own rows only; cross-owner `404`; A's row unchanged; B summary 25000 vs A 55800; B simulation ignores A's id; body `ownerId` ignored | PASS (2026-10-18, 23/23) |
+| 17 | Auth0 sign-in | (HU-12) real tenant: `/app` → login → Auth0 → callback → workspace; sign-out | PKCE exchange OK, owner-scoped reads, provider session ended | PASS (2026-10-18, manual) |
 
 ## Notes
 - No test or check uses real credentials or personal data; the local DB holds sample rows only.
-- Cost-per-use (row 14) and its automated tests (backend#21) land with HU-06.
+- Cost-per-use (row 14) and its automated tests (backend#21) landed with HU-06.
+- Rows 15–16 run against the real API and PostgreSQL with RS256 tokens from a local test issuer: a
+  second API instance trusts it only through `Authentication__Authority` / `RequireHttpsMetadata`
+  environment variables (nothing committed). Test rows use owners `test|user-a` / `test|user-b` and are
+  deleted afterwards.

@@ -1,6 +1,7 @@
 # HU-12: Authentication and Owner Isolation
 
-- **Status:** Approved _(2026-10-17, by Ander)_
+- **Status:** Implemented _(2026-10-18; approved 2026-10-17 by Ander; verified with automated tests,
+  a real Auth0 sign-in and an owner-isolation E2E against the real API + PostgreSQL)_
 - **Story / Issue:** FlowTrim-tracker#13 · tasks: backend#42 (OIDC/JWT), backend#43 (ownership + migration),
   backend#44 (owner-scoped repositories), backend#45 (auth + cross-user tests), frontend#60 (login, guard,
   interceptor), frontend#61 (authenticated route and error states)
@@ -145,15 +146,30 @@ second user and confirm the first user's data is not visible.
 - No open questions remain.
 
 ## 13. Task breakdown
-- [ ] backend#42: options validated on start, `sub`-requiring default policy, CORS headers.
-- [ ] backend#43: correct `AddUserOwnership` (drop default), single owner-aware `Subscription.Create`.
-- [ ] backend#44: owner predicates (done in PR #63), fail fast when the subject is missing.
-- [ ] backend#45: HTTP integration tests with fake authentication; strict in-memory owner filter.
-- [ ] frontend#60: 401 → session-expired re-authentication path, provider sign-out.
-- [ ] frontend#61: guard/interceptor tests and browser verification with Auth0.
+- [x] backend#42: options validated on start, `sub`-requiring default policy, CORS headers.
+- [x] backend#43: correct `AddUserOwnership` (drop default), single owner-aware `Subscription.Create`.
+- [x] backend#44: owner predicates (done in PR #63), fail fast when the subject is missing.
+- [x] backend#45: HTTP integration tests with fake authentication; strict in-memory owner filter.
+- [x] frontend#60: 401 → session-expired re-authentication path, provider sign-out.
+- [x] frontend#61: guard/interceptor tests and browser verification with Auth0.
 
 ## 14. Implementation notes
 - PR #63 / PR #71 (2026-10-17) delivered JWT validation, owner predicates and the PKCE flow but were merged
   without spec approval and left gaps: no HTTP 401 tests, no expired-session handling, empty Authority
   accepted in Development (local workspace unusable), wildcard owner in the test double, permanent
   `'legacy-owner'` column default, and an owner-less `Subscription.Create` factory.
+- Gaps closed in backend PR #64 and frontend PR #72 (2026-10-17); Auth0 dev tenant configured and the
+  callback now surfaces the provider's OAuth error reason (frontend PR #73).
+- Verification (2026-10-18):
+  - Backend `dotnet test`: 120 passed (23 HTTP tests over `WebApplicationFactory` + fake auth scheme).
+    Mutation check: removing `RequireAuthorization` from `/api/summary` fails the 401 test.
+  - Frontend `npm test`: 38 passed; `npm run build` OK.
+  - Real Auth0 (`dev-flowtrim.us.auth0.com`) with two users: sign-in with PKCE, consent, owner-scoped API
+    reads, sign-out through `end_session_endpoint`. The first attempt failed at the token exchange
+    (generic message); the callback now shows the provider reason, and the next attempt succeeded.
+  - Owner-isolation E2E against the **real API and real PostgreSQL** using RS256 tokens from a local
+    test issuer (API trusts it only via environment variables): 23/23 checks — see
+    `docs/E2E-ACCEPTANCE.md` rows 15–17. Rows are stored with the token `sub` as `owner_id`; an
+    `ownerId` field in the body is ignored.
+- Not covered in a browser: the expired-session redirect with a real Auth0 token (covered by interceptor
+  unit tests and a browser smoke of the `reason=expired` login page).
