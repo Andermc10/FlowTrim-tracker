@@ -1,7 +1,7 @@
 # HU-52: CSV Export and Printable PDF Report
 
-- **Status:** Draft _(2026-10-18, pending approval)_
-- **Story / Issue:** created on approval · tasks: backend (CSV), frontend (report page)
+- **Status:** Approved _(2026-10-18, by Ander)_
+- **Story / Issue:** FlowTrim-tracker#100 · tasks: backend#71 (CSV), frontend#80 (report page)
 - **Priority:** P1
 - **Epic:** EP-09
 - **Dependencies:** HU-50, HU-51
