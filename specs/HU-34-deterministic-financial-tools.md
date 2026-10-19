@@ -1,6 +1,6 @@
 # HU-34: Expose Deterministic Financial Tools
 
-- **Status:** Draft _(refined 2026-10-19, pending approval)_
+- **Status:** Approved _(2026-10-19, by Ander)_
 - **Story / Issue:** FlowTrim-tracker#56 · tasks: backend#48 (owner-scoped tool contracts), backend#49 (deterministic
   and owner-scope tests)
 - **Priority:** P1
