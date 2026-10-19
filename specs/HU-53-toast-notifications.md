@@ -1,6 +1,6 @@
 # HU-53: Animated Toast Notification System
 
-- **Status:** Approved _(2026-10-18, by Ander)_
+- **Status:** Implemented _(2026-10-19; approved 2026-10-18 by Ander)_
 - **Story / Issue:** FlowTrim-tracker#101 · task: frontend#81
 - **Priority:** P1
 - **Epic:** EP-10
@@ -82,7 +82,19 @@ reduced motion; zero console errors.
 No new dependencies. Final colors come from the existing Carbon Signal tokens.
 
 ## 13. Task breakdown
-- [ ] frontend: service, host, styles/animations, adoption, i18n, tests.
+- [x] frontend: service, host, styles/animations, adoption, i18n, tests.
 
 ## 14. Implementation notes
-To be completed after delivery.
+- Delivered in frontend PR #83: `core/ui/toast` (`ToastService`, `ToastHost`, `ToastItem`), adoption in the
+  subscription form, list (delete) and usage page, EN/ES copy.
+- Decisions (reported to Ander): the host is a **manual popover** (top layer) because modals are native
+  `<dialog>` elements that no `z-index` can cover; it opens with the first toast and is re-shown only while a
+  modal is open, so visible toasts do not restart their animations. Error toasts are raised by each **action**
+  (create/update/delete/usage) instead of a global interceptor, so load errors are not duplicated (they stay
+  inline with retry). `ToastService.httpError` translates the message (EN/ES) and attaches the HU-41 reference.
+- Verification: 51/51 frontend tests (+10), production build, CI green on the PR and `main`. Real browser run
+  against the real API and PostgreSQL (test issuer token): create and delete show success toasts with the name;
+  with the API stopped, the translated network error toast renders above the open modal; light and dark themes;
+  zero console errors; the toast sits inside the viewport after its entrance.
+- Not verified in a browser: reduced-motion rendering (CSS reviewed; the headless tool cannot emulate the media
+  query) and keyboard interaction with a toast while a modal is open (the modal makes the rest of the page inert).
