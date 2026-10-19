@@ -1,6 +1,6 @@
 # HU-35: Answer Protected Financial Questions
 
-- **Status:** Proposed _(awaiting approval)_
+- **Status:** Approved _(2026-10-19, by Ander)_
 - **Story / Issue:** FlowTrim-tracker#57 · tasks: backend#50 (endpoint and orchestration), backend#51 (safe
   behavior tests)
 - **Priority:** P1
