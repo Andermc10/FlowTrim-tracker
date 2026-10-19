@@ -1,6 +1,6 @@
 # HU-52: CSV Export and Printable PDF Report
 
-- **Status:** Approved _(2026-10-18, by Ander)_
+- **Status:** Implemented _(2026-10-19; approved 2026-10-18 by Ander)_
 - **Story / Issue:** FlowTrim-tracker#100 · tasks: backend#71 (CSV), frontend#80 (report page)
 - **Priority:** P1
 - **Epic:** EP-09
@@ -69,8 +69,22 @@ download triggers a blob save. Manual: print to PDF in Chromium, check paginatio
 No new dependencies. No open questions.
 
 ## 13. Task breakdown
-- [ ] backend: CSV endpoint + tests.
-- [ ] frontend: report page, print stylesheet, export button, tests.
+- [x] backend: CSV endpoint + tests.
+- [x] frontend: report page, print stylesheet, export button, tests.
 
 ## 14. Implementation notes
-To be completed after delivery.
+- Delivered in backend PR #73 (`ISubscriptionRepository.ListAllAsync`, `SubscriptionCsvExporter`,
+  `GET /api/reports/subscriptions.csv`) and frontend PR #85 (`/app/report`, print stylesheet, CSV download).
+- Decisions: the report is always a light "document" sheet; to make its charts readable on paper the chart
+  component now reads color tokens from its own element (the sheet redefines a light palette). Charts resize on
+  `beforeprint`/`afterprint` and bar charts get right padding — found during the print check at A4 width, where
+  the last bar and its rotated label were clipped. `Content-Disposition` is not readable cross-origin (CORS exposes
+  only `X-Correlation-ID`), so the client falls back to the same file-name format.
+- Verification: backend 213/213 (+14; mutation check — removing the formula-injection guard fails 4 tests);
+  frontend 69/69 (+8); CI green on PRs and `main`. Playwright run against the real API and PostgreSQL: CSV downloaded
+  through the button with BOM, sorted rows and the `=HYPERLINK(...)` name neutralized; print emulation hides the
+  shell on white; A4 PDF generated.
+- Not verified: the PDF pages were not rendered image by image (no PDF renderer available); the print layout was
+  checked through print-media screenshots at A4 width instead.
+- Side finding: a malformed (non-UTF-8) JSON body to `POST /api/subscriptions` returned `500` instead of `400`
+  (`BadHttpRequestException` mapped as unexpected by the HU-09 handler). Fixed separately as a HU-09 bug.
