@@ -1,6 +1,6 @@
 # HU-37: Verify Insights Evidence and Limits
 
-- **Status:** Draft _(pending approval)_
+- **Status:** Approved _(approved 2026-10-19 by Ander)_
 - **Story / Issue:** FlowTrim-tracker#59 · tasks: backend#52 (verification matrix and contract tests),
   tracker#60 (privacy and demo boundaries)
 - **Priority:** P1
