@@ -1,6 +1,6 @@
 # HU-37: Verify Insights Evidence and Limits
 
-- **Status:** Approved _(approved 2026-10-19 by Ander)_
+- **Status:** Implemented _(approved 2026-10-19 by Ander; delivered 2026-10-19)_
 - **Story / Issue:** FlowTrim-tracker#59 · tasks: backend#52 (verification matrix and contract tests),
   tracker#60 (privacy and demo boundaries)
 - **Priority:** P1
@@ -112,5 +112,15 @@ None new. The manual run of FR-4 captures the HU-36 rate-limit state as evidence
 - No open questions.
 
 ## 13. Task breakdown
-- [ ] backend#52: matrix and contract tests (section 11), README privacy section.
-- [ ] tracker#60: `docs/INSIGHTS-VERIFICATION.md`, E2E rows, demo checklist update.
+- [x] backend#52: matrix and contract tests (section 11), README privacy section (backend PR #83).
+- [x] tracker#60: `docs/INSIGHTS-VERIFICATION.md`, E2E rows 18–21, demo checklist update.
+
+## 14. Implementation notes
+- All four matrix rows matched the deterministic endpoints both in the automated tests and in the Groq run.
+- Defect found and fixed: Groq answered with Markdown (tables, bold) while the page shows plain text; the system
+  prompt now asks for plain text and to mention only affected currencies (backend PR #83).
+- Open findings recorded in `docs/INSIGHTS-VERIFICATION.md`: a needless "0 USD" in Q3 prose, one answer in Spanish to
+  an English question, and `Retry-After` reporting the full window. None changes a figure.
+- Timeout demo uses an unroutable `BaseUrl` with the provider timeout above a 5 s budget; outage demo uses an invalid
+  key. Both only through environment variables.
+- `CreateClientFor` became an extension on `WebApplicationFactory<Program>` so derived factories reuse it.
