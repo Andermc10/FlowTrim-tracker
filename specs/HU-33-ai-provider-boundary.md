@@ -1,6 +1,6 @@
 # HU-33: Configure the AI Provider Boundary
 
-- **Status:** Approved _(2026-10-19, by Ander — secret renamed to `Insights:Provider:ApiKey`)_
+- **Status:** Implemented _(2026-10-19; real-provider smoke check pending on the developer machine)_
 - **Story / Issue:** FlowTrim-tracker#55 · tasks: backend#46 (typed configuration and adapter),
   backend#47 (fake provider and failure tests)
 - **Priority:** P1
@@ -128,8 +128,18 @@ local smoke check; CI never calls a real provider.
 - No new NuGet packages (`System.Net.Http.Json` and `IHttpClientFactory` are part of ASP.NET Core).
 
 ## 13. Task breakdown
-- [ ] backend#46: contract, options + validation, OpenAI-compatible adapter, registration, README configuration rows.
-- [ ] backend#47: fake provider, recorded-response tests, failure mapping, log redaction tests.
+- [x] backend#46: contract, options + validation, OpenAI-compatible adapter, registration, README configuration rows.
+- [x] backend#47: fake provider, recorded-response tests, failure mapping, log redaction tests.
 
 ## 14. Implementation notes
-To be completed after delivery.
+- Delivered in backend PR #76: `Application/Insights/ChatModel.cs` (contract), `Infrastructure/Insights`
+  (`ChatModelOptions` + validator, `FakeChatModel`, `OpenAiCompatibleChatModel`, `AddChatModel()`), options bound and
+  validated in `Program.cs`, README section.
+- Decisions: Infrastructure gets `<FrameworkReference Include="Microsoft.AspNetCore.App" />` for `IHttpClientFactory`,
+  logging and options (shared framework, not a NuGet package). Unexpected provider statuses other than
+  401/403/429/5xx (e.g. 404 for a wrong model) map to `Unavailable`; the HTTP status code is logged. The secret was
+  renamed in User Secrets from `GitHub:Token` to `Insights:Provider:ApiKey` without printing it.
+- Verification: 254/254 backend tests (+38, none touches the network), CI green on the PR and `main`; mutation checks —
+  removing the input-size guard and logging the question both fail their tests.
+- **Pending:** real GitHub Models smoke check. From the sandbox, `models.github.ai` is intercepted (an intermediary
+  answers `200 OK` text/plain even without a token), so the check must run on Ander's terminal.
