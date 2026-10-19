@@ -1,6 +1,6 @@
 # EP-10: Feedback and Notifications
 
-- **Status:** Approved _(2026-10-18, by Ander)_
+- **Status:** Implemented _(2026-10-19; HU-53 and HU-54 delivered)_
 - **Story / Issue:** FlowTrim-tracker#97 · stories: HU-53 (#101), HU-54 (#102)
 - **Priority:** P1
 - **Author / Date:** Ander (with Claude) · 2026-10-18
@@ -32,4 +32,5 @@ Signal visual identity, used consistently for action feedback, unexpected errors
 | HU-54 | Upcoming-charge alert toasts | P1 |
 
 ## 5. Implementation notes
-To be completed after delivery.
+HU-53 (frontend #83): toast system in a manual popover above modals; action-level error toasts with the HU-41
+reference. HU-54 (frontend #86): once-per-session grouped alert toast on workspace entry. In-app only.
