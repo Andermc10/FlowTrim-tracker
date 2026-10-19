@@ -1,6 +1,6 @@
 # HU-33: Configure the AI Provider Boundary
 
-- **Status:** Implemented _(2026-10-19; real-provider smoke check pending on the developer machine)_
+- **Status:** Implemented _(2026-10-19; real-provider smoke check passed with Groq)_
 - **Story / Issue:** FlowTrim-tracker#55 · tasks: backend#46 (typed configuration and adapter),
   backend#47 (fake provider and failure tests)
 - **Priority:** P1
@@ -141,5 +141,14 @@ local smoke check; CI never calls a real provider.
   renamed in User Secrets from `GitHub:Token` to `Insights:Provider:ApiKey` without printing it.
 - Verification: 254/254 backend tests (+38, none touches the network), CI green on the PR and `main`; mutation checks —
   removing the input-size guard and logging the question both fail their tests.
-- **Pending:** real GitHub Models smoke check. From the sandbox, `models.github.ai` is intercepted (an intermediary
-  answers `200 OK` text/plain even without a token), so the check must run on Ander's terminal.
+- **Provider change:** the `200 OK` text/plain answers from `models.github.ai` were not an interceptor — the TLS
+  certificate is GitHub's genuine `*.github.ai` (Sectigo) and DNS/proxy/hosts were clean. **GitHub Models was retired
+  on 2026-07-30** (GitHub Docs). The assumption in §12 was outdated; Ander chose **Groq** instead. No code change was
+  needed (provider-agnostic adapter); README examples updated in backend PR #77; the secret value was replaced in
+  `Insights:Provider:ApiKey` (the GitHub token no longer exists there).
+- **Smoke check passed (2026-10-19)** with the real `OpenAiCompatibleChatModel` against Groq (`openai/gpt-oss-120b`),
+  run as a throwaway .NET file-based script outside the repo: (1) a Spanish question returned a
+  `simulate_cancellation` tool call with `{"subscriptionNames":["Netflix"]}`; (2) given a tool result, the model
+  answered "El ahorro en un año sería de 466 800 COP." using exactly the tool's figure; (3) an invalid key mapped to
+  `Unauthorized`. Logs showed provider, model, outcome, duration and tokens only. The first call took ~12 s (the
+  model reasons before answering), within the 20 s timeout — to watch in HU-35.
