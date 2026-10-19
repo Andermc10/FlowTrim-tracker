@@ -1,6 +1,6 @@
 # HU-51: Analytics Workspace with Chart.js
 
-- **Status:** Approved _(2026-10-18, by Ander)_
+- **Status:** Implemented _(2026-10-19; approved 2026-10-18 by Ander)_
 - **Story / Issue:** FlowTrim-tracker#99 · task: frontend#79
 - **Priority:** P1
 - **Epic:** EP-09
@@ -68,7 +68,16 @@ both themes, desktop and mobile widths, zero console errors.
 - New frontend dependency: `chart.js` 4.5.1 (approved in principle by Ander on 2026-10-18).
 
 ## 13. Task breakdown
-- [ ] frontend: chart component, analytics page, navigation, i18n, tests.
+- [x] frontend: chart component, analytics page, navigation, i18n, tests.
 
 ## 14. Implementation notes
-To be completed after delivery.
+- Delivered in frontend PR #84: `chart.js` 4.5.1, `core/ui/chart/FlowTrimChart`, `features/analytics`
+  (`/app/analytics`, lazy-loaded), navigation entry, EN/ES copy.
+- Deviations: the chart component lives in `core/ui/chart` (existing location of shared UI: icon, modal, toast)
+  instead of `shared/ui/chart`; the analytics route is **lazy-loaded** because Chart.js pushed the initial bundle
+  to 649 kB (budget 500 kB) — now 466.7 kB initial + 183.8 kB lazy chunk. "Months with a yearly charge stand out"
+  is implemented as *peak months above the median* (the API returns amounts and counts, not plan types).
+- `ThemeService` now tolerates environments without `window.matchMedia` (jsdom), needed once a test instantiates it.
+- Verification: 61/61 frontend tests (+10), production build within budget, CI green on the PR and `main`; real
+  browser run against the real API and PostgreSQL with seeded data: values match a hand calculation, peak months
+  highlighted, both themes, Spanish, COP/USD switch, zero console errors.
