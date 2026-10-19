@@ -1,6 +1,6 @@
 # HU-36: Add the FlowTrim Insights Workspace
 
-- **Status:** Approved _(approved 2026-10-19 by Ander, assumptions decision A)_
+- **Status:** Implemented _(approved 2026-10-19 by Ander, assumptions decision A; delivered 2026-10-19)_
 - **Story / Issue:** FlowTrim-tracker#58 · tasks: frontend#62 (feature and API service), frontend#63 (states and
   accessibility tests)
 - **Priority:** P1
@@ -48,7 +48,8 @@ the evidence next to the answer, so a generated sentence is never the only sourc
 - **FR-6 Answer by status:**
   - `answered`: the answer text, then the evidence (FR-7).
   - `no_data`: the answer text and a hint to check that the subscription name exists, with a link to
-    `/app/subscriptions`.
+    `/app/subscriptions`. When `toolsUsed` is empty (every tool call was rejected) the backend text is a fixed English
+    message, so the UI shows its translation instead.
   - `unsupported`: a translated fixed message listing what can be asked; the `answer` field is not displayed.
 - **FR-7 Evidence:**
   - **Figures:** one row per figure. The title is translated by `kind` (fallback: the English `label`). `subject` is
@@ -68,7 +69,7 @@ the evidence next to the answer, so a generated sentence is never the only sourc
   | `429` | "Too many questions. You can ask again in N s." | countdown from `Retry-After` (default 60 s); submit disabled until 0 |
   | `504` | "The assistant took too long to answer. Try again." | correlation reference |
   | `502` | "The assistant is not available right now. Try again later." | correlation reference |
-  | `0` / other | existing `toUserMessage` text | correlation reference when present |
+  | `0` / other | translated network or generic message | correlation reference when present |
 
   The question text is kept in the box after an error so the user can retry.
 - **FR-9 Honesty and privacy notice (always visible):** "Answers explain FlowTrim's own calculations from the data
@@ -143,10 +144,22 @@ provider: zero console and network errors.
   `active_only`, `no_conversion`, `declared_usage`, `nothing_cancelled`, `other`) next to its English `text`, so the UI
   never matches English wording (backend#82). Rejected option B: mapping the English sentences in the frontend.
 - The answer text follows the language of the question (model instruction in HU-35); the UI does not translate it.
-- The `unsupported` message is replaced by a UI translation by status. The `no_data` fixed message (every tool call
-  rejected) is shown as received, in English.
+- The `unsupported` message and the `no_data` fixed message (empty `toolsUsed`) are replaced by UI translations.
 
 ## 13. Task breakdown
-- [ ] frontend#62: models, `InsightsService`, lazy route, navigation entry, `InsightsPage` with all states and
-  translations.
-- [ ] frontend#63: Vitest coverage of section 11, accessibility checks, browser verification.
+- [x] frontend#62: models, `InsightsService`, lazy route, navigation entry, `InsightsPage` with all states and
+  translations (frontend PR #88).
+- [x] frontend#63: Vitest coverage of section 11, accessibility checks, browser verification (frontend PR #88).
+- [x] backend#82: stable assumption keys; `isOk` kept out of the tool JSON sent to the model.
+
+## 14. Implementation notes
+- Native `<form (submit)>` with one `FormControl`: `ngSubmit` needs `FormsModule` or `[formGroup]`, neither of which is
+  needed here. Validity is a `computed` signal over the trimmed value, the pending flag and the rate-limit countdown.
+- New shared formatters in `core/format/money.ts`: `dateLabel` (yyyy-MM-dd, UTC, no time-zone shift) and
+  `numberLabel`.
+- `.btn--ghost` moved to `styles.scss` (it was duplicated in analytics and report) with a shared `:disabled` state;
+  the mobile nav now uses one column per link (with four fixed columns the fifth link wrapped).
+- Verification: 90 frontend tests (13 new), production build 480 kB initial (Insights is a 14 kB lazy chunk), and a
+  headless browser run against the real API and PostgreSQL with the fake provider and a local test token issuer
+  (Spanish UI, evidence, unsupported, no_data, keyboard order, 360 px without horizontal overflow, zero console and
+  network errors). Test rows were deleted afterwards.
