@@ -1,6 +1,6 @@
 # HU-36: Add the FlowTrim Insights Workspace
 
-- **Status:** Draft _(pending approval)_
+- **Status:** Approved _(approved 2026-10-19 by Ander, assumptions decision A)_
 - **Story / Issue:** FlowTrim-tracker#58 · tasks: frontend#62 (feature and API service), frontend#63 (states and
   accessibility tests)
 - **Priority:** P1
@@ -54,7 +54,7 @@ the evidence next to the answer, so a generated sentence is never the only sourc
   - **Figures:** one row per figure. The title is translated by `kind` (fallback: the English `label`). `subject` is
     shown as received (user data). `months` renders as "12 months" / "12 meses"; `date` as a localized date. Values
     with `currency` use `MoneyPipe`; values without currency (`declared_uses`) use a localized number.
-  - **Assumptions:** see the open question in section 12.
+  - **Assumptions:** translated by `key` (backend#82); `other` or an unknown key shows the English `text`.
   - **Sources:** translated chips; `summary`, `analytics`, `upcoming-charges` and `simulator` link to the
     deterministic screen where the user can check the number (`/app/summary`, `/app/analytics`, `/app/upcoming`,
     `/app/simulator`); the others are plain chips.
@@ -103,9 +103,9 @@ the evidence next to the answer, so a generated sentence is never the only sourc
 - **AC-11:** The page works at 360 px width without horizontal scroll, in light and dark themes.
 
 ## 6. API contract
-Consumes HU-35 unchanged: `POST /api/insights/questions` with `{ "question": string }` returns
+Consumes HU-35 with one addition (backend#82): `POST /api/insights/questions` with `{ "question": string }` returns
 `200 { status, answer, figures[], assumptions[], sources[], toolsUsed[] }`, figures
-`{ kind, label, subject?, value, currency?, months?, date? }`; errors `400`, `401`, `429` (+ `Retry-After`), `502`,
+`{ kind, label, subject?, value, currency?, months?, date? }`, assumptions `{ key, text }`; errors `400`, `401`, `429` (+ `Retry-After`), `502`,
 `504` as ProblemDetails with `code` and `correlationId`. `Retry-After` is already exposed by CORS.
 
 ## 7. Data model changes
@@ -139,11 +139,9 @@ Then `npm run build` (budget) and a headless-browser check of `/app/insights` ag
 provider: zero console and network errors.
 
 ## 12. Assumptions and open questions
-- **Open: how assumptions are translated.** The backend returns English sentences.
-  - Option A (recommended): add a stable `key` next to each assumption in the HU-35 response (small backend change;
-    the UI translates by key, falling back to the English text). No coupling to English wording.
-  - Option B: the frontend maps the six known English sentences to translation keys (no backend change, but any
-    wording change in the backend silently stops the translation).
+- **Decided (option A):** each assumption carries a stable `key` (`expected_charges`, `constant_prices`,
+  `active_only`, `no_conversion`, `declared_usage`, `nothing_cancelled`, `other`) next to its English `text`, so the UI
+  never matches English wording (backend#82). Rejected option B: mapping the English sentences in the frontend.
 - The answer text follows the language of the question (model instruction in HU-35); the UI does not translate it.
 - The `unsupported` message is replaced by a UI translation by status. The `no_data` fixed message (every tool call
   rejected) is shown as received, in English.

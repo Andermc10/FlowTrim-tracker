@@ -120,7 +120,7 @@ Response `200`:
   "figures": [
     { "kind": "savings", "label": "Potential savings", "value": 466800, "currency": "COP", "months": 12 }
   ],
-  "assumptions": ["The simulation does not cancel anything and savings are not guaranteed.", "..."],
+  "assumptions": [{ "key": "nothing_cancelled", "text": "The simulation does not cancel anything and savings are not guaranteed." }],
   "sources": ["simulator"],
   "toolsUsed": ["simulate_cancellation"]
 }
@@ -203,6 +203,7 @@ Manual smoke with Groq (User Secret key, never committed): one supported, one un
   status is `no_data` (AC-6); those rejected calls do not count in `toolsUsed`, `assumptions` or `sources`, and the
   model's text is replaced by a fixed message because no data backs it (code review, backend#81).
 - Figures carry typed `months` / `date` instead of English subjects such as `12 months` (code review, backend#81).
+- Assumptions are `{ key, text }` with a stable key for the HU-36 translations (backend#82).
 - Simulation figures are emitted only for currencies with a selected amount (no zero-savings figures when a name
   matches nothing).
 - If the final call still asks for tools, they are ignored and the answer is the fixed evidence message.
