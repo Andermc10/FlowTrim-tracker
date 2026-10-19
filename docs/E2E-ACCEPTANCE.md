@@ -26,6 +26,10 @@ via `curl`/`psql`, frontend via a headless browser against the running API).
 | 15 | Auth rejection | (HU-12) private route with no token / wrong audience / wrong issuer / expired / foreign signing key; token without `sub`; `GET /api/health` | `401` ×5 / `403` / `200` | PASS (2026-10-18) |
 | 16 | Owner isolation | (HU-12) A creates 2, B creates 1; B reads/updates/deletes A's id; B usage + cost-per-use on A's id; summary, upcoming, simulation per user; `ownerId` in body | own rows only; cross-owner `404`; A's row unchanged; B summary 25000 vs A 55800; B simulation ignores A's id; body `ownerId` ignored | PASS (2026-10-18, 23/23) |
 | 17 | Auth0 sign-in | (HU-12) real tenant: `/app` → login → Auth0 → callback → workspace; sign-out | PKCE exchange OK, owner-scoped reads, provider session ended | PASS (2026-10-18, manual) |
+| 18 | Insights evidence | (HU-37) Q1–Q4 of `docs/INSIGHTS-VERIFICATION.md` with Groq | `200 answered`, figures equal summary / upcoming / simulation / cost-per-use | PASS (2026-10-19) |
+| 19 | Insights rate limit | (HU-37) questions over 5 per 60 s; UI with limit 1 | `429` `insights_rate_limited` + `Retry-After`; UI countdown, submit disabled | PASS (2026-10-19) |
+| 20 | Insights timeout | (HU-37) unroutable provider, 5 s budget | `504` `insights_timeout` after ~5 s | PASS (2026-10-19) |
+| 21 | Insights provider outage | (HU-37) invalid provider key | `502` `insights_unavailable`; error log with correlation id, no key | PASS (2026-10-19) |
 
 ## Notes
 - No test or check uses real credentials or personal data; the local DB holds sample rows only.
@@ -34,3 +38,5 @@ via `curl`/`psql`, frontend via a headless browser against the running API).
   second API instance trusts it only through `Authentication__Authority` / `RequireHttpsMetadata`
   environment variables (nothing committed). Test rows use owners `test|user-a` / `test|user-b` and are
   deleted afterwards.
+- Rows 18–21 (HU-37) use the same local test issuer, synthetic demo data for `test|hu37-demo` (deleted afterwards)
+  and per-scenario environment variables; details in `docs/INSIGHTS-VERIFICATION.md`.

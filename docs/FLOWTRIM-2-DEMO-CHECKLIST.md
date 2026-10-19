@@ -17,13 +17,16 @@
 3. Show the protected workspace and the authenticated owner boundary.
 4. Create or import a small subscription catalog.
 5. Open the summary and show monthly equivalent and annual projection.
-6. Open **FlowTrim Insights** and ask:
-   - `What is my monthly equivalent spending?`
-   - `What renewals are coming in the next seven days?`
-   - `Which subscription has the highest declared cost per use?`
-   - `How much could I save over twelve months if I remove these subscriptions?`
-7. Expand the answer evidence: figures, sources and assumptions.
-8. Show a controlled unsupported question or provider failure.
+6. Open **FlowTrim Insights**, point at the privacy notice, and ask (verified in `docs/INSIGHTS-VERIFICATION.md`):
+   - `How much do I spend per month on subscriptions?`
+   - `Which charges are due in the next 7 days?`
+   - `How much would I save in 12 months if I cancel Netflix?`
+   - `What does each use of Netflix cost this month?` (cost per use is per subscription; no tool ranks it across
+     subscriptions, so do not ask for "the highest")
+7. Expand the answer evidence: figures (calculated by FlowTrim), assumptions, source links and "How this was
+   answered"; open a source link to show the same number on the deterministic screen.
+8. Show a controlled failure: an unsupported question ("Tell me a joke") and the rate-limit countdown after asking
+   too many questions.
 9. Sign out and confirm that the protected workspace is no longer available.
 
 ## Security evidence
@@ -45,8 +48,9 @@
 
 - [ ] API unavailable message is actionable.
 - [ ] Database health failure does not expose connection details.
-- [ ] AI timeout returns a controlled message.
-- [ ] Rate-limit response explains when to try again.
+- [ ] AI timeout returns a controlled message (`504 insights_timeout`).
+- [ ] Rate-limit response explains when to try again (`429` + countdown).
+- [ ] Provider outage returns a controlled message (`502 insights_unavailable`) and the key never appears in logs.
 - [ ] Expired import preview requires a new upload.
 
 ## Interview talking points
