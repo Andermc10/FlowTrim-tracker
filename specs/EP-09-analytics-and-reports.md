@@ -1,6 +1,6 @@
 # EP-09: Analytics and Reports
 
-- **Status:** Approved _(2026-10-18, by Ander)_
+- **Status:** Implemented _(2026-10-19; HU-50, HU-51 and HU-52 delivered)_
 - **Story / Issue:** FlowTrim-tracker#96 · stories: HU-50 (#98), HU-51 (#99), HU-52 (#100)
 - **Priority:** P1
 - **Author / Date:** Ander (with Claude) · 2026-10-18
@@ -50,4 +50,6 @@ PDF generation (QuestPDF), scheduled or emailed reports, multi-currency conversi
 | HU-52 | CSV export and printable PDF report | P1 |
 
 ## 8. Implementation notes
-To be completed after delivery.
+All three stories implemented: HU-50 (backend #72), HU-51 (frontend #84), HU-52 (backend #73, frontend #85).
+Chart.js 4.5.1 is used directly and lazy-loaded with the analytics and report routes; PDF comes from the browser
+print dialog (`@media print`). See each story's implementation notes.
