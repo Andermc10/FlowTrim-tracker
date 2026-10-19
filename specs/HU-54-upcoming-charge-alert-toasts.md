@@ -1,6 +1,6 @@
 # HU-54: Upcoming-Charge Alert Toasts
 
-- **Status:** Approved _(2026-10-18, by Ander)_
+- **Status:** Implemented _(2026-10-19; approved 2026-10-18 by Ander)_
 - **Story / Issue:** FlowTrim-tracker#102 · task: frontend#82
 - **Priority:** P1
 - **Epic:** EP-10
@@ -64,7 +64,15 @@ failure, navigation action. Manual: seed data with overdue/today/3-day charges a
 No open questions.
 
 ## 13. Task breakdown
-- [ ] frontend: alert-check service on workspace entry, copy (EN/ES), tests.
+- [x] frontend: alert-check service on workspace entry, copy (EN/ES), tests.
 
 ## 14. Implementation notes
-To be completed after delivery.
+- Delivered in frontend PR #86: `features/subscriptions/services/UpcomingAlertService`, called from
+  `AppShell.ngOnInit`; the shell resets the once-per-session flag on sign-out (so `AuthService` does not depend on
+  alerts). Items are ordered by `daysUntilCharge` (overdue first). Copy prefixes the list with "Expected charges:".
+- Verification: 75/75 frontend tests (+6), production build, CI green on the PR and `main`; real browser run against
+  the real API and PostgreSQL with overdue/today/2-day/40-day charges relative to the server reference date: one sticky
+  error toast listing the three charges with the action link, the 40-day charge excluded, not shown again after a
+  reload in the same session, zero console errors.
+- Observed (out of scope): the overview page shows amounts without currency formatting (HU-03); the shared
+  `moneyFormatter` could be reused there.
