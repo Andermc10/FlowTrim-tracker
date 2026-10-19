@@ -1,6 +1,6 @@
 # HU-34: Expose Deterministic Financial Tools
 
-- **Status:** Approved _(2026-10-19, by Ander)_
+- **Status:** Implemented _(approved 2026-10-19 by Ander; delivered 2026-10-19)_
 - **Story / Issue:** FlowTrim-tracker#56 · tasks: backend#48 (owner-scoped tool contracts), backend#49 (deterministic
   and owner-scope tests)
 - **Priority:** P1
@@ -131,8 +131,23 @@ through the real DI container (fake auth, in-memory repositories).
 - No open questions.
 
 ## 13. Task breakdown
-- [ ] backend#48: `IFinancialTool`, `ToolResult`, registry, five tools, DI registration.
-- [ ] backend#49: deterministic, argument-validation and owner-scope tests.
+- [x] backend#48: `IFinancialTool`, `ToolResult`, registry, five tools, DI registration.
+- [x] backend#49: deterministic, argument-validation and owner-scope tests.
 
 ## 14. Implementation notes
-To be completed after delivery.
+- Backend PR #78. Code in `FlowTrim.Application/Insights/Tools`: `ToolResult` (+ `ToolStatus`, `ToolAssumptions`),
+  `ToolArguments` (typed readers; an explicit `null` counts as absent), `FinancialTool` base (argument errors become
+  `invalid_arguments` before any data is read), `FinancialToolRegistry`, and the five tools, registered as scoped
+  `IFinancialTool` services in `AddApplication`.
+- Each tool schema sets `additionalProperties: false` as a hint to the model; the reader still ignores unknown
+  properties (FR-3).
+- Limits not fixed by the spec: `horizons` accepts 1–5 values of 1–120 months; `get_upcoming_charges` also returns
+  `totalCount` so the model can say when the list was capped.
+- Beyond the spec, for privacy: subscription ids are also stripped from the analytics top 5, and ambiguous
+  candidates include billing cycle and status (still no ids).
+- `get_cost_per_use` with `from > to` returns `invalid_arguments` in the tool (the HTTP endpoint is unchanged).
+- Tests: +41 (fast suite 274, total 295). Mutation checks: 9/9 caught (cap removed, inactive names resolved in the
+  simulation, missing `from > to` check, leaked ids, case-sensitive names, cost per use over active only,
+  not-calculable reported as ok, off-by-one window, missing "nothing cancelled" assumption).
+- Also removed the redundant `Microsoft.Extensions.DependencyInjection.Abstractions` reference from Infrastructure
+  (NU1510).
