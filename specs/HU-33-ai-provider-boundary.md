@@ -1,6 +1,6 @@
 # HU-33: Configure the AI Provider Boundary
 
-- **Status:** Draft _(refined 2026-10-19, pending approval)_
+- **Status:** Approved _(2026-10-19, by Ander — secret renamed to `Insights:Provider:ApiKey`)_
 - **Story / Issue:** FlowTrim-tracker#55 · tasks: backend#46 (typed configuration and adapter),
   backend#47 (fake provider and failure tests)
 - **Priority:** P1
@@ -123,8 +123,8 @@ local smoke check; CI never calls a real provider.
 - **Provider for local use:** GitHub Models, `BaseUrl = https://models.github.ai/inference`,
   `Model = openai/gpt-4o-mini` (supports tool calling). The older `models.inference.ai.azure.com` endpoint did not
   respond in our check. Free-tier limits are checked when HU-35 is implemented.
-- **Secret name (decision needed):** the token is currently stored as User Secret `GitHub:Token`. Proposal: rename it
-  to the provider-agnostic `Insights:Provider:ApiKey`, so switching to OpenRouter/Groq/Gemini only changes values.
+- **Secret name (decided 2026-10-19):** the key lives in the provider-agnostic User Secret `Insights:Provider:ApiKey`
+  (renamed from `GitHub:Token`), so switching to OpenRouter/Groq/Gemini only changes values.
 - No new NuGet packages (`System.Net.Http.Json` and `IHttpClientFactory` are part of ASP.NET Core).
 
 ## 13. Task breakdown
