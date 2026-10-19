@@ -118,7 +118,7 @@ Response `200`:
   "status": "answered",
   "answer": "If you cancelled Netflix you could save about 466,800 COP in 12 months...",
   "figures": [
-    { "kind": "savings", "label": "Potential savings", "subject": "12 months", "value": 466800, "currency": "COP" }
+    { "kind": "savings", "label": "Potential savings", "value": 466800, "currency": "COP", "months": 12 }
   ],
   "assumptions": ["The simulation does not cancel anything and savings are not guaranteed.", "..."],
   "sources": ["simulator"],
@@ -126,16 +126,17 @@ Response `200`:
 }
 ```
 
-`figures[].kind` is a stable key (for HU-36 translations); `label` is the English fallback; `subject` (optional) names
-what the figure is about (currency summary, subscription, category, month or horizon); `currency` is absent for
-counts (e.g. `declared_uses`).
+`figures[].kind` is a stable key (for HU-36 translations); `label` is the English fallback; `subject` (optional) is a user
+value (subscription or category name); `months` (optional) is the savings horizon and `date` (optional, `yyyy-MM-dd`)
+the expected charge date, typed so the UI formats them in its language; `currency` is absent for counts (e.g.
+`declared_uses`).
 
 | Tool | Figures |
 |---|---|
 | `get_spending_summary` | `monthly_equivalent`, `annual_projection` per currency |
 | `get_spending_analytics` | `monthly_total` per currency; `category_spend` for each category (subject = category) |
-| `get_upcoming_charges` | `upcoming_charge` per listed charge (subject = `name · yyyy-MM-dd`) |
-| `simulate_cancellation` | `selected_monthly` and `savings` per horizon (subject = `N months`), per currency |
+| `get_upcoming_charges` | `upcoming_charge` per listed charge (subject = name, `date`) |
+| `simulate_cancellation` | `selected_monthly` and `savings` per horizon (`months`), per currency |
 | `get_cost_per_use` | `period_cost` and `declared_uses`; `cost_per_use` only when calculable |
 
 Errors: `400` ValidationProblem (`question`); `401`; `429` (`insights_rate_limited`, `Retry-After`); `502`
@@ -199,7 +200,9 @@ Manual smoke with Groq (User Secret key, never committed): one supported, one un
   `Api/Insights/InsightsEndpoints` (endpoint, rate-limit policy, error mapping) and `InsightsOptions` (+ validator).
   `UseRateLimiter()` runs after `UseAuthorization()`.
 - `unsupported` means the model requested no tool at all. If it requested only unknown tools or invalid arguments, the
-  status is `no_data` (AC-6); those rejected calls do not count in `toolsUsed`, `assumptions` or `sources`.
+  status is `no_data` (AC-6); those rejected calls do not count in `toolsUsed`, `assumptions` or `sources`, and the
+  model's text is replaced by a fixed message because no data backs it (code review, backend#81).
+- Figures carry typed `months` / `date` instead of English subjects such as `12 months` (code review, backend#81).
 - Simulation figures are emitted only for currencies with a selected amount (no zero-savings figures when a name
   matches nothing).
 - If the final call still asks for tools, they are ignored and the answer is the fixed evidence message.
