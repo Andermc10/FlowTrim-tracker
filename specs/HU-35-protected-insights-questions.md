@@ -1,6 +1,6 @@
 # HU-35: Answer Protected Financial Questions
 
-- **Status:** Approved _(2026-10-19, by Ander)_
+- **Status:** Implemented _(approved 2026-10-19 by Ander; delivered 2026-10-19)_
 - **Story / Issue:** FlowTrim-tracker#57 · tasks: backend#50 (endpoint and orchestration), backend#51 (safe
   behavior tests)
 - **Priority:** P1
@@ -190,8 +190,23 @@ Manual smoke with Groq (User Secret key, never committed): one supported, one un
 - No open questions.
 
 ## 13. Task breakdown
-- [ ] backend#50: figures on HU-34 tools, `IAnswerQuestionHandler`, endpoint, rate limit, error mapping, options.
-- [ ] backend#51: application and API tests listed above, mutation checks, Groq smoke check.
+- [x] backend#50: figures on HU-34 tools, `IAnswerQuestionHandler`, endpoint, rate limit, error mapping, options.
+- [x] backend#51: application and API tests listed above, mutation checks, Groq smoke check.
 
 ## 14. Implementation notes
-To be completed after delivery.
+- Backend PR #80. `Application/Insights/AnswerQuestionHandler` (+ request/response DTOs and `InsightsAnswerStatus`),
+  `Application/Insights/Tools/InsightFigure` (`ToolResult.Figures`, `[JsonIgnore]` so the model never sees it),
+  `Api/Insights/InsightsEndpoints` (endpoint, rate-limit policy, error mapping) and `InsightsOptions` (+ validator).
+  `UseRateLimiter()` runs after `UseAuthorization()`.
+- `unsupported` means the model requested no tool at all. If it requested only unknown tools or invalid arguments, the
+  status is `no_data` (AC-6); those rejected calls do not count in `toolsUsed`, `assumptions` or `sources`.
+- Simulation figures are emitted only for currencies with a selected amount (no zero-savings figures when a name
+  matches nothing).
+- If the final call still asks for tools, they are ignored and the answer is the fixed evidence message.
+- The system prompt was tightened after the first Groq run: the model must mention only the assumptions listed in the
+  tool results it used (it had attributed "declared usage" to a simulation).
+- CORS exposes `Retry-After` for HU-36.
+- Tests: +36 (total 331: 310 fast + 21 integration). Mutation checks 11/11 caught.
+- Groq smoke check (`openai/gpt-oss-120b`, real API + PostgreSQL + local test issuer): summary question in Spanish
+  → `answered` ~2 s; cancellation question → `answered` ~2–3 s with `savings` 466,800 COP; poem request →
+  `unsupported` ~0.7 s; 2 model calls and ~1,500 input tokens per supported question; logs had no question text.
