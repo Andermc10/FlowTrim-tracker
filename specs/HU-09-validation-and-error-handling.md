@@ -117,3 +117,8 @@ Delivered on 2026-10-14. Backend PR `FlowTrim-backend#37` (closes #17/#18); fron
   `500` "An unexpected error occurred." with no stack trace / Npgsql / connection string / password.
 - Frontend: `httpErrorInterceptor` logs centrally and rethrows; `toUserMessage` derives actionable
   messages; 10 Vitest tests.
+- **Fix 2026-10-19 (backend#74, PR #75):** unreadable request bodies (invalid UTF-8, broken JSON, wrong value
+  types) returned `500` in Development — minimal APIs threw `BadHttpRequestException` only there and the global
+  handler treated it as unexpected — and an empty `400` elsewhere. Now `ThrowOnBadRequest` is enabled in every
+  environment and the handler maps the exception to its own status (`400`, or `413`) with a safe `ProblemDetails`
+  (with the HU-41 `correlationId`), logged at `Warning`. Found during the HU-52 browser check.
