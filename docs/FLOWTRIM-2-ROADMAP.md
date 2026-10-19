@@ -85,8 +85,11 @@ The local machine cannot run models, and there is no budget for paid AI. EP-05 t
 3. **One OpenAI-compatible adapter** — configured only through `BaseUrl`, `Model` and an API key in User
    Secrets / environment variables (never in Git). Switching between free-tier providers (GitHub Models,
    Groq, OpenRouter, Gemini's OpenAI-compatible endpoint) is a configuration change, not a code change.
-   Initial choice: **GitHub Models**, with OpenRouter or Groq as alternatives; current free-tier limits are
-   checked when HU-33 is refined.
+   ~~Initial choice: GitHub Models~~ — **GitHub Models was retired on 2026-07-30** (found on 2026-10-19: its API
+   answers `200 OK` text/plain). **Current choice: Groq** free tier (`https://api.groq.com/openai/v1`,
+   `openai/gpt-oss-120b`; 1,000 requests/day and 8,000 tokens/minute for this account, tool calling verified live),
+   with OpenRouter as the configuration-only fallback. Gemini's free tier was not chosen because outside the
+   EEA/UK/CH prompts may be used to improve Google's products.
 4. **The AI explains, it never calculates** — the model can only request allow-listed deterministic C#
    tools (summary, simulation, upcoming charges, cost per use), always scoped to the authenticated owner;
    answers carry the figures, the tools used and their assumptions.
