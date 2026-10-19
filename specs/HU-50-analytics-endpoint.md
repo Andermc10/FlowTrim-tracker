@@ -1,6 +1,6 @@
 # HU-50: Owner-Scoped Analytics Endpoint
 
-- **Status:** Approved _(2026-10-18, by Ander)_
+- **Status:** Implemented _(2026-10-19; approved 2026-10-18 by Ander)_
 - **Story / Issue:** FlowTrim-tracker#98 · task: backend#70
 - **Priority:** P1
 - **Epic:** EP-09
@@ -92,7 +92,15 @@ PostgreSQL integration: `Analytics_RealDatabase_MatchesSummaryMonthlyTotal`.
 No open questions.
 
 ## 13. Task breakdown
-- [ ] backend: calculator, handler, endpoint, tests.
+- [x] backend: calculator, handler, endpoint, tests.
 
 ## 14. Implementation notes
-To be completed after delivery.
+- Delivered in backend PR #72: `Domain/Analytics/AnalyticsCalculator`, `Application/Analytics/GetAnalyticsHandler`,
+  `GET /api/analytics`. `ProductCalendar.Today` was extracted from the upcoming-charges handler so HU-04 and HU-50
+  share the reference date (no behavior change; HU-04 tests unchanged and green).
+- A bug was caught while writing the calculator, before any commit: yearly plans with a *future* billing date
+  were also charged 12 months earlier. Test `ExpectedCharges_FutureYearlyIsNotChargedBeforeItsFirstDate` covers it
+  (mutation check: reintroducing the bug fails it).
+- `months` that is not a number is rejected by ASP.NET Core model binding with `400` before the handler runs.
+- Verification: 199/199 backend tests (+17, including PostgreSQL: analytics total equals the summary), CI green
+  on the PR and `main`.
