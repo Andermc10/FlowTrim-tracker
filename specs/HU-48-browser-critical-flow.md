@@ -1,6 +1,6 @@
 # HU-48: Verify the Critical Browser Flow
 
-- **Status:** Draft _(pending approval)_
+- **Status:** Approved _(approved 2026-10-19 by Ander, including the @playwright/test dev dependency)_
 - **Story / Issue:** FlowTrim-tracker#78 · tasks: frontend#70 (authenticated browser smoke flow), tracker#79 (browser
   acceptance evidence)
 - **Priority:** P0
