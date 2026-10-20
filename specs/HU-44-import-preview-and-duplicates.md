@@ -1,6 +1,6 @@
 # HU-44: Preview Duplicates and Import Results
 
-- **Status:** Draft _(pending approval)_
+- **Status:** Implemented _(approved 2026-10-19; backend PR #85)_
 - **Story / Issue:** FlowTrim-tracker#73 · task: backend#58 (owner-scoped import preview)
 - **Priority:** P1
 - **Epic:** EP-07
@@ -47,7 +47,9 @@ classification and a complete summary to the existing preview; there is no previ
 - **FR-4 Owner scope:** the existing subscriptions are read through the owner-scoped repository
   (`ListAllAsync(ownerId)`); another owner's data never affects the result.
 - **FR-5 Reuse:** the classification is a pure function over the HU-43 preview and the owner's existing keys, so HU-45
-  calls the same code.
+  calls the same code (`SubscriptionImportDuplicates.Classify(preview, existing)`; counts through `ImportSummary.From`).
+- **FR-6 Precedence:** when a row matches both an existing subscription and an earlier row, `existing` wins (both rows
+  report `duplicateOf: "existing"`). The repository is not read when no row is valid.
 
 ## 4. Business rules
 - A duplicate is never created (D5); the preview shows it so the user can rename it in the file if it really is a
@@ -84,13 +86,14 @@ None in this story (HU-46 shows the duplicate badge and reason).
 ## 11. Test plan (xUnit)
 - Classifier: `Classify_ExistingMatch_IsDuplicateOfExisting`, `Classify_RepeatedRow_IsDuplicateOfFirstRow`,
   `Classify_OtherCurrency_IsValid`, `Classify_InvalidRow_StaysInvalid`, `Classify_EarlierInvalidRow_DoesNotMakeDuplicate`,
-  `Classify_Summary_AddsUp`.
-- API: `Preview_ExistingOwnerMatch_ClassifiesDuplicate`, `Preview_OtherOwnerRow_IsNotUsedForDuplicateDetection`,
-  `Preview_DoesNotPersist`.
+  `Classify_Summary_AddsUp`, `Classify_ExistingMatchTakesPrecedenceOverFileMatch`, `Classify_AccentedName_IsNotFolded`,
+  `Classify_NoExistingAndNoRepeats_LeavesPreviewUnchanged`.
+- API: `Preview_ExistingOwnerMatch_ClassifiesDuplicate` (also asserts nothing is persisted),
+  `Preview_OtherOwnerRow_IsNotUsedForDuplicateDetection`.
 - Integration (PostgreSQL): `Preview_DuplicateDetection_UsesOwnerRowsFromDatabase`.
 
 ## 12. Assumptions and open questions
 - No open questions (D4 and D5 already decided).
 
 ## 13. Task breakdown
-- [ ] backend#58: duplicate classifier, repository read in the preview handler, response fields, tests.
+- [x] backend#58 (PR #85, 405 tests: 383 fast + 22 integration): duplicate classifier, repository read in the preview handler, response fields, tests.

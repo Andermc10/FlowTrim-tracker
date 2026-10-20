@@ -1,4 +1,4 @@
-# Subscription CSV Format (EP-07 / HU-43)
+# Subscription CSV Format (EP-07 / HU-43, HU-44)
 
 FlowTrim imports **expected subscriptions** from a CSV file. It does not import bank statements or confirmed
 payments. The format is the same one FlowTrim exports (`GET /api/reports/subscriptions.csv`), so an exported file can
@@ -37,8 +37,19 @@ formulas (a leading `'` before `=`, `+`, `-` or `@`) are restored to their origi
 ## Preview
 
 `POST /api/subscription-imports/preview` (multipart, field `file`) validates the file and **saves nothing**. Each
-row comes back with its spreadsheet row number (the header is row 1), `valid` or `invalid`, the normalized values of
-valid rows and every error of invalid rows:
+row comes back with its spreadsheet row number (the header is row 1), a status, the normalized values of valid and
+duplicate rows and every error of invalid rows:
+
+| Status | Meaning |
+|---|---|
+| `valid` | will be created on confirmation |
+| `invalid` | has at least one error (below) |
+| `duplicate` | same name (ignoring case and surrounding spaces, not accents) and currency as a subscription you already have, active or inactive (`duplicateOf: "existing"`), or as an earlier valid row of the file (`duplicateOf: "file"`, `duplicateOfRow`); never created |
+
+The same name in another currency is not a duplicate. `summary` has `total`, `valid`, `invalid` and `duplicate`, and
+`total = valid + invalid + duplicate`.
+
+Row error codes:
 
 | Code | Field | Meaning |
 |---|---|---|
@@ -57,7 +68,5 @@ Problems with the whole file return `400` (`file_required`, `unsupported_file_ty
 `too_many_rows`).
 
 ## Coming next
-- **HU-44:** rows that repeat an existing subscription (same name and currency) or an earlier row are marked as
-  duplicates.
 - **HU-45:** confirmation sends the same file again and creates only valid, non-duplicate rows, all at once.
 - **HU-46:** the import screen in the workspace.
