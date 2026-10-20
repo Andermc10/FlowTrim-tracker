@@ -3,6 +3,7 @@
 ## Before the demo
 
 - [ ] CI is green for the release commit.
+- [ ] `npm run e2e` (frontend) passes against the demo stack: sign-in, data, Insights evidence and account isolation.
 - [ ] API health reports healthy API and database status.
 - [ ] Frontend points to the intended environment.
 - [ ] No real credentials or personal data are present in the repository.
