@@ -1,7 +1,7 @@
 # EP-05: FlowTrim Insights
 
-- **Status:** Draft
-- **Story / Issue:** FlowTrim-tracker#EP-05 · stories: HU-33 to HU-37
+- **Status:** Implemented _(delivered 2026-10-19; stories HU-33 to HU-37 verified and closed)_
+- **Story / Issue:** FlowTrim-tracker#54 · stories: HU-33 (#55), HU-34 (#56), HU-35 (#57), HU-36 (#58), HU-37 (#59)
 - **Priority:** P1
 - **Author / Date:** FlowTrim team / October 2026
 
@@ -41,17 +41,20 @@ Add a focused financial assistant that explains the authenticated user’s FlowT
 |---|---|---|---|---|
 | POST | `/api/insights/questions` | `{ "question": "..." }` | 200 structured answer | 400 / 401 / 429 / 502 / 504 |
 
-Response shape:
+Response shape (as delivered in HU-35/HU-36; the story specs are the source of truth):
 
 ```json
 {
-  "answer": "Your monthly equivalent spending is ...",
-  "figures": [{ "label": "Monthly equivalent", "value": 52900, "currency": "COP" }],
-  "assumptions": ["Prices are assumed constant."],
-  "sources": ["summary", "active subscriptions"],
-  "status": "answered"
+  "status": "answered",
+  "answer": "You spend 55,800 COP per month on subscriptions...",
+  "figures": [{ "kind": "monthly_equivalent", "label": "Monthly equivalent", "value": 55800, "currency": "COP" }],
+  "assumptions": [{ "key": "constant_prices", "text": "Projections assume constant prices, with no taxes or penalties." }],
+  "sources": ["summary"],
+  "toolsUsed": ["get_spending_summary"]
 }
 ```
+
+`status` is `answered`, `no_data` or `unsupported`; figures may also carry `subject`, `months` and `date`.
 
 ## 7. Data model changes
 
@@ -79,17 +82,28 @@ Suggested questions, input, loading, cancellation/retry, success evidence, no-da
 
 ## 12. Assumptions and open questions
 
-- Select provider, model and quota before implementation.
-- Document exactly which fields are sent to the provider.
+- Resolved: provider strategy approved 2026-10-18 (own boundary, fake provider by default, one OpenAI-compatible
+  adapter). GitHub Models was retired on 2026-07-30, so the configured provider is **Groq** free tier
+  (`openai/gpt-oss-120b`); OpenRouter remains a configuration-only fallback.
+- Resolved: the fields sent to the provider are documented in the backend README ("Privacy and data sent to the AI
+  provider") and pinned by `Question_ModelRequests_ContainNoIdsOwnerOrToken` (HU-37).
 
 ## 13. Task breakdown
 
-- [ ] backend: provider boundary and fake adapter.
-- [ ] backend: deterministic financial tools.
-- [ ] backend: protected orchestration endpoint.
-- [ ] frontend: Insights feature.
-- [ ] tracker: privacy and demo evidence.
+- [x] backend: provider boundary and fake adapter (HU-33, backend PRs #76/#77).
+- [x] backend: deterministic financial tools (HU-34, backend PR #78).
+- [x] backend: protected orchestration endpoint (HU-35, backend PRs #80/#81).
+- [x] frontend: Insights feature (HU-36, frontend PR #88; backend PR #82 assumption keys).
+- [x] tracker: privacy and demo evidence (HU-37, backend PR #83, tracker PR #122).
 
 ## 14. Implementation notes
 
-To be completed after delivery.
+- Every acceptance criterion is covered: AC-1 by the HU-37 verification matrix (figures equal the deterministic
+  endpoints even when the model text is wrong), AC-2 by the `unsupported` status (model text discarded), AC-3 by the
+  `504 insights_timeout` path and the HU-36 retryable error, AC-4 by owner-scoped tools and
+  `Question_CannotAccessOtherOwner`.
+- Decisions taken during delivery: figures carry typed `months`/`date` and assumptions a stable `key`, so the bilingual
+  UI never parses English text; when every tool call is rejected the model text is replaced by a fixed message; the
+  model is asked for plain text because the UI does not render Markdown.
+- Limits: 5 questions per 60 s per owner, 45 s per question, at most 2 tool rounds and 3 model calls.
+- Open, non-blocking findings (no figure affected) are tracked in `docs/INSIGHTS-VERIFICATION.md`.
