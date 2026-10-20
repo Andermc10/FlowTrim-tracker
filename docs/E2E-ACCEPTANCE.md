@@ -30,6 +30,7 @@ via `curl`/`psql`, frontend via a headless browser against the running API).
 | 19 | Insights rate limit | (HU-37) questions over 5 per 60 s; UI with limit 1 | `429` `insights_rate_limited` + `Retry-After`; UI countdown, submit disabled | PASS (2026-10-19) |
 | 20 | Insights timeout | (HU-37) unroutable provider, 5 s budget | `504` `insights_timeout` after ~5 s | PASS (2026-10-19) |
 | 21 | Insights provider outage | (HU-37) invalid provider key | `502` `insights_unavailable`; error log with correlation id, no key | PASS (2026-10-19) |
+| 22 | Critical browser flow | (HU-48) `npm run e2e` in `FlowTrim-frontend` (test issuer + real API + e2e build, Chromium) | sign-in → empty overview → create → Insights figure = overview → unsupported / not-found → sign-out → account B sees nothing of A → A deletes; 0 unexpected console errors or failed requests | PASS (2026-10-19, automated) |
 
 ## Notes
 - No test or check uses real credentials or personal data; the local DB holds sample rows only.
@@ -40,3 +41,5 @@ via `curl`/`psql`, frontend via a headless browser against the running API).
   deleted afterwards.
 - Rows 18–21 (HU-37) use the same local test issuer, synthetic demo data for `test|hu37-demo` (deleted afterwards)
   and per-scenario environment variables; details in `docs/INSIGHTS-VERIFICATION.md`.
+- Row 22 (HU-48) is automated and committed: `FlowTrim-frontend/e2e/` (setup in `e2e/README.md`). It replaces the
+  one-off headless checks of earlier stories; real Auth0 sign-in stays manual (row 17).

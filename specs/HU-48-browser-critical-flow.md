@@ -1,6 +1,6 @@
 # HU-48: Verify the Critical Browser Flow
 
-- **Status:** Approved _(approved 2026-10-19 by Ander, including the @playwright/test dev dependency)_
+- **Status:** Implemented _(approved 2026-10-19 by Ander, including the @playwright/test dev dependency; delivered 2026-10-19)_
 - **Story / Issue:** FlowTrim-tracker#78 · tasks: frontend#70 (authenticated browser smoke flow), tracker#79 (browser
   acceptance evidence)
 - **Priority:** P0
@@ -46,7 +46,8 @@ that a second account cannot see the first account's data.
   1. Open `/app` signed out: the guard redirects to the sign-in page.
   2. Sign in as Account A through the issuer page: back on the workspace overview, which shows its **empty state**.
   3. Create a subscription through the form (Netflix, 38,900 COP, monthly, due in 3 days): it appears in the list,
-     the overview shows 38,900 COP per month and the upcoming-charge toast appears.
+     the overview shows 38,900 COP per month. (The upcoming-charge toast only appears when entering the workspace, so it
+     is asserted in step 8.)
   4. Open Insights, use the "monthly spending" suggestion: **loading** state, then `answered` with the figure
      38,900 COP; follow the "Overview" source link and see the same amount.
   5. **Controlled error / bounded states:** ask an unsupported question and see the fixed message; open the edit page
@@ -54,8 +55,8 @@ that a second account cannot see the first account's data.
   6. Sign out: `/app` requires signing in again.
   7. Sign in as Account B: the subscription list is **empty**; opening Account A's subscription edit URL shows
      not-found (no data of A is rendered).
-  8. Sign out, sign in as A again and delete the subscription through the confirmation modal: the list is empty again
-     (clean-up through the UI).
+  8. Sign out, sign in as A again: the charge-alert toast appears ("1 charge needs attention"); delete the subscription
+     through the confirmation modal: the list is empty again (clean-up through the UI).
 - **FR-4 Browser health:** during the whole flow, any `console.error`, uncaught page error or failed request fails the
   test, except an explicit allow-list of the responses the flow provokes on purpose (the two `404`s of steps 5 and 7).
 - **FR-5 Evidence:** on success the run writes screenshots of key checkpoints (overview, Insights answer, Account B
@@ -114,6 +115,18 @@ signed-out redirect.
   against the HU-40 deployment.
 
 ## 13. Task breakdown
-- [ ] frontend#70: test issuer, `e2e` Angular configuration, Playwright config and critical-flow spec,
-  `npm run e2e`, `e2e/README.md`.
-- [ ] tracker#79: E2E acceptance rows, demo checklist link, evidence of the first run.
+- [x] frontend#70: test issuer, `e2e` Angular configuration, Playwright config and critical-flow spec,
+  `npm run e2e`, `e2e/README.md` (frontend PR #89).
+- [x] tracker#79: E2E acceptance row 22, demo checklist link, evidence of the first run.
+
+## 14. Implementation notes
+- `@playwright/test` 1.63.0 pinned (dev only); Chromium headless shell. `npm run e2e` passed twice in a row (~35 s
+  including server start-up); a mutation that removes a declared 404 makes the run fail with the exact lines.
+- Defects found by the flow and fixed in the same PR: the edit page for a missing or foreign subscription showed a
+  hard-coded English error above an empty, submittable form (now translated not-found or load error and a back
+  button); `<dialog>` modals had no accessible name (now `aria-labelledby` to the title, translated close label).
+- Test pitfall fixed: billing dates must be computed in the product time zone (America/Bogota, HU-04). Computed in UTC,
+  after 19:00 Bogota time the charge fell outside the 3-day alert window.
+- Settings live in `e2e/support/settings.ts`; Playwright passes them to the issuer and the API by environment. The
+  issuer listens on `localhost`, enforces PKCE S256 and single-use codes, and is not part of any build.
+- Failed runs leave rows under `e2e|` owners (invisible to other accounts); `e2e/README.md` has the clean-up command.
