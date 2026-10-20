@@ -1,6 +1,6 @@
 # HU-43: Define and Validate Subscription CSV Input
 
-- **Status:** Draft _(pending approval, together with the EP-07 decisions D1–D6)_
+- **Status:** Approved _(approved 2026-10-19 by Ander, with EP-07 decisions D1–D6)_
 - **Story / Issue:** FlowTrim-tracker#71 · tasks: backend#57 (bounded CSV parser and validation contract),
   tracker#72 (CSV format documentation)
 - **Priority:** P1

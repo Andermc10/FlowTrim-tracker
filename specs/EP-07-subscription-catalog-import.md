@@ -71,7 +71,7 @@ File selection, preview loading, valid rows, invalid rows, duplicate rows, repla
 - Define delimiter, date format, decimal culture and duplicate policy before implementation.
 - Choose in-memory or persisted preview based on deployment constraints.
 
-### Proposed decisions (2026-10-19, pending approval with HU-43)
+### Decisions (approved 2026-10-19 by Ander, with HU-43)
 - **D1 Format = the HU-52 export format**, so an exported file can be imported again: header row required, column
   names case-insensitive and in any order. Required: `name`, `amount`, `currency`, `billing_cycle`,
   `next_billing_date`. Optional: `category`, `status` (default `Active`). `monthly_equivalent` is accepted and ignored
