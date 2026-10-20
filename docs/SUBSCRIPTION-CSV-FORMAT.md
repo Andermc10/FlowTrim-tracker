@@ -67,6 +67,18 @@ Problems with the whole file return `400` (`file_required`, `unsupported_file_ty
 `invalid_encoding`, `missing_columns`, `duplicate_columns`, `malformed_csv`) or `413` (`file_too_large`,
 `too_many_rows`).
 
+## Confirm
+
+`POST /api/subscription-imports/confirm` takes **the same file again** (nothing is kept between the two calls),
+repeats every check above against your data at that moment and creates the rows that are still `valid`, all in one
+transaction: either all of them are created or none. `invalid` and `duplicate` rows are skipped. The response is
+
+```json
+{ "total": 4, "created": 2, "invalid": 1, "duplicate": 1 }
+```
+
+Confirming the same file twice is safe: the second time every row is already a duplicate and `created` is `0`. The
+file errors and status codes are the same as the preview.
+
 ## Coming next
-- **HU-45:** confirmation sends the same file again and creates only valid, non-duplicate rows, all at once.
 - **HU-46:** the import screen in the workspace.
