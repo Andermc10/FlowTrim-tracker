@@ -71,6 +71,29 @@ File selection, preview loading, valid rows, invalid rows, duplicate rows, repla
 - Define delimiter, date format, decimal culture and duplicate policy before implementation.
 - Choose in-memory or persisted preview based on deployment constraints.
 
+### Proposed decisions (2026-10-19, pending approval with HU-43)
+- **D1 Format = the HU-52 export format**, so an exported file can be imported again: header row required, column
+  names case-insensitive and in any order. Required: `name`, `amount`, `currency`, `billing_cycle`,
+  `next_billing_date`. Optional: `category`, `status` (default `Active`). `monthly_equivalent` is accepted and ignored
+  (it is computed, never trusted). Other columns are ignored and reported. This replaces the camelCase column names
+  of section 4.
+- **D2 Parsing:** comma delimiter, RFC 4180 quoting, UTF-8 with or without BOM, CRLF or LF, optional final newline.
+  Amount uses a dot as decimal separator, at most 2 decimals, no thousands separators or currency symbols. Dates
+  `yyyy-MM-dd`. Currency 3 letters (stored upper case). `billing_cycle` `Monthly`/`Yearly` and `status`
+  `Active`/`Inactive`, case-insensitive. Text is trimmed; the apostrophe that the exporter adds before a formula
+  character is removed. Field rules are the domain rules (`Subscription`), not a copy.
+- **D3 Limits:** `.csv` only, at most 256 KB and 500 data rows (`413` above them).
+- **D4 Stateless preview (recommended):** preview persists nothing and returns no id. Confirmation (HU-45) sends the
+  same file again; the server re-validates and creates only valid, non-duplicate rows in one transaction. Repeating
+  the confirmation creates nothing because the rows are now duplicates, so it is idempotent without a previews table,
+  works on free hosting that sleeps or restarts, and removes the "expired preview" states. Alternative: an expiring
+  `subscription_import_previews` table (migration, clean-up, expiry UI).
+- **D5 Duplicate policy:** a row is a duplicate when the owner already has a subscription (active or inactive) with
+  the same name (trimmed, case-insensitive) and currency, or an earlier row of the same file has them. Duplicates are
+  never created; updating existing subscriptions is out of scope.
+- **D6 Parser:** hand-written in `Application/Imports`, like the exporter; no new dependency.
+- HU-44 to HU-46 specs are refined with these decisions when each story starts.
+
 ## 13. Task breakdown
 
 - [ ] backend: parser, preview and confirmation contracts.
