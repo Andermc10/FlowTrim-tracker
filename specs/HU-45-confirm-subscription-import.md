@@ -1,6 +1,6 @@
 # HU-45: Confirm Owner-Scoped Subscription Import
 
-- **Status:** Approved _(2026-10-20)_
+- **Status:** Implemented _(approved 2026-10-20; backend PR #86)_
 - **Story / Issue:** FlowTrim-tracker#74 · tasks: backend#59 (transactional confirmation), backend#60 (authorization and
   transaction tests)
 - **Priority:** P1
@@ -101,9 +101,12 @@ None in this story (HU-46 shows the confirmation result and the server error).
 ## 11. Test plan (xUnit)
 - Application (in-memory repository): `Confirm_ValidRows_CreatesOnlyValidRowsForOwner`,
   `Confirm_InactiveRow_CreatesInactiveSubscription`, `Confirm_SameFileTwice_CreatesNothingTheSecondTime`,
-  `Confirm_NoValidRows_ReturnsZeroCreated`, `Confirm_FileProblem_CreatesNothing`.
-- API: `Confirm_ValidCsv_ReturnsCounts`, `Confirm_OtherOwnerData_IsNotUsedOrChanged`, `Confirm_WithoutToken_Returns401`,
-  `Confirm_Logs_OnlyCountsNeverContent`, `Confirm_PersistenceFailure_Returns500AndCreatesNothing`.
+  `Confirm_NoValidRows_ReturnsZeroCreated`, `Confirm_FileProblem_CreatesNothing`,
+  `Confirm_PersistenceFailure_PropagatesAndCreatesNothing`.
+- API: `Confirm_ValidCsv_ReturnsCounts` (also confirms the same file twice), `Confirm_OtherOwnerData_IsNotUsedOrChanged`,
+  `Confirm_WithoutToken_Returns401`, `Confirm_WithoutFile_Returns400`, `Confirm_FileProblem_Returns400WithCode`,
+  `Confirm_TooManyRows_Returns413`, `Confirm_Logs_OnlyCountsNeverContent`,
+  `Confirm_PersistenceFailure_Returns500AndCreatesNothing`.
 - Integration (PostgreSQL): `Confirm_RealDatabase_CreatesRowsAtomically`,
   `Confirm_ConcurrentSameFile_CreatesEachSubscriptionOnce`, `Confirm_SaveFailure_RollsBackEveryRow`.
 
@@ -114,6 +117,9 @@ None in this story (HU-46 shows the confirmation result and the server error).
 - No open questions.
 
 ## 13. Task breakdown
-- [ ] backend#59: shared file reading for preview and confirm, `ConfirmSubscriptionImportHandler`, repository import
-  operation with transaction and per-owner advisory lock (EF Core + in-memory test double), endpoint and logs.
-- [ ] backend#60: authorization, idempotency, rollback and concurrency tests (API + PostgreSQL).
+- [x] backend#59 (PR #86): shared `SubscriptionImportFile`, `ConfirmSubscriptionImportHandler`,
+  `ISubscriptionRepository.AddImportedAsync` (transaction + `pg_advisory_xact_lock` on `subscription-import:<owner>`;
+  in-memory double serialized with a semaphore), one route group for both endpoints, logs with counts.
+- [x] backend#60 (PR #86): authorization, idempotency, rollback and concurrency tests (API + PostgreSQL). 424 tests
+  (399 fast + 25 integration). Mutations caught: no lock (4 concurrent confirmations created 12 rows instead of 3), no
+  explicit transaction, classification ignoring existing data. Live check on the real API and local PostgreSQL.
