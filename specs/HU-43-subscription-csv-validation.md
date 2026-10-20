@@ -1,6 +1,6 @@
 # HU-43: Define and Validate Subscription CSV Input
 
-- **Status:** Approved _(approved 2026-10-19 by Ander, with EP-07 decisions D1–D6)_
+- **Status:** Implemented _(approved 2026-10-19 by Ander, with EP-07 decisions D1–D6; delivered 2026-10-19)_
 - **Story / Issue:** FlowTrim-tracker#71 · tasks: backend#57 (bounded CSV parser and validation contract),
   tracker#72 (CSV format documentation)
 - **Priority:** P1
@@ -117,5 +117,17 @@ None in this story (HU-46).
 - Depends on approving EP-07 decisions D1–D6 (especially D4, stateless preview).
 
 ## 13. Task breakdown
-- [ ] backend#57: reader, validator, endpoint, limits, tests.
-- [ ] tracker#72: `docs/SUBSCRIPTION-CSV-FORMAT.md` and `docs/samples/subscriptions-sample.csv`.
+- [x] backend#57: reader, validator, endpoint, limits, tests (backend PR #84).
+- [x] tracker#72: `docs/SUBSCRIPTION-CSV-FORMAT.md` and `docs/samples/subscriptions-sample.csv`.
+
+## 14. Implementation notes
+- `Application/Imports`: `CsvReader` (RFC 4180, spreadsheet row numbers, blank lines skipped but counted),
+  `SubscriptionCsvImport` (header, per-field rules, limits), `PreviewSubscriptionImportHandler` (extension, 256 KB read
+  with early stop, strict UTF-8, BOM). Endpoint in `Api/Imports/SubscriptionImportEndpoints.cs`, request body capped at
+  1 MB (`RequestSizeLimitAttribute`), antiforgery disabled (bearer-only API).
+- Codes beyond the FR-5 table: `required` (empty required cell) and `wrong_cell_count` (row cell count differs from the
+  header, reported on field `row`).
+- Shared instead of duplicated: `SubscriptionCsvFormat` (columns and formula guard, used by the exporter too),
+  `Subscription.IsValidCurrencyFormat` (now public), domain length constants, `ProblemResults.WithCode` (also used by
+  Insights).
+- 44 new backend tests (372 fast); the sample file in `docs/samples` was checked against the real parser (4/4 valid).
