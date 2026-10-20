@@ -1,6 +1,6 @@
 # HU-45: Confirm Owner-Scoped Subscription Import
 
-- **Status:** Draft _(pending approval)_
+- **Status:** Approved _(2026-10-20)_
 - **Story / Issue:** FlowTrim-tracker#74 · tasks: backend#59 (transactional confirmation), backend#60 (authorization and
   transaction tests)
 - **Priority:** P1
