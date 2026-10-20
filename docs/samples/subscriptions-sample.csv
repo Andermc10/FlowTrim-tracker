@@ -1,0 +1,5 @@
+name,category,amount,currency,billing_cycle,next_billing_date,status
+Netflix,Streaming,38900,COP,Monthly,2026-11-05,Active
+Spotify,Music,16900,COP,Monthly,2026-11-12,Active
+"Cloud Storage, 2 TB",Tools,120.00,USD,Yearly,2027-02-01,Active
+Gym,Health,95000,COP,Monthly,2026-11-01,Inactive
