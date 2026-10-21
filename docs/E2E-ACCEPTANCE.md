@@ -31,6 +31,7 @@ via `curl`/`psql`, frontend via a headless browser against the running API).
 | 20 | Insights timeout | (HU-37) unroutable provider, 5 s budget | `504` `insights_timeout` after ~5 s | PASS (2026-10-19) |
 | 21 | Insights provider outage | (HU-37) invalid provider key | `502` `insights_unavailable`; error log with correlation id, no key | PASS (2026-10-19) |
 | 22 | Critical browser flow | (HU-48) `npm run e2e` in `FlowTrim-frontend` (test issuer + real API + e2e build, Chromium) | sign-in → empty overview → create → Insights figure = overview → unsupported / not-found → sign-out → account B sees nothing of A → A deletes; 0 unexpected console errors or failed requests | PASS (2026-10-19, automated) |
+| 23 | CSV import in the browser | (HU-46) same `npm run e2e` flow, new step | Import CSV from the list → 3-row file previewed (1 duplicate of an existing subscription) → "Create subscriptions (2)" → result counts → list shows the 2 new rows (one inactive) and Netflix once → A deletes all; 0 unexpected console errors or failed requests | PASS (2026-10-20, automated) |
 
 ## Notes
 - No test or check uses real credentials or personal data; the local DB holds sample rows only.
