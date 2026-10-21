@@ -1,6 +1,6 @@
 # EP-07: Subscription Catalog Import
 
-- **Status:** Draft
+- **Status:** Implemented _(2026-10-20; HU-43 to HU-46 delivered)_
 - **Story / Issue:** FlowTrim-tracker#EP-07 · stories: HU-43 to HU-46
 - **Priority:** P1
 - **Author / Date:** FlowTrim team / October 2026
@@ -40,7 +40,7 @@ Allow users to onboard recurring subscription records through a bounded, preview
 | Method | Route | Request | Success | Errors |
 |---|---|---|---|---|
 | POST | `/api/subscription-imports/preview` | Multipart CSV | 200 preview | 400 / 401 / 413 |
-| POST | `/api/subscription-imports/{id}/confirm` | Confirmation options | 200 import summary | 400 / 401 / 404 / 409 |
+| POST | `/api/subscription-imports/confirm` | The same multipart CSV again (D4) | 200 `{ total, created, invalid, duplicate }` | 400 / 401 / 413 / 500 |
 
 ## 7. Data model changes
 
@@ -96,11 +96,16 @@ File selection, preview loading, valid rows, invalid rows, duplicate rows, repla
 
 ## 13. Task breakdown
 
-- [ ] backend: parser, preview and confirmation contracts.
-- [ ] backend: owner scope, limits and transaction tests.
-- [ ] frontend: file, table and confirmation flow.
-- [ ] tracker: sample file and user documentation.
+- [x] backend: parser, preview and confirmation contracts (PRs #84, #85, #86).
+- [x] backend: owner scope, limits and transaction tests (424 tests: 399 fast + 25 integration).
+- [x] frontend: file, table and confirmation flow (PR #90).
+- [x] tracker: sample file and user documentation (`docs/SUBSCRIPTION-CSV-FORMAT.md`, `docs/samples/`).
 
 ## 14. Implementation notes
 
-To be completed after delivery.
+- D4 removed the previews table, the preview id, expiry and the 404/409 cases from sections 6 to 10: confirmation
+  re-sends the file, re-classifies duplicates inside one transaction serialized per owner (`pg_advisory_xact_lock`)
+  and is idempotent because created rows become duplicates. No migration was needed.
+- Column names follow D1 (snake_case, the export format), not the camelCase names of section 4.
+- Endpoints: `POST /api/subscription-imports/preview` (HU-43/HU-44) and `/confirm` (HU-45). Screen:
+  `/app/subscriptions/import` (HU-46). Evidence: `docs/E2E-ACCEPTANCE.md` row 23.

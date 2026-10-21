@@ -1,6 +1,6 @@
 # HU-46: Subscription Import Workspace Flow
 
-- **Status:** Approved _(2026-10-20)_
+- **Status:** Implemented _(approved 2026-10-20; frontend PR #90)_
 - **Story / Issue:** FlowTrim-tracker#75 · tasks: frontend#67 (typed preview models, from HU-44), frontend#68 (preview
   and confirmation UI), frontend#69 (UX states and accessibility tests)
 - **Priority:** P1
@@ -44,7 +44,8 @@ it again on confirmation.
   - duplicate → "Already in your subscriptions" or "Same as row N".
   Invalid rows have no normalized values, so name/amount cells show the error detail instead. The table scrolls
   inside its own container (HU-30 pattern) on narrow screens.
-- **FR-5 Confirm:** a primary button "Create N subscriptions" (N = `summary.valid`), disabled when N is 0 or a
+- **FR-5 Confirm:** a primary button "Create subscriptions (N)" (N = `summary.valid`; the count in brackets avoids a
+  wrong plural for 1), disabled when N is 0 or a
   request is running. It sends the **same `File` object** to the confirm endpoint.
 - **FR-6 Result:** after confirmation the page replaces the preview with the result counts (created, skipped invalid,
   skipped duplicate), a success toast, a link to the subscriptions list and an **Import another file** action. If
@@ -110,14 +111,22 @@ File error · Server error (reference + retry).
   `ImportView_Confirm_SendsSameFileAndShowsCounts`, `ImportView_FileErrorCode_IsTranslated`,
   `ImportView_ServerError_ShowsReferenceAndRetries`, `ImportView_ChooseAnotherFile_ResetsState`,
   `ImportView_Template_DownloadsHeaderAndExample`.
-- i18n: every new key exists in both languages (existing key-parity test).
-- Browser (HU-48 suite, `npm run e2e`): import a two-row file, check the list shows them, then delete them.
+- i18n: every key exists in both languages (`I18nService` key-parity test, added by this story: it did not exist).
+- Also: `ImportView_Confirm_WhenDataChanged_ExplainsTheDifference`, `ImportView_BodyLimit413WithoutCode_ShowsTooLarge`,
+  `ImportView_NetworkErrorOnPreview_RetriesThePreview`, `ImportView_SecondPickWhilePreviewing_CancelsTheFirstRequest`,
+  `preCheckFile` limits, template header and the guarded lazy route.
+- Browser (HU-48 suite, `npm run e2e`): import a three-row file with one duplicate of an existing subscription,
+  confirm two rows, check the list (one stays inactive), then delete everything.
 
 ## 12. Assumptions and open questions
 - Entry point is a button in the subscriptions list (not a new rail item) to keep the navigation short. Easy to change.
 - No open questions.
 
 ## 13. Task breakdown
-- [ ] frontend#67: typed preview and confirmation models, confirm disabled until a preview with valid rows exists.
-- [ ] frontend#68: `features/imports` (service, page, route, list entry points, template, i18n).
-- [ ] frontend#69: UX state, keyboard and translation tests; e2e step.
+- [x] frontend#67: typed preview and confirmation models, confirm disabled until a preview with valid rows exists.
+- [x] frontend#68: `features/imports` (service, page, route, list entry points, template, i18n). Shared on the way:
+  table (scroll viewport, sticky header, mobile cards), notice, spinner, banner reference and `visually-hidden` in
+  `styles.scss` (used by the list and Insights too); `saveFile` in `core/files/save-file.ts`.
+- [x] frontend#69: UX state, keyboard and translation tests; e2e step. 111 unit tests (92 before); `npm run e2e`
+  2/2 against the real API and local PostgreSQL; visual check at 1280 px and 360 px (no horizontal scroll). Initial
+  bundle 490.44 kB (budget 500 kB); the import page is a lazy chunk.

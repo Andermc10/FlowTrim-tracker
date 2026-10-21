@@ -80,5 +80,7 @@ transaction: either all of them are created or none. `invalid` and `duplicate` r
 Confirming the same file twice is safe: the second time every row is already a duplicate and `created` is `0`. The
 file errors and status codes are the same as the preview.
 
-## Coming next
-- **HU-46:** the import screen in the workspace.
+## In the app
+
+Workspace → Subscriptions → **Import CSV** (`/app/subscriptions/import`) checks the file, shows the preview row by
+row, confirms with the same file and offers a template to download.
