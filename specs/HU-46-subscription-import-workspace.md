@@ -1,6 +1,6 @@
 # HU-46: Subscription Import Workspace Flow
 
-- **Status:** Draft _(pending approval)_
+- **Status:** Approved _(2026-10-20)_
 - **Story / Issue:** FlowTrim-tracker#75 · tasks: frontend#67 (typed preview models, from HU-44), frontend#68 (preview
   and confirmation UI), frontend#69 (UX states and accessibility tests)
 - **Priority:** P1
