@@ -49,8 +49,9 @@ After the prompt fix in finding F1:
 - **F1 (fixed, backend#83):** the first run answered with Markdown tables and bold text; the page shows the answer as
   plain text, so users would have seen raw `|` and `**`. The system prompt now asks for plain text and to mention only
   affected currencies. The rerun had no Markdown.
-- **F2 (open, cosmetic):** for Q3 the model still mentions "0 USD saved" because the simulation result lists every
-  currency. The number is true (not invented) and the figures only include COP.
+- **F2 (fixed 2026-10-21, backend PR #87):** for Q3 the model mentioned "0 USD saved" because the simulation result
+  listed every currency. The tool now sends only the currencies with a selection
+  (`SimulationTool_OnlySendsCurrenciesAffectedBySelection`).
 - **F3 (open, model behavior):** Q4 was asked in English and answered in Spanish, although the prompt says to answer in
   the language of the question. Figures and the translated UI are unaffected. Possible follow-up: send the interface
   language with the question.

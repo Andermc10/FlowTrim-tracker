@@ -74,6 +74,10 @@ an active, high-quality GitHub, not a production service. Revised order after HU
 Constraints: no paid services; free tiers are accepted with their limits documented honestly (cold starts,
 storage caps, rate limits).
 
+**Status (2026-10-21):** steps 1–7 are done, and a full code review of both repositories has been merged (backend
+PR #87, frontend PRs #91/#92). Ander deferred step 8 (no live demo for now), so the demo stays local and is documented
+with the READMEs' screenshots. Remaining: **HU-42** and **HU-49**; EP-06 stays open only for HU-40.
+
 ### AI provider strategy (2026-10-18, approved by Ander)
 
 The local machine cannot run models, and there is no budget for paid AI. EP-05 therefore uses:
