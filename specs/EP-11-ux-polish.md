@@ -1,6 +1,6 @@
 # EP-11: UX Polish and Everyday Reliability
 
-- **Status:** Draft _(pending approval)_
+- **Status:** Approved _(2026-10-22)_
 - **Story / Issue:** to be created on approval · stories HU-55 to HU-63
 - **Priority:** P1 (comes before the FlowTrim 3.0 modules)
 - **Dependencies:** HU-01/02 (forms), HU-05 (usage), HU-12 (sign-in), HU-43–46 (CSV), HU-51/52 (analytics, report),
