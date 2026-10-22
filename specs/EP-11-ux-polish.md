@@ -1,7 +1,8 @@
 # EP-11: UX Polish and Everyday Reliability
 
-- **Status:** Approved _(2026-10-22)_
-- **Story / Issue:** to be created on approval · stories HU-55 to HU-63
+- **Status:** Implemented _(2026-10-22)_
+- **Story / Issue:** epic Andermc10/FlowTrim-tracker#135 · HU-55 #136, HU-56 #137, HU-57 #138, HU-58 #139, HU-59 #140,
+  HU-60 #141, HU-61 #142, HU-62 #143, HU-63 #144 (milestone *FlowTrim 3.0*)
 - **Priority:** P1 (comes before the FlowTrim 3.0 modules)
 - **Dependencies:** HU-01/02 (forms), HU-05 (usage), HU-12 (sign-in), HU-43–46 (CSV), HU-51/52 (analytics, report),
   HU-53/54 (toasts), Angular 22 + ESLint (frontend PR #93)
@@ -214,3 +215,37 @@ None — decisions D1–D7 above.
 
 ## 9. Delivery order
 HU-60 and HU-63 (small) → HU-55 + HU-56 (forms and dates together) → HU-57 → HU-58 → HU-59 → HU-61 → HU-62.
+
+## 10. Delivery record (2026-10-22)
+
+| Story | Backend PR | Frontend PR |
+|---|---|---|
+| HU-55 | — | #96 |
+| HU-56 | #88 | #96 (validators) |
+| HU-57 | #89 | #97 |
+| HU-58 | #90 | #98 |
+| HU-59 | — | #99 |
+| HU-60 | — | #94 |
+| HU-61 | — | #100 |
+| HU-62 | — | #101 |
+| HU-63 | — | #95 |
+| Browser flow | — | #102 (`npm run e2e`: live errors, template preview, mark as paid, Report tab) |
+
+Tests after the epic: backend 457+ (xUnit, fast + integration), frontend 147 unit tests, `npm run e2e` passing.
+
+### Deviations from the text above
+- **HU-55:** the shared pieces are `core/forms/form-validators.ts` (`FormValidators`, `visibleErrorKey`) and a
+  `FieldError` component (singular: it renders the first failing rule). Field styles (`.field`, counter,
+  `[aria-invalid='true']`) live in `styles.scss` so every form reuses them.
+- **HU-56:** a file-level `unsupported_delimiter` error (`400`) was added for a `sep=` line that names anything other
+  than `,` or `;`. Row code `date_in_past` as specified. The API test factory now uses a fixed clock
+  (`FlowTrimApiFactory.Clock`) so date rules never depend on the real day.
+- **HU-58:** the client template computes its example dates from today (Bogota), so it always previews as valid.
+  The export writes `sep=,` before the header; the importer skips it, so round-trip still works.
+- **HU-59:** the active tab is tracked with `routerLinkActive`'s `isActiveChange` into a signal (with OnPush the
+  directive's `isActive` read in the template went stale).
+- **HU-60:** every workspace route also got a translated document title (`TranslatedTitleStrategy`).
+- **HU-61:** the redirect goes through an injectable `EXTERNAL_REDIRECT` token (testable without leaving the page),
+  and the mobile header gained the sign-out, theme, language and sound buttons it was missing.
+- **Visual check:** the combined manual pass in both themes at 360 px is still pending (the local servers were
+  stopped for low memory); behavior is covered by unit tests and `npm run e2e`.
