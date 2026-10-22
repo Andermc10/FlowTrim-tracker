@@ -1,6 +1,6 @@
 # EP-12: Daily Finance Base (FlowTrim 3.0 — Phase 1)
 
-- **Status:** Draft _(2026-10-22)_
+- **Status:** Approved _(2026-10-22)_
 - **Story / Issue:** to be created on approval · stories HU-64 to HU-68
 - **Priority:** P1 (first module of FlowTrim 3.0)
 - **Dependencies:** HU-12 (owner isolation), HU-38 (CI), HU-47 (integration tests), EP-11 (`core/forms`, product
@@ -16,7 +16,7 @@ Goal: add the smallest complete daily loop — create accounts, record income/ex
 balances and a transparent daily allowance — reusing the existing architecture (layered monolith, owner isolation,
 `HandlerResult<T>`, product calendar, `core/forms`, toasts, modals, money pipe, chart component).
 
-## 2. Decisions (recommended options, to be confirmed with the spec approval)
+## 2. Decisions (approved 2026-10-22)
 
 | # | Topic | Decision | Why |
 |---|---|---|---|
