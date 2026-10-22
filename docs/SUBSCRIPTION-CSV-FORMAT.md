@@ -1,4 +1,4 @@
-# Subscription CSV Format (EP-07 / HU-43, HU-44)
+# Subscription CSV Format (EP-07 / HU-43, HU-44; EP-11 / HU-56, HU-58)
 
 FlowTrim imports **expected subscriptions** from a CSV file. It does not import bank statements or confirmed
 payments. The format is the same one FlowTrim exports (`GET /api/reports/subscriptions.csv`), so an exported file can
@@ -12,7 +12,8 @@ be imported again. Sample: [`samples/subscriptions-sample.csv`](samples/subscrip
 | Size | at most 256 KB |
 | Rows | at most 500 data rows (the header does not count) |
 | Encoding | UTF-8, with or without BOM (Excel's "CSV UTF-8" works) |
-| Delimiter | comma `,` |
+| Delimiter | comma `,` or semicolon `;` (see [Spreadsheet files](#spreadsheet-files)) |
+| Separator line | optional first line `sep=,` or `sep=;`; it sets the delimiter and is not a row (the header is still row 1) |
 | Quotes | RFC 4180: wrap a cell in `"` to include commas, line breaks or quotes; write a quote as `""` |
 | Line endings | CRLF or LF; the final line break is optional; blank lines are skipped |
 
@@ -23,16 +24,28 @@ The first row is the header. Names ignore case and surrounding spaces, and colum
 | Column | Required | Rule | Example |
 |---|---|---|---|
 | `name` | Yes | text, at most 120 characters | `Netflix` |
-| `amount` | Yes | greater than zero; dot for decimals (at most 2); no thousands separators or currency symbols | `38900`, `16.99` |
+| `amount` | Yes | greater than zero; dot for decimals (at most 2; comma also accepted in `;` files); no thousands separators or currency symbols | `38900`, `16.99` |
 | `currency` | Yes | 3-letter ISO 4217 code (any case, stored upper case) | `COP` |
 | `billing_cycle` | Yes | `Monthly` or `Yearly` (any case) | `Monthly` |
-| `next_billing_date` | Yes | `yyyy-MM-dd`; a past date is allowed and shown as overdue | `2026-11-05` |
+| `next_billing_date` | Yes | `yyyy-MM-dd` (also `dd/MM/yyyy` in `;` files); today or later in the product calendar (America/Bogota) | `2026-11-05` |
 | `category` | No | text, at most 60 characters | `Streaming` |
 | `status` | No | `Active` or `Inactive` (any case); default `Active` | `Active` |
 
 `monthly_equivalent` (written by the export) is accepted and **ignored**: FlowTrim always recalculates it. Any other
 column is ignored and listed in the preview as `ignoredColumns`. Cells that the export protected against spreadsheet
 formulas (a leading `'` before `=`, `+`, `-` or `@`) are restored to their original text.
+
+## Spreadsheet files
+
+Excel with Spanish (Colombia) regional settings saves CSV files with `;` between columns, a decimal comma and
+`dd/MM/yyyy` dates. FlowTrim accepts those files as they are:
+
+- The delimiter comes from the `sep=` line when present; otherwise a header with `;` and no `,` means `;`.
+- In `;` files the amount may use a comma for decimals (`16,99`) and the date may be `dd/MM/yyyy` (`05/11/2026`).
+  `yyyy-MM-dd` and dot decimals keep working.
+- In `,` files the strict rules above apply (dot decimals, `yyyy-MM-dd`).
+
+The export and the template in the app start with `sep=,`, so Excel splits the columns in any regional setting.
 
 ## Preview
 
@@ -59,12 +72,14 @@ Row error codes:
 | `amount_not_positive` | `amount` | zero |
 | `invalid_currency` | `currency` | not 3 letters |
 | `invalid_billing_cycle` | `billing_cycle` | not `Monthly` or `Yearly` |
-| `invalid_date` | `next_billing_date` | not a real date in `yyyy-MM-dd` |
+| `invalid_date` | `next_billing_date` | not a real date in `yyyy-MM-dd` (or `dd/MM/yyyy` in `;` files) |
+| `date_in_past` | `next_billing_date` | earlier than today (America/Bogota) |
 | `invalid_status` | `status` | not `Active` or `Inactive` |
 | `wrong_cell_count` | `row` | the row has a different number of cells than the header |
 
 Problems with the whole file return `400` (`file_required`, `unsupported_file_type`, `empty_file`,
-`invalid_encoding`, `missing_columns`, `duplicate_columns`, `malformed_csv`) or `413` (`file_too_large`,
+`invalid_encoding`, `unsupported_delimiter` (a `sep=` line with anything other than `,` or `;`), `missing_columns`,
+`duplicate_columns`, `malformed_csv`) or `413` (`file_too_large`,
 `too_many_rows`).
 
 ## Confirm
@@ -83,4 +98,5 @@ file errors and status codes are the same as the preview.
 ## In the app
 
 Workspace → Subscriptions → **Import CSV** (`/app/subscriptions/import`) checks the file, shows the preview row by
-row, confirms with the same file and offers a template to download.
+row, confirms with the same file and offers a template to download (header plus four example rows whose dates
+are computed from today, so the template always previews as valid).
