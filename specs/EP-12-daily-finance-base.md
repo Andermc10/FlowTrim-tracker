@@ -326,3 +326,19 @@ quick-add button never covers the back-to-top button.
 - Verified in a real browser against the API and PostgreSQL (expense, same-currency transfer not counted in totals,
   filter, edit, computed balances on Accounts, delete; 360 px and 1280 px, both themes). The mobile bottom nav has 9
   links now; HU-68 regroups it.
+
+### HU-67 — delivered 2026-10-22
+- Frontend PR Andermc10/FlowTrim-frontend#107: `features/transactions/quick-add` — `QuickAddService` (open state,
+  `saved$` so the open screen reloads, last account in `localStorage` with a safe fallback) and `QuickAdd` in the shell
+  (key `N` only when no field has focus, no modifier and no other dialog is open; "+ Add" in the workspace header and a
+  floating button on mobile, with back-to-top moved above it). It reuses `TransactionForm` in a quick mode instead of a
+  second form.
+- Deviation to meet AC-1: in quick mode the account selector (already preselected) comes **after** the category chips,
+  so one Tab goes from the amount to the chips; Enter on a chip chooses it and saves. Focus moves to the amount after
+  the dialog opens (the `autofocus` attribute is forbidden by the lint rules). The note field is hidden in quick mode.
+- Category order: uses counted over the last 90 days from one list request (up to the API page size, the 200 most
+  recent transactions); ties keep the API order (name).
+- Fixed on the way: the transaction form overflowed the modal at 360 px (fieldsets keep `min-width: min-content`,
+  `1fr` columns did not shrink, three action buttons did not fit); the account form had the same column issue.
+- 194 unit tests. Verified in a real browser against the API and PostgreSQL (keyboard-only expense updated the open
+  Accounts screen without a reload, no-accounts state, save and add another, mobile layout).
