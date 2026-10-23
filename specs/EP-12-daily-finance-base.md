@@ -294,3 +294,18 @@ quick-add button never covers the back-to-top button.
   `PUT` body: the edit form keeps the current `isArchived`; archive/restore has its own action. 163 unit tests.
 - Verified in a real browser against the API and PostgreSQL (create, duplicate name, card debt shown as "Owed",
   archive, delete, owner isolation; 360 px and 1280 px, light and dark themes).
+
+### HU-65 — delivered 2026-10-22
+- Backend PR Andermc10/FlowTrim-backend#93: `/api/categories` (list, create, update, delete; no `GET /{id}`, the
+  screens use the list). Defaults (`DefaultCategories`, 11 expense + 3 income with fixed colors and icons) are
+  inserted with `INSERT ... ON CONFLICT DO NOTHING` on `ux_categories_owner_id_kind_name`; four concurrent first
+  requests create them once (integration test). "Has none" counts archived categories, so an owner who only
+  archives never gets the defaults again; an owner who deletes every category gets them on the next list.
+  Spanish names when the preferred `Accept-Language` tag is `es`/`es-*`. Responses add `hasTransactions`.
+  560 tests (517 fast + 43 integration).
+- Frontend PR Andermc10/FlowTrim-frontend#105: `/app/categories`; the service sends the **interface** language as
+  `Accept-Language` (not the browser's). Colors are theme tokens `--category-<key>` (lighter in dark mode, darker in
+  light mode); icons are SVG paths in `core/ui/icon/category-icon.ts`. Pickers are native radio groups. The 409
+  toast logic is shared in `core/ui/toast/conflict-toast.ts`. 173 unit tests.
+- Verified in a real browser against the API and PostgreSQL (defaults once, create/edit/archive/delete, Spanish
+  defaults for a second account, isolation; 360 px and 1280 px, both themes).
