@@ -94,7 +94,7 @@ AI Assistant tools for transactions (phase 5), notifications (phase 4), the land
   description (optional, ≤ 140), note (optional, ≤ 500), audit timestamps. Currency is **the account's** (not sent by
   the client).
 - **FR-2 Rules:**
-  - transfer: `toAccountId` required, different from `accountId`, same currency (else `400 transfer_currency_mismatch`),
+  - transfer: `toAccountId` required, different from `accountId`, same currency (else `400` on `toAccountId`: "Both accounts of a transfer must use the same currency."),
     no category;
   - accounts and categories must belong to the owner and not be archived for **new** transactions (editing an old
     transaction may keep an archived one);
@@ -234,7 +234,7 @@ Migration **`AddDailyFinanceTables`** (snake_case, explicit names, reviewed SQL)
 | Name empty / too long; currency not 3 letters; bad enum; amount ≤ 0 or > 2 decimals | 400 field errors |
 | Transaction date after today (Bogota) | 400 `date`: "Transaction date cannot be in the future." |
 | Category kind does not match transaction type; category on a transfer; missing category on income/expense | 400 `categoryId` |
-| Transfer to the same account / different currency | 400 `toAccountId` (`transfer_currency_mismatch` code on the field) |
+| Transfer to the same account / different currency | 400 `toAccountId` (field message; the UI only offers same-currency destinations) |
 | Account or category archived (new transaction), foreign or missing | 400 on the field (never reveals other owners' data) |
 | Delete used account/category; change currency of used account; change kind of used category | 409 with `code` |
 | Duplicate account/category name | 400 on `name` (also guarded by the unique index → mapped, never 500) |
@@ -309,3 +309,20 @@ quick-add button never covers the back-to-top button.
   toast logic is shared in `core/ui/toast/conflict-toast.ts`. 173 unit tests.
 - Verified in a real browser against the API and PostgreSQL (defaults once, create/edit/archive/delete, Spanish
   defaults for a second account, isolation; 360 px and 1280 px, both themes).
+
+### HU-66 — delivered 2026-10-22
+- Backend PR Andermc10/FlowTrim-backend#94: `/api/transactions` (list, get, create, update, delete).
+  `TransactionRequestValidator` applies the rules that need lookups (date ≤ today in the product calendar, owner's
+  account/category, kind matches type, same-currency transfer, no archived account/category for new data — an edited
+  transaction may keep the archived one it already has); shape rules stay in the domain. The currency mismatch is a
+  field message, not a `code` (field errors carry messages only). List filters run in SQL; `accountId` also matches
+  transfers into the account; `search` uses `ILIKE` with the user's `%`/`_` escaped; `page`/`pageSize` are clamped
+  (default 50, max 200) like subscriptions. `totals` are summed per account currency in SQL. A foreign-key violation
+  when an account/category disappears between validation and save is a `400` on the field. 586 tests (541 fast + 45
+  integration).
+- Frontend PR Andermc10/FlowTrim-frontend#106: `/app/transactions` with month selector, filters, rows grouped by day
+  with the day's net, signed amounts with a hidden type label, totals per currency, "Load more" and the reusable
+  `transaction-form` (HU-67 will open it from quick add). 188 unit tests.
+- Verified in a real browser against the API and PostgreSQL (expense, same-currency transfer not counted in totals,
+  filter, edit, computed balances on Accounts, delete; 360 px and 1280 px, both themes). The mobile bottom nav has 9
+  links now; HU-68 regroups it.
