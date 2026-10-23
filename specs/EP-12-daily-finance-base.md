@@ -1,6 +1,6 @@
 # EP-12: Daily Finance Base (FlowTrim 3.0 — Phase 1)
 
-- **Status:** Approved _(2026-10-22)_
+- **Status:** Implemented _(2026-10-22)_
 - **Story / Issue:** epic #147 · HU-64 #148 · HU-65 #149 · HU-66 #150 · HU-67 #151 · HU-68 #152
 - **Priority:** P1 (first module of FlowTrim 3.0)
 - **Dependencies:** HU-12 (owner isolation), HU-38 (CI), HU-47 (integration tests), EP-11 (`core/forms`, product
@@ -200,7 +200,9 @@ All routes require authentication and are owner-scoped; foreign or missing ids a
   "currencies": [ { "currency": "COP", "available": 1200000.00, "monthIncome": 0.00, "monthExpenses": 0.00,
     "monthNet": 0.00, "todayExpenses": 0.00, "committedUntilMonthEnd": 38900.00, "daysLeft": 12,
     "safeToSpendToday": 96758.33, "shortfall": 0.00 } ],
-  "accounts": [ … ], "recentTransactions": [ … ] }
+  "accounts": [ … ], "recentTransactions": [ … ],
+  "chargesUntilMonthEnd": [ { "subscriptionId": "…", "name": "Netflix", "amount": 38900.00, "currency": "COP",
+    "nextBillingDate": "2026-10-28", "isOverdue": false } ] }
 ```
 
 ## 7. Data model changes
@@ -342,3 +344,20 @@ quick-add button never covers the back-to-top button.
   `1fr` columns did not shrink, three action buttons did not fit); the account form had the same column issue.
 - 194 unit tests. Verified in a real browser against the API and PostgreSQL (keyboard-only expense updated the open
   Accounts screen without a reload, no-accounts state, save and add another, mobile layout).
+
+### HU-68 — delivered 2026-10-22
+- Backend PR Andermc10/FlowTrim-backend#95: pure `Domain/Dashboard/DailyAllowanceCalculator` and
+  `GET /api/dashboard/today`. A currency appears when it has active accounts (even without transactions), month
+  activity or committed charges. Month and today totals reuse the SQL totals of HU-66. Added to the contract:
+  `chargesUntilMonthEnd` (FR-2 lists those charges on screen). Accounts in the response are the active ones.
+  605 tests (559 fast + 46 integration), including the full daily loop over HTTP on PostgreSQL.
+- Frontend PR Andermc10/FlowTrim-frontend#108: `/app` is Today (hero per currency, formula disclosure with the real
+  numbers, shortfall warning, tiles, accounts, recent transactions, charges until month end; first-use guide; silent
+  reload after quick add). Navigation in `workspace-nav.ts`: *Daily*, *Subscriptions* (overview at `/app/summary`) and
+  *Tools*; the rail scrolls on short screens; on mobile 4 shortcuts + **More** (full grouped menu) replace the 9
+  truncated links. `npm run e2e` has a new EP-12 step. 204 unit tests.
+- `CLAUDE.md` §1/§4/§5 updated with user-recorded transactions, the new entities and formulas (FR-4).
+
+### EP-12 closed
+All stories HU-64…HU-68 delivered and verified (unit, integration, `npm run e2e`, visual checks at 360/1280 px in
+both themes). Evidence: `docs/E2E-ACCEPTANCE.md` row 25.
