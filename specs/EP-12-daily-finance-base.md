@@ -1,7 +1,7 @@
 # EP-12: Daily Finance Base (FlowTrim 3.0 — Phase 1)
 
 - **Status:** Approved _(2026-10-22)_
-- **Story / Issue:** to be created on approval · stories HU-64 to HU-68
+- **Story / Issue:** epic #147 · HU-64 #148 · HU-65 #149 · HU-66 #150 · HU-67 #151 · HU-68 #152
 - **Priority:** P1 (first module of FlowTrim 3.0)
 - **Dependencies:** HU-12 (owner isolation), HU-38 (CI), HU-47 (integration tests), EP-11 (`core/forms`, product
   calendar, toasts), `docs/FLOWTRIM-3-ROADMAP.md`
@@ -207,7 +207,7 @@ All routes require authentication and are owner-scoped; foreign or missing ids a
 Migration **`AddDailyFinanceTables`** (snake_case, explicit names, reviewed SQL):
 
 - `accounts`: `id uuid pk`, `owner_id text not null`, `name varchar(60)`, `type text` (`ck_accounts_type`),
-  `currency char(3)`, `opening_balance numeric(18,2)`, `is_archived boolean default false`, `created_at`/`updated_at
+  `currency char(3)`, `opening_balance numeric(18,2)`, `is_archived boolean not null` (no database default; the domain always sets it), `created_at`/`updated_at
   timestamptz`; unique `ux_accounts_owner_id_name` on `(owner_id, lower(name))`; unique `ux_accounts_owner_id_id` on
   `(owner_id, id)` (target of the composite FKs).
 - `categories`: `id`, `owner_id`, `name varchar(40)`, `kind text` (`ck_categories_kind`), `color text`, `icon text`
@@ -220,8 +220,11 @@ Migration **`AddDailyFinanceTables`** (snake_case, explicit names, reviewed SQL)
     null and `category_id` not null; `ck_transactions_distinct_accounts`: `to_account_id <> account_id`.
   - FKs (D8, `ON DELETE RESTRICT`): `(owner_id, account_id)` and `(owner_id, to_account_id)` → `accounts(owner_id, id)`;
     `(owner_id, category_id)` → `categories(owner_id, id)`.
-  - Indexes: `ix_transactions_owner_id_date` (`owner_id, date desc`), `ix_transactions_account_id`,
-    `ix_transactions_to_account_id`, `ix_transactions_category_id`.
+  - Indexes: `ix_transactions_owner_id_date` (`owner_id, date desc`), `ix_transactions_owner_id_account_id`,
+    `ix_transactions_owner_id_to_account_id`, `ix_transactions_owner_id_category_id` (they lead with `owner_id`
+    so they also cover the composite foreign keys).
+  - The case-insensitive unique indexes on `lower(name)` are expressions EF Core does not model: the migration
+    creates them with SQL.
 - No change to `subscriptions` or `usage_records`.
 
 ## 8. Validation and error cases
@@ -276,4 +279,18 @@ quick-add button never covers the back-to-top button.
 5. HU-68 backend → frontend → docs (`CLAUDE.md`, READMEs) → e2e step.
 
 ## 14. Implementation notes (filled after delivery)
-—
+
+### HU-64 — delivered 2026-10-22
+- Backend PR Andermc10/FlowTrim-backend#92: migration `AddDailyFinanceTables` (all three tables), `Account`,
+  `Category` and `Transaction` entities (category and transaction endpoints come with HU-65/HU-66),
+  `AccountBalanceCalculator`, `/api/accounts`. Balances are summed in SQL with two grouped queries (by source
+  account and by transfer destination); an integration test checks they equal the domain calculator.
+  `HandlerResult.Conflict` maps to `409` with `code` (`account_has_transactions`, `account_currency_locked`).
+  A duplicate name that slips past the pre-check (two simultaneous requests) hits the unique index and is
+  returned as the same `400` on `name`. 533 tests (493 fast + 40 integration).
+- Frontend PR Andermc10/FlowTrim-frontend#104: `/app/accounts`, linked from the rail and the mobile nav (the
+  Daily/Subscriptions regrouping stays in HU-68). The delete dialog of an account with transactions explains why
+  and offers **Archive** instead, so the `409` only appears in a race (warning toast + reload). Opening balance and
+  `PUT` body: the edit form keeps the current `isArchived`; archive/restore has its own action. 163 unit tests.
+- Verified in a real browser against the API and PostgreSQL (create, duplicate name, card debt shown as "Owed",
+  archive, delete, owner isolation; 360 px and 1280 px, light and dark themes).
