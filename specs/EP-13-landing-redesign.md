@@ -1,6 +1,6 @@
 # EP-13: Landing Redesign for FlowTrim 3.0
 
-- **Status:** Draft _(2026-10-23)_
+- **Status:** Approved _(2026-10-23)_
 - **Story / Issue:** to be created on approval · stories HU-69 to HU-71
 - **Priority:** P1 (roadmap step 2 of FlowTrim 3.0)
 - **Dependencies:** EP-12 (the product the landing now promotes), EP-01/EP-02/EP-03 (Carbon Signal identity, EN/ES,
@@ -17,7 +17,7 @@ Goal: a landing that, in one scroll, shows the daily loop (where your money is �
 expected this month → one number you can trust today), keeps the subscription tools as a second chapter, explains the
 formula, and sends the visitor to the workspace — without fake claims, fake testimonials or brand logos.
 
-## 2. Decisions (recommended options, to be confirmed with the spec approval)
+## 2. Decisions (approved 2026-10-23)
 
 | # | Topic | Decision | Why |
 |---|---|---|---|
