@@ -1,7 +1,7 @@
 # EP-13: Landing Redesign for FlowTrim 3.0
 
-- **Status:** Approved _(2026-10-23)_
-- **Story / Issue:** to be created on approval · stories HU-69 to HU-71
+- **Status:** Implemented _(2026-10-23)_
+- **Story / Issue:** epic #160 · HU-69 #161 · HU-70 #162 · HU-71 #163
 - **Priority:** P1 (roadmap step 2 of FlowTrim 3.0)
 - **Dependencies:** EP-12 (the product the landing now promotes), EP-01/EP-02/EP-03 (Carbon Signal identity, EN/ES,
   reduced motion, back-to-top), `docs/FLOWTRIM-3-ROADMAP.md` (GSAP approved for the landing)
@@ -150,4 +150,35 @@ animated mobile (stacked reveals).
 3. HU-71 (quality pass, screenshots, evidence).
 
 ## 14. Implementation notes (filled after delivery)
-—
+
+### HU-69 — delivered 2026-10-23
+- Frontend PR Andermc10/FlowTrim-frontend#109: new landing (`landing.html`/`.scss`/`.ts`), all sample figures in
+  `landing-sample.ts` (computed with the app formulas; a unit test checks (1,175,000 − 38,900) ÷ 10 = 113,610 and the
+  simulator savings), five mock-ups as single illustrations (`role="img"` + summary, inner `aria-hidden`), theme toggle
+  and a skip link added to the navigation, 88 new `landing.*` keys per language (the 100 old ones removed). The
+  initial bundle grew 19 kB (410 → 429 kB), mostly the new EN/ES copy.
+
+### HU-70 — delivered 2026-10-23
+- Frontend PR Andermc10/FlowTrim-frontend#111 (replaces #110, closed by GitHub when its stacked base branch was deleted):
+  `gsap` 3.15.0 (exact) loaded in `LandingMotionService` with dynamic `import()` → lazy chunks (core ≈ 50 kB,
+  ScrollTrigger 44 kB); initial bundle +3.5 kB.
+- Deviations from FR-2: the **stage** (progress bar + steps) is pinned instead of the whole section, so the bar stays
+  visible; while pinned all steps share one layout and each step leaves before the next enters (overlapping crossfades
+  were unreadable); the hero runs once per visit in its own `gsap.context` (outside `gsap.matchMedia`) so crossing
+  760 px does not replay it, and the counter's final text is computed with the money format and restored on revert.
+- Inactive pinned steps use `autoAlpha` (`visibility: hidden`) instead of `inert`: hidden elements are not focusable,
+  which meets AC-4 without managing the attribute.
+- The landing SCSS sits at the 12 kB component-style budget; rules were consolidated instead of raising it.
+
+### HU-71 — delivered 2026-10-23
+- Frontend PR Andermc10/FlowTrim-frontend#112. Quality matrix (temporary Playwright script): 24 runs (360/768/1280 ×
+  light/dark × EN/ES × reduced motion on/off), all passing: no overflow, one `h1`, no skipped heading levels, skip link
+  first, visible focus, WCAG AA contrast of every visible text, CTA → sign-in, no console errors, 0 long tasks over
+  200 ms while scrolling (measured with a `longtask` observer instead of a manual Chrome capture).
+- Fix found by the matrix (whole app, light theme): `--color-primary` `#087f89` → `#077a84` (small primary text was
+  4.41:1) and a new `--color-on-primary` token (`#ffffff` in light, `#061014` in dark) replacing 16 hard-coded values
+  (dark text on primary buttons was 4.04:1).
+- README: new landing screenshots (dark, light, daily story) and the GSAP note.
+
+### EP-13 closed
+HU-69…HU-71 delivered. Evidence: `docs/E2E-ACCEPTANCE.md` row 26.
