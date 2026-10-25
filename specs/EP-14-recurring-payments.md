@@ -55,8 +55,11 @@ or push (phase 4); variable-amount forecasting (the expected amount is the user'
 - **FR-2 Rules:** `RecurrenceSchedule` (D4) and the new monthly equivalents (D3) are pure domain code; summary,
   simulator, analytics (expected charges per month), Today (`committedUntilMonthEnd`), upcoming alerts and the
   Insights tools use them. `AdvanceBillingDate` steps one cycle for every cycle.
-- **FR-3 API:** create/update accept and return the new fields; `GET /api/subscriptions?kind=` filters. Default
-  account/category must belong to the owner, be active, and the category must be of kind `Expense` (400 on the field).
+- **FR-3 API:** create/update accept and return the new fields (plus the computed `monthlyEquivalent`);
+  `GET /api/subscriptions?kind=` filters (unknown kind → 400 on `kind`). Default account/category must belong to the
+  owner, be active (an archived default is kept only when it does not change on update), and the category must be of
+  kind `Expense` (400 on the field). On update a missing `kind` keeps the current kind; a missing link or default
+  clears it (full replacement). The `Instalment` kind is added by HU-74 together with its counts.
 - **FR-4 CSV (HU-43/HU-52):** import accepts the new cycle values; export writes them. New optional columns `kind` and
   `payment_url`; defaults and instalment counts are not part of the CSV (documented).
 - **FR-5 UI:** navigation and screens say "Recurring payments"; the list shows a kind badge and a kind filter; the form
@@ -129,14 +132,18 @@ or push (phase 4); variable-amount forecasting (the expected amount is the user'
 | GET | `/api/calendar?month=` | new (HU-75) |
 
 ## 7. Data model changes
-Migration **`AddRecurringPaymentFields`**:
-- `subscriptions`: `kind text not null default 'Subscription'` (`ck_subscriptions_kind`), `billing_cycle` check extended,
-  `payment_url varchar(500) null`, `default_account_id uuid null`, `category_id uuid null`, `total_instalments int null`,
-  `paid_instalments int not null default 0`; checks `ck_subscriptions_instalments` (instalment ⇔ total not null;
-  `0 ≤ paid ≤ total`); unique `(owner_id, id)`; composite FKs `(owner_id, default_account_id)` → `accounts` and
-  `(owner_id, category_id)` → `categories` with `ON DELETE SET NULL (column)` (written as SQL).
-- `transactions`: `recurring_payment_id uuid null`, composite FK → `subscriptions(owner_id, id)` `ON DELETE SET NULL
-  (recurring_payment_id)`, index `ix_transactions_owner_id_recurring_payment_id`.
+One migration per story (reconciled during HU-72, 2026-10-24: each story ships its own schema change):
+- **HU-72 `AddRecurringPaymentFields`** _(implemented)_ — `subscriptions`: `kind text not null default 'Subscription'`
+  (`ck_subscriptions_kind`: `Subscription`, `Bill`), `ck_subscriptions_billing_cycle` extended to the five cycles,
+  `payment_url varchar(500) null`, `default_account_id uuid null`, `category_id uuid null`, indexes
+  `ix_subscriptions_owner_id_default_account_id` / `ix_subscriptions_owner_id_category_id`; composite FKs
+  `fk_subscriptions_accounts_owner_id_default_account_id` and `fk_subscriptions_categories_owner_id_category_id` with
+  `ON DELETE SET NULL (column)` (written as SQL; EF does not model them).
+- **HU-73** — `subscriptions` unique `(owner_id, id)`; `transactions.recurring_payment_id uuid null`, composite FK →
+  `subscriptions(owner_id, id)` `ON DELETE SET NULL (recurring_payment_id)`, index
+  `ix_transactions_owner_id_recurring_payment_id`.
+- **HU-74** — `kind` check adds `Instalment`; `total_instalments int null`, `paid_instalments int not null default 0`;
+  check `ck_subscriptions_instalments` (instalment ⇔ total not null; `0 ≤ paid ≤ total`).
 
 ## 8. Validation and error cases
 | Case | Result |
@@ -181,4 +188,8 @@ calendar days without entries are quiet; amounts carry sign and text; works at 3
 4. HU-75 backend → frontend → docs → e2e step.
 
 ## 14. Implementation notes (filled after delivery)
-—
+- **HU-72 backend** (backend PR #96): `Domain/Subscriptions/RecurrenceSchedule` (`Next`, `Occurrences`,
+  `MonthlyEquivalent`) is the only cycle rule; `Subscription.GetOccurrences`, `AdvanceBillingDate`, Today
+  (`DailyAllowanceCalculator.ChargesUntil`: every occurrence until month end, overdue ones once each; one
+  `chargesUntilMonthEnd` item per occurrence, its `nextBillingDate` being that occurrence's date) and analytics use it.
+  `RecurringPaymentDetails` carries kind, link and defaults. CSV appends `kind` and `payment_url` to the export columns.

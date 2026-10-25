@@ -26,12 +26,16 @@ The first row is the header. Names ignore case and surrounding spaces, and colum
 | `name` | Yes | text, at most 120 characters | `Netflix` |
 | `amount` | Yes | greater than zero; dot for decimals (at most 2; comma also accepted in `;` files); no thousands separators or currency symbols | `38900`, `16.99` |
 | `currency` | Yes | 3-letter ISO 4217 code (any case, stored upper case) | `COP` |
-| `billing_cycle` | Yes | `Monthly` or `Yearly` (any case) | `Monthly` |
+| `billing_cycle` | Yes | `Weekly`, `Biweekly` (every 14 days), `Monthly`, `Quarterly` or `Yearly` (any case) | `Monthly` |
 | `next_billing_date` | Yes | `yyyy-MM-dd` (also `dd/MM/yyyy` in `;` files); today or later in the product calendar (America/Bogota) | `2026-11-05` |
 | `category` | No | text, at most 60 characters | `Streaming` |
 | `status` | No | `Active` or `Inactive` (any case); default `Active` | `Active` |
+| `kind` | No | `Subscription` or `Bill` (any case); default `Subscription` | `Bill` |
+| `payment_url` | No | absolute `https://` address, at most 500 characters, no user name or password | `https://pay.example.com` |
 
-`monthly_equivalent` (written by the export) is accepted and **ignored**: FlowTrim always recalculates it. Any other
+`monthly_equivalent` (written by the export) is accepted and **ignored**: FlowTrim always recalculates it. The export
+writes `kind` and `payment_url` after `status`; the default account and category of a recurring payment are not part of
+the file. Any other
 column is ignored and listed in the preview as `ignoredColumns`. Cells that the export protected against spreadsheet
 formulas (a leading `'` before `=`, `+`, `-` or `@`) are restored to their original text.
 
@@ -71,10 +75,12 @@ Row error codes:
 | `invalid_amount` | `amount` | not digits with an optional dot and up to 2 decimals (`38.900`, `38,9`, `$100` are rejected) |
 | `amount_not_positive` | `amount` | zero |
 | `invalid_currency` | `currency` | not 3 letters |
-| `invalid_billing_cycle` | `billing_cycle` | not `Monthly` or `Yearly` |
+| `invalid_billing_cycle` | `billing_cycle` | not one of the five cycles |
 | `invalid_date` | `next_billing_date` | not a real date in `yyyy-MM-dd` (or `dd/MM/yyyy` in `;` files) |
 | `date_in_past` | `next_billing_date` | earlier than today (America/Bogota) |
 | `invalid_status` | `status` | not `Active` or `Inactive` |
+| `invalid_kind` | `kind` | not `Subscription` or `Bill` |
+| `invalid_payment_url` | `payment_url` | not an `https://` address, too long, or with a user name or password |
 | `wrong_cell_count` | `row` | the row has a different number of cells than the header |
 
 Problems with the whole file return `400` (`file_required`, `unsupported_file_type`, `empty_file`,
