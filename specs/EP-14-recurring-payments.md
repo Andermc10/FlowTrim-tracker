@@ -1,7 +1,7 @@
 # EP-14: Recurring Payments (FlowTrim 3.0 — Phase 2)
 
-- **Status:** Draft _(2026-10-23)_
-- **Story / Issue:** to be created on approval · stories HU-72 to HU-75
+- **Status:** Approved _(2026-10-24)_
+- **Story / Issue:** epic #167 · HU-72 #168 · HU-73 #169 · HU-74 #170 · HU-75 #171
 - **Priority:** P1 (roadmap step 3 of FlowTrim 3.0)
 - **Dependencies:** EP-12 (accounts, categories, transactions, Today), HU-57 (mark as paid), HU-04/HU-54 (upcoming
   charges and alerts), HU-50/HU-52 (analytics, CSV), HU-34 (Insights tools), `docs/FLOWTRIM-3-ROADMAP.md`
@@ -17,7 +17,7 @@ Goal: generalize subscriptions into **recurring payments**, let "Mark as paid" *
 account, support **instalment plans**, add a **financial calendar**, and keep an optional **payment link** to the
 provider's own page — while keeping every existing number (monthly burn, simulator, analytics, Today) consistent.
 
-## 2. Decisions (recommended options, to be confirmed with the spec approval)
+## 2. Decisions (approved by Ander on 2026-10-24)
 
 | # | Topic | Decision | Why |
 |---|---|---|---|
@@ -171,8 +171,8 @@ calendar days without entries are quiet; amounts carry sign and text; works at 3
 
 ## 12. Assumptions and open questions
 - The expected amount is the user's estimate; the paid amount may differ (bills vary).
-- Open (recommended answer in brackets): include `Weekly`/`Biweekly` now? [yes, D3]; rename the nav item
-  "Subscriptions" to "Recurring payments"? [yes, D1]; recurring income in this phase? [no, later].
+- Resolved on approval (2026-10-24): `Weekly`/`Biweekly` are included now (D3); the nav item "Subscriptions" becomes
+  "Recurring payments" (D1); recurring income stays out of this phase.
 
 ## 13. Task breakdown and delivery order
 1. HU-72 backend (migration, model, `RecurrenceSchedule`, consumers) → frontend.
