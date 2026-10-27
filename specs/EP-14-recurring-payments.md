@@ -193,3 +193,10 @@ calendar days without entries are quiet; amounts carry sign and text; works at 3
   (`DailyAllowanceCalculator.ChargesUntil`: every occurrence until month end, overdue ones once each; one
   `chargesUntilMonthEnd` item per occurrence, its `nextBillingDate` being that occurrence's date) and analytics use it.
   `RecurringPaymentDetails` carries kind, link and defaults. CSV appends `kind` and `payment_url` to the export columns.
+- **HU-73** (backend PR #97, frontend PR #116): `MarkSubscriptionPaidHandler` reuses `TransactionRequestValidator` for the
+  expense (same rules as a hand-made transaction) plus the payment-currency check and a required category;
+  `ISubscriptionRepository.RecordPaymentAsync` adds the expense and saves the advanced date in one `SaveChanges`.
+  An empty body (`{}`) keeps HU-57 (date only). Response `{ subscription, transaction, completed }` (`completed` is
+  always false until HU-74). Migration `LinkTransactionsToRecurringPayments` (`ux_subscriptions_owner_id_id`,
+  `transactions.recurring_payment_id`, FK `fk_transactions_subscriptions_owner_id_recurring_payment_id` as SQL).
+  UI: `MarkPaidDialog` (list and Upcoming charges); the payment's *Recent payments* live in its edit form.
