@@ -1,6 +1,6 @@
 # EP-14: Recurring Payments (FlowTrim 3.0 — Phase 2)
 
-- **Status:** Approved _(2026-10-24)_
+- **Status:** Implemented _(2026-10-27)_
 - **Story / Issue:** epic #167 · HU-72 #168 · HU-73 #169 · HU-74 #170 · HU-75 #171
 - **Priority:** P1 (roadmap step 3 of FlowTrim 3.0)
 - **Dependencies:** EP-12 (accounts, categories, transactions, Today), HU-57 (mark as paid), HU-04/HU-54 (upcoming
@@ -206,3 +206,10 @@ calendar days without entries are quiet; amounts carry sign and text; works at 3
   paid again nor reactivated without raising the total; the total cannot drop below the paid count. The CSV import
   rejects `Instalment` rows (`invalid_kind`). Migration `AddInstalmentPlans` (`ck_subscriptions_instalments`). The list
   shows completed plans with a *Completed* badge (no separate status filter: inactive rows stay in the list as before).
+- **HU-75** (backend PR #99, frontend PR #118): pure `Domain/Calendar/FinancialCalendar` (expected from
+  `Subscription.GetOccurrences` of active payments, recorded from `ITransactionRepository.GetDailyTotalsAsync` grouped in
+  SQL), `GET /api/calendar?month=yyyy-MM` (default this month, `400 month` otherwise); expected entries also carry
+  `paymentUrl`. `/app/calendar` in the Daily group: Monday-first grid + day panel (desktop), busy-day list (≤ 720 px).
+- **Epic verification:** `npm run e2e` covers a weekly bill with a payment link, the date-only mark-as-paid path, a
+  payment recorded in an account (toast, *Recent payments*, Transactions), a two-instalment plan completed from the
+  dialog and the calendar day panel (E2E row 27). Backend 707 tests, frontend 234 unit tests.
