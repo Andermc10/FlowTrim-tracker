@@ -1,6 +1,6 @@
 # EP-15: Budgets and Savings Goals (FlowTrim 3.0 — Phase 3)
 
-- **Status:** Approved _(2026-10-27, under Ander's standing approval of 2026-10-26 to advance the pending roadmap)_
+- **Status:** Implemented _(2026-10-27; approved under Ander's standing approval of 2026-10-26)_
 - **Story / Issue:** epic #177 · HU-76 #178 · HU-77 #179
 - **Priority:** P1 (roadmap step 4 of FlowTrim 3.0)
 - **Dependencies:** EP-12 (accounts, categories, transactions, Today), EP-14 (recurring payments), HU-41 (correlation
@@ -103,7 +103,7 @@ being estimates.
 | GET / POST | `/api/goals` | 200 / 201 / 400 |
 | GET / PUT / DELETE | `/api/goals/{id}` | 200 / 204 / 400 / 404 / 409 `goal_currency_locked` |
 | POST | `/api/goals/{id}/contributions` | 201 / 400 / 404 |
-| DELETE | `/api/goals/{id}/contributions/{contributionId}` | 204 / 404 |
+| DELETE | `/api/goals/{id}/contributions/{contributionId}` | 204 / 404 / 409 `goal_saved_negative` |
 
 ## 7. Data model changes
 - **`AddBudgets`** — `budgets`: `id uuid pk`, `owner_id varchar(200)`, `category_id uuid`, `currency char(3)`,
@@ -144,4 +144,15 @@ Months follow the product calendar (America/Bogota). No open questions (standing
 1. HU-76 backend → frontend → e2e. 2. HU-77 backend → frontend → e2e. 3. Docs, close the epic.
 
 ## 14. Implementation notes (filled after delivery)
-—
+- **HU-76** (backend PR #100, frontend PR #119): `Domain/Budgets/Budget` + pure `BudgetCalculator`; the state is
+  `Exceeded` only when `spent ≥ limit` (a rounded 99.99 % stays `Warning`). `BudgetOverview` (Application) builds the
+  month for `/api/budgets` and Today's `budgetsToWatch`; spent comes from `ITransactionRepository.GetExpensesByCategoryAsync`
+  (SQL, per category and account currency). Column `limit_amount` (`limit` is reserved in SQL). UI: `/app/budgets` with
+  `BudgetMeter` (state text, never colour alone); it reloads after a quick add (`QuickAddService.saved$`).
+  Fixed on the way: Today's expected charges were tracked by `subscriptionId` only (duplicate keys since EP-14).
+- **HU-77** (backend PR #101, frontend PR #120): `Domain/Goals/SavingsGoal`, `GoalContribution` and pure `GoalCalculator`
+  (`AveragePeriod` = the 3 full months before the current one); totals summed in SQL by `IGoalRepository.GetTotalsAsync`.
+  **Added during implementation:** deleting a contribution that would leave the goal below zero answers
+  `409 goal_saved_negative` (delete the withdrawal first). UI: `/app/goals` with cards, contribution/withdrawal and history modals.
+- **Epic verification:** `npm run e2e` covers a budget reaching *Close to the limit* after a quick add and shown on
+  Today, and a goal reaching 25 % after a contribution (E2E row 28). Backend 743 tests, frontend 244 unit tests.
