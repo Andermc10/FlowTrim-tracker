@@ -28,7 +28,7 @@ they are confirmed by the user, never inferred. `CLAUDE.md` §1/§4 will be upda
 | 1 | **Phase 1** Daily base | Accounts (cash, bank, card), transactions (income, expense, transfer, quick add), custom categories (color/icon), daily dashboard with "safe to spend today" |
 | 2 | **Landing redesign** | More striking, advertising-style landing with **GSAP + ScrollTrigger** (approved dependency, loaded only on the landing), scroll-driven story, reduced-motion support, no fake testimonials or brand logos |
 | 3 | **Phase 2** Recurring payments | Subscriptions generalized to recurring payments (rent, utilities, instalments); "Mark as paid" records a transaction; financial calendar; optional **payment link** per recurring payment |
-| 4 | **Phase 3** Control | Monthly budgets per category (alerts at 80 % / 100 %), savings goals with contributions and projection |
+| 4 | **Phase 3** Control (**EP-15**, `specs/EP-15-budgets-and-goals.md`) | Monthly budgets per category (alerts at 80 % / 100 %), savings goals with contributions and projection |
 | 5 | **Phase 4** Notifications | Daily **e-mail** digest at 08:00 Bogota (Resend free tier) for charges due tomorrow and overdue ones, then **Web Push**; notification centre and settings. Requires the free-tier deployment (HU-40) |
 | 6 | **Phase 5** Reports and AI | Monthly statement (income vs spending, month-over-month), bank CSV import with preview, new AI Assistant tools (budget left, goals, month spending) |
 | 7 | Optional | **Wompi sandbox** checkout for a demo "Pro" plan (no real money), only as a portfolio integration |
