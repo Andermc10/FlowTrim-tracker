@@ -200,3 +200,9 @@ calendar days without entries are quiet; amounts carry sign and text; works at 3
   always false until HU-74). Migration `LinkTransactionsToRecurringPayments` (`ux_subscriptions_owner_id_id`,
   `transactions.recurring_payment_id`, FK `fk_transactions_subscriptions_owner_id_recurring_payment_id` as SQL).
   UI: `MarkPaidDialog` (list and Upcoming charges); the payment's *Recent payments* live in its edit form.
+- **HU-74** (backend PR #98, frontend PR #117): `SubscriptionKind.Instalment`, `TotalInstalments`/`PaidInstalments`
+  (via `RecurringPaymentDetails`; paid only on create, then counted by `AdvanceBillingDate`), `IsCompleted`,
+  `RemainingInstalments`; `RecurrenceSchedule.Occurrences(maxCount)` caps every projection. A completed plan cannot be
+  paid again nor reactivated without raising the total; the total cannot drop below the paid count. The CSV import
+  rejects `Instalment` rows (`invalid_kind`). Migration `AddInstalmentPlans` (`ck_subscriptions_instalments`). The list
+  shows completed plans with a *Completed* badge (no separate status filter: inactive rows stay in the list as before).

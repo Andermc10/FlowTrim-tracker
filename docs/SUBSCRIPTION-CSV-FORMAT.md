@@ -79,7 +79,7 @@ Row error codes:
 | `invalid_date` | `next_billing_date` | not a real date in `yyyy-MM-dd` (or `dd/MM/yyyy` in `;` files) |
 | `date_in_past` | `next_billing_date` | earlier than today (America/Bogota) |
 | `invalid_status` | `status` | not `Active` or `Inactive` |
-| `invalid_kind` | `kind` | not `Subscription` or `Bill` |
+| `invalid_kind` | `kind` | not `Subscription` or `Bill` (instalment plans cannot be imported; the file has no instalment counts) |
 | `invalid_payment_url` | `payment_url` | not an `https://` address, too long, or with a user name or password |
 | `wrong_cell_count` | `row` | the row has a different number of cells than the header |
 
