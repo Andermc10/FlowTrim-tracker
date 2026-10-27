@@ -30,7 +30,7 @@ they are confirmed by the user, never inferred. `CLAUDE.md` §1/§4 will be upda
 | 3 | **Phase 2** Recurring payments | Subscriptions generalized to recurring payments (rent, utilities, instalments); "Mark as paid" records a transaction; financial calendar; optional **payment link** per recurring payment |
 | 4 | **Phase 3** Control (**EP-15**, `specs/EP-15-budgets-and-goals.md`) | Monthly budgets per category (alerts at 80 % / 100 %), savings goals with contributions and projection |
 | 5 | **Phase 4** Notifications | Daily **e-mail** digest at 08:00 Bogota (Resend free tier) for charges due tomorrow and overdue ones, then **Web Push**; notification centre and settings. Requires the free-tier deployment (HU-40) |
-| 6 | **Phase 5** Reports and AI | Monthly statement (income vs spending, month-over-month), bank CSV import with preview, new AI Assistant tools (budget left, goals, month spending) |
+| 6 | **Phase 5** Reports and AI (**EP-16**, `specs/EP-16-statements-imports-and-ai.md`) | Monthly statement (income vs spending, month-over-month), bank CSV import with preview, new AI Assistant tools (budget left, goals, month spending) |
 | 7 | Optional | **Wompi sandbox** checkout for a demo "Pro" plan (no real money), only as a portfolio integration |
 
 The landing goes after phase 1 so its copy and animations promote the new daily-finance product, not only
