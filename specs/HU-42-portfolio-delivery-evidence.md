@@ -1,6 +1,6 @@
 # HU-42: Prepare Portfolio Delivery Evidence
 
-- **Status:** Draft
+- **Status:** Implemented _(2026-10-28; standing approval of 2026-10-26)_
 - **Priority:** P1
 - **Epic:** EP-06
 - **Dependencies:** HU-38, HU-40, HU-41
@@ -28,3 +28,10 @@ Documentation review against deployed routes, configuration and feature status.
 ## Tasks
 
 - [ ] tracker: update portfolio documentation and demo narrative.
+
+## Implementation notes
+
+- `docs/PORTFOLIO.md`: problem, data honesty table, architecture, security and AI boundaries, quality evidence with CI
+  links, deployment status (no public deployment: HU-40 deferred, so "deployment" is documented as local only) and a
+  five-minute local demo path ending in the AI Assistant.
+- Backend README (backend #106) and frontend README with FlowTrim 3.0 screenshots (frontend #124).
