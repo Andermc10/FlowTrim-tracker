@@ -1,6 +1,6 @@
 # EP-16: Monthly Statement, Bank CSV Import and AI Tools (FlowTrim 3.0 — Phase 5)
 
-- **Status:** Approved _(2026-10-27, under Ander's standing approval of 2026-10-26; "sí, continúa con la fase 5")_
+- **Status:** Implemented _(2026-10-27; approved under Ander's standing approval of 2026-10-26)_
 - **Story / Issue:** epic #182 · HU-78 #183 · HU-79 #184 · HU-80 #185
 - **Priority:** P1 (roadmap step 6 of FlowTrim 3.0; covers the old HU-14 "import transactions from CSV")
 - **Dependencies:** EP-12 (accounts, categories, transactions), EP-15 (budgets, goals), EP-07 (CSV reader and dialect),
@@ -41,8 +41,8 @@ the preview, charts in the statement (the Charts tab already exists), AI writing
 ### HU-78 — Monthly statement
 - **FR-1 API:** `GET /api/statements?month=yyyy-MM` (default this month; `400 month` otherwise) → `{ month, previousMonth,
   currencies: [ { currency, income, expense, net, savingsRate, previousIncome, previousExpense, previousNet,
-  expenseChange, topCategories: [ { categoryId, name, color, icon, amount, share, previousAmount } ],
-  transactionsCount } ] }`, currencies ordered by code.
+  expenseChange, topCategories: [ { categoryId, name, color, icon, amount, share, previousAmount } ] } ] }`,
+  currencies ordered by code (only currencies with income or expenses in the month).
 - **FR-2 UI:** tab *Statement*: month selector, one block per currency with income / expenses / net / savings rate and the
   comparison with the previous month (arrows plus text, not colour alone), top categories table with share and
   previous amount; empty state "Nothing recorded this month".
@@ -59,9 +59,9 @@ the preview, charts in the statement (the Charts tab already exists), AI writing
 - **FR-2 UI:** `/app/transactions/import` (lazy, "Import CSV" on Transactions): account and default categories, file
   picker with the same client checks as the subscription import, preview table (status, date, type, amount, description,
   category with "default" marker, errors), confirm button with the count, result counts, link back to Transactions.
-- **AC-1:** A Bancolombia-style `;` file with `dd/MM/yyyy` and decimal comma, rows `-45.000,50` "Éxito" and `2.500.000`
-  "Nómina"… amounts with thousands separators are **invalid** (`invalid_amount`): only digits and one decimal separator
-  are accepted (documented).
+- **AC-1:** A spreadsheet `;` file with `dd/MM/yyyy` dates and a decimal comma imports `-45000,50` as an expense of
+  45,000.50; an amount written with thousands separators (`2.500.000`) is **invalid** (`invalid_amount`): only digits,
+  an optional sign and one decimal separator are accepted (documented in the UI format help).
 - **AC-2:** Importing the same file twice creates nothing the second time (all duplicates).
 - **AC-3:** A row with `category` = an existing expense category uses it; an unknown one falls back to the default and is
   marked.
@@ -120,4 +120,17 @@ Months follow the product calendar (America/Bogota). No open questions (standing
 1. HU-78 backend → frontend. 2. HU-79 backend → frontend. 3. HU-80 backend → frontend. 4. Docs, close the epic.
 
 ## 14. Implementation notes (filled after delivery)
-—
+- **HU-78** (backend PR #102, frontend PR #121): pure `Domain/Statements/MonthlyStatementCalculator` over the existing SQL
+  totals (`GetTotalsAsync`, `GetExpensesByCategoryAsync`); `transactionsCount` was dropped (not needed by the screen).
+  UI: third tab of Analytics & reports (`/app/analytics/statement`).
+- **HU-79** (backend PR #103, frontend PR #122): `Application/TransactionImports` (`BankCsvImport`, `BankCsvDuplicates`,
+  preview/confirm handlers); file checks moved to the shared `Imports/CsvUpload` (also used by the subscription import);
+  `ITransactionRepository.ListForImportAsync` / `AddImportedAsync` (one transaction + per-owner advisory lock, like
+  EP-07). New row codes `date_in_future`, `amount_zero`. UI `/app/transactions/import` reuses the subscription import
+  styles and messages; "Other" and the first income category are preselected.
+- **HU-80** (backend PR #104, frontend PR #123): tools `get_month_spending`, `get_budgets`, `get_goals` (`MoneyTools.cs`),
+  `ToolArguments.OptionalString`, figure kinds and assumption keys as FR-2; sources `statement`, `budgets`, `goals`.
+  UI title "Ask about your money." and three new suggestions.
+- **Epic verification:** `npm run e2e` covers the statement after a recorded expense, a two-row bank import (re-import →
+  all duplicates) and "How are my budgets?" with the figure equal to the budgets page (E2E row 29). Backend 766 tests,
+  frontend 249 unit tests.
