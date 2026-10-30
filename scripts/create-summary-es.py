@@ -61,9 +61,10 @@ def build_story():
         h1("En pocas palabras"),
         p("FlowTrim te responde una pregunta concreta: <b>¿cuánto puedes gastar hoy sin descuadrar el mes?</b> "
           "Registras tus cuentas y tus gastos en segundos; la aplicación resta lo que todavía falta pagar este mes "
-          "(tus suscripciones) y reparte lo que queda entre los días restantes. Cada cifra muestra cómo se calculó."),
-        p("También te ayuda a controlar las suscripciones y cobros automáticos que se olvidan: su costo mensual real, "
-          "avisos antes de cada cobro y un simulador para decidir qué cancelar."),
+          "(suscripciones, facturas y cuotas) y reparte lo que queda entre los días restantes. Cada cifra muestra cómo "
+          "se calculó."),
+        p("También te ayuda a no perder de vista los pagos recurrentes que se olvidan, a gastar con un límite por "
+          "categoría, a ahorrar para una meta y a ver cada mes comparado con el anterior."),
         Spacer(1, 0.2 * cm),
         h1("Qué puedes hacer"),
         table(
@@ -78,14 +79,21 @@ def build_story():
                 ["Cuentas", "Efectivo, banco, ahorros y tarjetas de crédito. El saldo se calcula con tus movimientos; "
                             "una tarjeta que debe dinero se muestra como deuda."],
                 ["Categorías", "Tus propias categorías de gasto e ingreso, con color e ícono. Se crea un set inicial."],
-                ["Suscripciones", "Costo mensual equivalente (los planes anuales se dividen entre 12), proyección anual, "
-                                  "próximos cobros con cuenta regresiva y \"marcar como pagado\"."],
+                ["Pagos recurrentes", "Suscripciones, facturas (agua, arriendo, celular) y planes de cuotas, de semanales a "
+                                      "anuales, con enlace de pago. \"Marcar como pagado\" con una cuenta registra el gasto "
+                                      "y pasa a la siguiente fecha; un plan de cuotas se completa solo con la última."],
+                ["Calendario", "El mes día por día: los cobros esperados junto a lo que de verdad registraste."],
+                ["Presupuestos", "Un límite mensual por categoría de gasto, con aviso al 80 % y al 100 % (aquí y en Hoy)."],
+                ["Metas de ahorro", "Un objetivo con fecha opcional: aportes declarados, cuánto necesitas por mes y una "
+                                    "fecha estimada según tus últimos 3 meses."],
+                ["Resumen y próximos", "Costo mensual equivalente, proyección anual y próximos cobros con cuenta regresiva."],
                 ["Simulador", "Cuánto ahorrarías en 1, 12 y 24 meses si cancelas algo. No cancela nada."],
-                ["Analítica y reporte", "Gasto por categoría y por mes, y un reporte para imprimir o guardar en PDF."],
-                ["Importar y exportar", "Suscripciones desde un CSV (también el formato de Excel) con vista previa antes "
-                                        "de guardar nada."],
-                ["Asistente IA", "Preguntas en lenguaje natural sobre tus datos. Las cifras las calcula FlowTrim; la IA "
-                                 "solo las explica."],
+                ["Analítica y reporte", "Gasto por categoría y por mes, un reporte para imprimir o guardar en PDF y el "
+                                        "estado de cuenta del mes (ingresos, gastos, neto, tasa de ahorro) frente al anterior."],
+                ["Importar y exportar", "Pagos recurrentes o el extracto de tu banco desde un CSV (también el formato de "
+                                        "Excel) con vista previa: nada se guarda hasta confirmar y lo repetido se omite."],
+                ["Asistente IA", "Preguntas en lenguaje natural: gastos del mes, presupuestos, metas, próximos cobros, "
+                                 "ahorros. Las cifras las calcula FlowTrim; la IA solo las explica."],
                 ["Para todos", "Español e inglés, tema claro y oscuro, uso con teclado y en el celular."],
             ],
             [3.6 * cm, 12.9 * cm],
@@ -95,7 +103,8 @@ def build_story():
         p("(dinero disponible − cobros esperados hasta fin de mes) ÷ días que quedan, contando hoy", "FormulaFlow"),
         bullets([
             "Dinero disponible: efectivo, banco y ahorros. Las tarjetas de crédito no cuentan, porque es dinero prestado.",
-            "Cobros esperados: suscripciones activas que vencen antes de que termine el mes (incluidas las vencidas).",
+            "Cobros esperados: cada cobro de tus pagos recurrentes activos hasta fin de mes (uno semanal cuenta varias "
+            "veces; los vencidos, una vez).",
             "Si los cobros superan tu dinero, la cifra es 0 y la pantalla te muestra cuánto falta.",
             "Las monedas nunca se suman ni se convierten: cada moneda tiene su propia cifra.",
         ]),
@@ -107,7 +116,9 @@ def build_story():
         h1("Lo que FlowTrim no hace"),
         bullets([
             "No se conecta a tu banco ni mueve dinero: los datos los escribes tú.",
-            "No inventa pagos: un cobro de suscripción es \"esperado\" hasta que tú lo marcas como pagado.",
+            "No inventa pagos: un cobro es \"esperado\" hasta que tú lo marcas como pagado; solo entonces, si eliges "
+            "una cuenta, se registra el gasto.",
+            "Los aportes a metas son declarados: FlowTrim no mueve dinero entre cuentas.",
             "No cancela suscripciones en otras empresas: el simulador solo calcula.",
             "No adivina: los mismos datos siempre dan el mismo resultado.",
         ]),
@@ -120,8 +131,8 @@ def build_story():
         ]),
         Spacer(1, 0.3 * cm),
         h1("Cómo está hecho"),
-        p("Backend en C# con ASP.NET Core (.NET 10) y PostgreSQL; frontend en Angular 22. Más de 600 pruebas "
-          "automáticas en el backend y más de 200 en el frontend, con integración continua en GitHub. Es un proyecto "
+        p("Backend en C# con ASP.NET Core (.NET 10) y PostgreSQL; frontend en Angular 22. Más de 760 pruebas "
+          "automáticas en el backend y casi 250 en el frontend, con integración continua en GitHub. Es un proyecto "
           "de portafolio con código público."),
         PageBreak(),
         h1("Así se ve"),
@@ -133,6 +144,12 @@ def build_story():
         figure("today.png", "Hoy: cuánto puedes gastar por día, las cifras del mes, cuentas, movimientos y cobros."),
         figure("transactions.png", "Movimientos del mes agrupados por día, con totales y filtros."),
         figure("accounts.png", "Cuentas con su saldo calculado; la tarjeta de crédito aparece como deuda."),
+        figure("recurring-payments.png", "Pagos recurrentes: una factura semanal con enlace de pago, un plan de cuotas "
+                                         "completado y suscripciones."),
+        figure("calendar.png", "Calendario: cobros esperados y lo registrado en cada día del mes."),
+        figure("budgets.png", "Presupuestos: la categoría de ejemplo (Food) va al 87,5 % y muestra el aviso \"Cerca del límite\"."),
+        figure("goals.png", "Metas de ahorro: lo aportado frente al objetivo; la fecha estimada aparece con más datos."),
+        figure("statement.png", "Estado de cuenta del mes frente al anterior, con las categorías de más gasto."),
     ]
     return story
 
