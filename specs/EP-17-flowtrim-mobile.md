@@ -12,7 +12,7 @@
 ## 1. Context and goal
 FlowTrim 3.0 is complete on the web. The portfolio shows Angular and .NET but no mobile work, and the API has a single
 client. Goal: a **native mobile companion app** for the daily moments — "how much can I spend today?", "I just paid
-something", "this bill is due" — built with **React Native + Expo + TypeScript** in the repo `FlowTrime-Mobile`,
+something", "this bill is due" — built with **React Native + Expo + TypeScript** in the repo `FlowTrim-Mobile`,
 consuming the **existing API without changes**. It proves the API is a reusable platform and adds a second,
 market-relevant frontend stack (React, mobile) to the portfolio.
 
@@ -27,7 +27,7 @@ deliberately smaller; the README says so.
 | D2 | Hosting | HU-40 runs **in parallel**. Development uses the local API over the LAN (`http://<pc-ip>:5214`, dev builds only); the demo and release build point to the public **HTTPS** API. | Not blocked by hosting; the release build never talks cleartext HTTP. |
 | D3 | Reminders | The app may schedule **local device reminders** for expected charges, **opt-in only**. FlowTrim still sends no e-mail and no server push. **Rule change:** CLAUDE.md §5 "Alerts are visual, in-app only" becomes "The web shows in-app alerts only; the mobile app may schedule local reminders on the device when the user opts in; never claim an e-mail or push was sent." Updated in the PR that approves this spec. | Ander's choice; real native value with no server or cost. |
 | D4 | Platform target | **Android first** (dev build on a real phone, APK in GitHub Releases). iOS is **out of scope**: native sign-in needs a development build, and iOS builds need an Apple Developer account (paid). The code stays cross-platform (no Android-only APIs without a fallback). | No budget (2026-10-18 decision). |
-| D5 | Repository and board | Public repo **`Andermc10/FlowTrime-Mobile`** (created by Ander; local folder `FlowTrim/FlowTrime-Mobile`), linked to the FlowTrim GitHub Project. Stories and the spec live in **FlowTrim-tracker** (same SDD flow, milestone **"FlowTrim Mobile"**, label `platform:mobile`); technical tasks live in the mobile repo as sub-issues. `main` protected with a required CI check, like backend/frontend. | Same proven process; one board. |
+| D5 | Repository and board | Public repo **`Andermc10/FlowTrim-Mobile`** (created by Ander, renamed from the typo `FlowTrime-Mobile` on 2026-11-03; local folder `FlowTrim/FlowTrim-Mobile`), linked to the FlowTrim GitHub Project. Stories and the spec live in **FlowTrim-tracker** (same SDD flow, milestone **"FlowTrim Mobile"**, label `platform:mobile`); technical tasks live in the mobile repo as sub-issues. `main` protected with a required CI check, like backend/frontend. | Same proven process; one board. |
 | D6 | API contract | No backend change is planned. The mobile repo keeps a **committed snapshot** of the API's OpenAPI document (`api/openapi.json`, exported from the local Development API, where `MapOpenApi` already runs) and generates types with **`openapi-typescript`**; requests go through **`openapi-fetch`**. A script `npm run api:sync` refreshes the snapshot; CI fails if the generated types are stale. | Typed, honest contract; no hand-copied DTOs; the public API keeps OpenAPI off in production. |
 | D7 | Data fetching | **TanStack Query** for server state (cache, retries, invalidation after writes). No global state library. | Standard React data layer; small and well known. |
 | D8 | Sign-in | A new Auth0 application of type **Native** in the existing tenant (same audience `https://api.flowtrim.dev`), Authorization Code + **PKCE** with **`expo-auth-session`**, redirect `flowtrim://callback`. **Refresh-token rotation** (`offline_access`) so the user does not sign in every day; tokens only in **`expo-secure-store`** (Android Keystore). Sign-out clears tokens, cache and scheduled reminders, then ends the Auth0 session. | `owner_id` stays the token `sub`: the user sees the same data as on the web. |
@@ -233,7 +233,7 @@ only, Dynamic Type / font scale up to 1.3 without clipping, screen-reader order 
 - Assumption: the local test issuer (`fake-issuer.mjs` / `e2e/support/test-issuer.mjs`) can serve a native PKCE flow
   for Maestro; if not, the Maestro flow uses a dev-only token injection and the spec is updated.
 - **Resolved (2026-11-03):** reminders at a fixed 09:00 local; lock timeout fixed at 60 s; the repo already exists
-  (`FlowTrime-Mobile`).
+  (`FlowTrim-Mobile`).
 
 ## 13. Security and engineering practices (mandatory for every story)
 
@@ -279,7 +279,7 @@ only, Dynamic Type / font scale up to 1.3 without clipping, screen-reader order 
 M1 HU-81 → HU-82 · M2 HU-83 → HU-84 · M3 HU-85 → HU-86 · M4 HU-87 → HU-88 · M5 HU-89 → HU-90 → HU-91.
 HU-40 (free hosting) in parallel; HU-91's release APK waits for it.
 - [ ] tracker: approve spec; update CLAUDE.md §5 (D3); epic + stories + milestone + label.
-- [ ] GitHub: link `FlowTrime-Mobile` to the Project; branch protection after the first CI run.
+- [ ] GitHub: link `FlowTrim-Mobile` to the Project; branch protection after the first CI run.
 - [ ] Auth0: Native application, callback/logout URLs, refresh-token rotation (no secrets in Git).
 - [ ] mobile: one PR per story (`feature/hu-8x-…`), `Refs #n` until verified on the phone.
 
