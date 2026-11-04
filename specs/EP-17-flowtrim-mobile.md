@@ -1,7 +1,8 @@
 # EP-17: FlowTrim Mobile (React Native + Expo)
 
-- **Status:** Draft
-- **Story / Issue:** epic #— · HU-81..HU-91 (issues created after approval)
+- **Status:** Approved _(2026-11-03, Ander)_
+- **Story / Issue:** epic #191 · HU-81 #192 · HU-82 #193 · HU-83 #194 · HU-84 #195 · HU-85 #196 · HU-86 #197 · HU-87 #198 ·
+  HU-88 #199 · HU-89 #200 · HU-90 #201 · HU-91 #202 · milestone "FlowTrim Mobile"
 - **Priority:** P1 (portfolio expansion; runs in parallel with HU-40)
 - **Dependencies:** EP-12 (accounts, categories, transactions, Today), EP-14 (recurring payments, mark as paid),
   EP-15 (budgets, goals), HU-12 (Auth0, owner isolation), HU-41 (correlation id), **HU-40** (public HTTPS API — needed
@@ -11,14 +12,14 @@
 ## 1. Context and goal
 FlowTrim 3.0 is complete on the web. The portfolio shows Angular and .NET but no mobile work, and the API has a single
 client. Goal: a **native mobile companion app** for the daily moments — "how much can I spend today?", "I just paid
-something", "this bill is due" — built with **React Native + Expo + TypeScript** in a new repo `FlowTrim-mobile`,
+something", "this bill is due" — built with **React Native + Expo + TypeScript** in the repo `FlowTrime-Mobile`,
 consuming the **existing API without changes**. It proves the API is a reusable platform and adds a second,
 market-relevant frontend stack (React, mobile) to the portfolio.
 
 The web app stays the full workspace (imports, reports, analytics, simulator, AI Assistant). The mobile app is
 deliberately smaller; the README says so.
 
-## 2. Decisions (D1–D3 chosen by Ander on 2026-11-03; the rest are proposals awaiting approval)
+## 2. Decisions (approved by Ander on 2026-11-03)
 
 | # | Topic | Decision | Why |
 |---|---|---|---|
@@ -26,7 +27,7 @@ deliberately smaller; the README says so.
 | D2 | Hosting | HU-40 runs **in parallel**. Development uses the local API over the LAN (`http://<pc-ip>:5214`, dev builds only); the demo and release build point to the public **HTTPS** API. | Not blocked by hosting; the release build never talks cleartext HTTP. |
 | D3 | Reminders | The app may schedule **local device reminders** for expected charges, **opt-in only**. FlowTrim still sends no e-mail and no server push. **Rule change:** CLAUDE.md §5 "Alerts are visual, in-app only" becomes "The web shows in-app alerts only; the mobile app may schedule local reminders on the device when the user opts in; never claim an e-mail or push was sent." Updated in the PR that approves this spec. | Ander's choice; real native value with no server or cost. |
 | D4 | Platform target | **Android first** (dev build on a real phone, APK in GitHub Releases). iOS is **out of scope**: native sign-in needs a development build, and iOS builds need an Apple Developer account (paid). The code stays cross-platform (no Android-only APIs without a fallback). | No budget (2026-10-18 decision). |
-| D5 | Repository and board | New public repo **`Andermc10/FlowTrim-mobile`**, linked to the FlowTrim GitHub Project. Stories and the spec live in **FlowTrim-tracker** (same SDD flow, milestone **"FlowTrim Mobile"**, label `platform:mobile`); technical tasks live in the mobile repo as sub-issues. `main` protected with a required CI check, like backend/frontend. | Same proven process; one board. |
+| D5 | Repository and board | Public repo **`Andermc10/FlowTrime-Mobile`** (created by Ander; local folder `FlowTrim/FlowTrime-Mobile`), linked to the FlowTrim GitHub Project. Stories and the spec live in **FlowTrim-tracker** (same SDD flow, milestone **"FlowTrim Mobile"**, label `platform:mobile`); technical tasks live in the mobile repo as sub-issues. `main` protected with a required CI check, like backend/frontend. | Same proven process; one board. |
 | D6 | API contract | No backend change is planned. The mobile repo keeps a **committed snapshot** of the API's OpenAPI document (`api/openapi.json`, exported from the local Development API, where `MapOpenApi` already runs) and generates types with **`openapi-typescript`**; requests go through **`openapi-fetch`**. A script `npm run api:sync` refreshes the snapshot; CI fails if the generated types are stale. | Typed, honest contract; no hand-copied DTOs; the public API keeps OpenAPI off in production. |
 | D7 | Data fetching | **TanStack Query** for server state (cache, retries, invalidation after writes). No global state library. | Standard React data layer; small and well known. |
 | D8 | Sign-in | A new Auth0 application of type **Native** in the existing tenant (same audience `https://api.flowtrim.dev`), Authorization Code + **PKCE** with **`expo-auth-session`**, redirect `flowtrim://callback`. **Refresh-token rotation** (`offline_access`) so the user does not sign in every day; tokens only in **`expo-secure-store`** (Android Keystore). Sign-out clears tokens, cache and scheduled reminders, then ends the Auth0 session. | `owner_id` stays the token `sub`: the user sees the same data as on the web. |
@@ -231,16 +232,55 @@ only, Dynamic Type / font scale up to 1.3 without clipping, screen-reader order 
   the Android SDK).
 - Assumption: the local test issuer (`fake-issuer.mjs` / `e2e/support/test-issuer.mjs`) can serve a native PKCE flow
   for Maestro; if not, the Maestro flow uses a dev-only token injection and the spec is updated.
-- **Q1:** Reminder hour — 09:00 local, or user-configurable? (Proposal: fixed 09:00 now.)
-- **Q2:** Lock timeout — 60 s fixed, or options (immediately / 1 min / 5 min)? (Proposal: fixed 60 s.)
-- **Q3:** Create the public repo `FlowTrim-mobile` now (after approval)? It is an outward-facing action.
+- **Resolved (2026-11-03):** reminders at a fixed 09:00 local; lock timeout fixed at 60 s; the repo already exists
+  (`FlowTrime-Mobile`).
 
-## 13. Task breakdown and delivery order
+## 13. Security and engineering practices (mandatory for every story)
+
+**Security (OWASP MASVS v2 as the checklist; MASTG for verification)**
+- **Storage (MASVS-STORAGE):** tokens and the lock flag only in `expo-secure-store` (Keystore-backed); never in
+  AsyncStorage, logs, URLs or crash reports. Persisted cache holds API data only, lives in the app sandbox, max age 7
+  days, wiped on sign-out / account change. `android:allowBackup="false"` so cached data does not leave the device in
+  cloud backups.
+- **Auth (MASVS-AUTH):** OAuth 2.0 for native apps (RFC 8252): system browser (Custom Tabs), PKCE S256, `state`
+  checked, no client secret in the app (a Native Auth0 app has none), refresh-token rotation with reuse detection,
+  short-lived access tokens, `401` → sign-in. The app never sees the user's password.
+- **Network (MASVS-NETWORK):** release builds HTTPS only (`usesCleartextTraffic=false`; cleartext allowed only in the
+  dev build for the LAN API); no TLS validation overrides. Certificate pinning is **not** used (managed hosting rotates
+  certificates; documented trade-off).
+- **Platform (MASVS-PLATFORM):** only the `flowtrim://callback` deep link, validated; external links (`paymentUrl`)
+  opened in the system browser and only when `https://`; no WebView for user data; screen content hidden in the
+  recent-apps preview when the lock is on; minimal Android permissions (`POST_NOTIFICATIONS`, biometrics only).
+- **Code and supply chain (MASVS-CODE):** exact dependency versions + committed `package-lock.json`; `npm audit` and
+  Dependabot alerts on the repo; GitHub secret scanning + push protection on; Expo SDK kept on a supported version; no
+  `eval`/dynamic code; release builds strip `console.*` logs.
+- **Privacy (MASVS-PRIVACY):** no analytics, ads or third-party trackers; no crash reporter sending data out; the
+  README states exactly what is stored and where. Test data is synthetic.
+- **Secrets:** only public values in `EXPO_PUBLIC_*` (Auth0 domain/client id/audience, API URL — not secrets by
+  design); the Android **upload keystore** and EAS credentials never in Git (EAS-managed credentials); `.env` ignored,
+  `.env.example` committed.
+- **Server side unchanged:** authorization is enforced by the API (`owner_id` = `sub`); the app hiding a screen is
+  never the security boundary.
+- **Review:** a security review (MASVS checklist + `security-review` agent) before HU-91's release; findings fixed or
+  documented.
+
+**Engineering**
+- Same rules as the other repos: English code/commits/docs, Spanish comments, Conventional Commits, branch per story,
+  PR with `Refs #n` until verified on the phone, required CI, no direct pushes to `main`.
+- Structure: `app/` (routes only), `src/features/<feature>/` (screens, hooks, components), `src/core/` (api, auth,
+  i18n, theme, storage, notifications), `src/shared/` (UI primitives). Screens never call `fetch` directly; data goes
+  through feature hooks over `apiClient`.
+- TypeScript `strict` + `noUncheckedIndexedAccess`; ESLint (`eslint-config-expo` + React hooks rules) with zero
+  warnings in CI; pure functions for logic (`planReminders`, error mapping, lock timing) with unit tests first.
+- Every screen: loading/empty/success/error/offline states and accessibility labels (§10).
+- New dependencies beyond this spec need Ander's approval.
+
+## 14. Task breakdown and delivery order
 M1 HU-81 → HU-82 · M2 HU-83 → HU-84 · M3 HU-85 → HU-86 · M4 HU-87 → HU-88 · M5 HU-89 → HU-90 → HU-91.
 HU-40 (free hosting) in parallel; HU-91's release APK waits for it.
 - [ ] tracker: approve spec; update CLAUDE.md §5 (D3); epic + stories + milestone + label.
-- [ ] GitHub: create `FlowTrim-mobile`, link to the Project, branch protection after the first CI run.
+- [ ] GitHub: link `FlowTrime-Mobile` to the Project; branch protection after the first CI run.
 - [ ] Auth0: Native application, callback/logout URLs, refresh-token rotation (no secrets in Git).
 - [ ] mobile: one PR per story (`feature/hu-8x-…`), `Refs #n` until verified on the phone.
 
-## 14. Implementation notes (filled after delivery)
+## 15. Implementation notes (filled after delivery)
