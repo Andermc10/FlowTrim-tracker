@@ -113,7 +113,7 @@ tab bar, and **Settings** from the Today header.
   mapping with a fixed response).
 
 ### HU-86 — Quick add and month transactions
-- **FR-1:** "+" opens a bottom sheet: type (expense/income/transfer), amount with numeric keypad, account (last used
+- **FR-1:** "+" opens a native modal sheet (`/quick-add`; no bottom-sheet library): type (expense/income/transfer), amount with numeric keypad, account (last used
   remembered, non-sensitive id only), category chips ordered by recent use, date (default today, ≤ today), description;
   "Save" and "Save and add another". Backend validation errors appear on the fields.
 - **FR-2:** Movements tab: current month by default, month selector, grouped by day, signed amounts, totals per
@@ -128,15 +128,17 @@ tab bar, and **Settings** from the Today header.
   date and category, or "paid outside FlowTrim"; completion message for the last instalment.
 - **FR-3:** "Pay at provider ↗" opens the `https://` link in the system browser (never in an in-app WebView that could
   capture input).
-- **FR-4:** creating/editing payments stays on the web (link "Manage on the web").
+- **FR-4:** creating/editing payments stays on the web ("Manage on the web" is a text note until HU-40 gives a public
+  web URL; then it becomes a link).
 - **AC-1:** Marking a monthly payment as paid with an account creates the expense and moves the next date one cycle;
   both show on the web.
 
 ### HU-88 — Budgets and goals
 - **FR-1:** Plan tab: this month's budgets (limit, spent, remaining, state `OnTrack`/`Warning`/`Exceeded` with text,
   not only color) and goals (saved, remaining, required per month, estimated completion with the "estimate" note).
-- **FR-2:** "Add contribution" / "Withdraw" on a goal (amount ≠ 0, date ≤ today, note ≤ 200); `409 goal_saved_negative`
-  shown on the amount.
+- **FR-2:** "Add contribution" / "Withdraw" on a goal (amount ≠ 0, date ≤ today, note ≤ 200); a withdrawal that would
+  leave the goal below zero is rejected by the API with `400` on `amount` and shown on that field (`409
+  goal_saved_negative` is only for deleting a contribution, which the mobile app does not offer).
 - **AC-1:** A contribution added on the phone updates the goal on the web.
 
 ### HU-89 — Local payment reminders
@@ -284,3 +286,11 @@ HU-40 (free hosting) in parallel; HU-91's release APK waits for it.
 - [ ] mobile: one PR per story (`feature/hu-8x-…`), `Refs #n` until verified on the phone.
 
 ## 15. Implementation notes (filled after delivery)
+- **HU-86** (FlowTrim-Mobile #6): quick add is the `/quick-add` route with `presentation: 'modal'` opened from a floating
+  "+" in the tabs layout. Amounts accept dot or comma with up to 2 decimals and no thousand separators. Movements shows
+  the API totals only; it never adds amounts per day.
+- **HU-87** (FlowTrim-Mobile #7): the Payments tab joins `GET /api/subscriptions/upcoming` (order, countdown, alert
+  window) with every page of `GET /api/subscriptions` (kind, instalments, payment link) by id. "Paid outside FlowTrim"
+  sends no body. "Pay at provider ↗" re-checks `https://` without credentials and uses `Linking.openURL`.
+- **HU-88** (FlowTrim-Mobile #8): withdrawals are sent as a negative amount; the over-withdrawal error is the API's `400`
+  on `amount` (see FR-2).
