@@ -149,8 +149,9 @@ tab bar, and **Settings** from the Today header.
   one at **09:00 on the due day** (skipped when that moment has passed). Overdue payments get a single reminder at the
   next 09:00. At most 30 scheduled reminders (closest first).
 - **FR-3:** Text says **expected**: "Expected charge tomorrow: Netflix · 44,900 COP" / "Cargo esperado mañana: …".
-  Tapping opens the Payments tab on that payment. Amounts are hidden on the lock screen
-  (`visibility: private`) — the public version says "You have an expected charge tomorrow".
+  Tapping opens the Payments tab. Amounts are hidden on the lock screen through a **private** notification channel
+  (`lockscreenVisibility: PRIVATE`): Android shows only the app name there (`expo-notifications` has no
+  per-notification public text).
 - **FR-4:** Turning the toggle off or signing out cancels every scheduled reminder.
 - **AC-1:** With a payment due tomorrow and the clock at 08:00 today, two reminders are scheduled (today 09:00 and
   tomorrow 09:00); at 10:00 today only tomorrow's is scheduled. Marking it as paid and refreshing removes them.
@@ -292,5 +293,10 @@ HU-40 (free hosting) in parallel; HU-91's release APK waits for it.
 - **HU-87** (FlowTrim-Mobile #7): the Payments tab joins `GET /api/subscriptions/upcoming` (order, countdown, alert
   window) with every page of `GET /api/subscriptions` (kind, instalments, payment link) by id. "Paid outside FlowTrim"
   sends no body. "Pay at provider ↗" re-checks `https://` without credentials and uses `Linking.openURL`.
+- **HU-89** (FlowTrim-Mobile #9): `expo-notifications` 58.1.8 (adds `POST_NOTIFICATIONS` and `RECEIVE_BOOT_COMPLETED`).
+  Pure `core/reminders/plan-reminders.ts`, native layer behind `ReminderDevice`, `RemindersProvider` (permission only
+  on opt-in, cancel + forget on sign-out) and `ReminderSync` in the tabs layout (replace after every upcoming load,
+  one-time offer). Reminders follow the device time zone; titles say "Expected charge tomorrow/today" or "Overdue
+  expected charge".
 - **HU-88** (FlowTrim-Mobile #8): withdrawals are sent as a negative amount; the over-withdrawal error is the API's `400`
   on `amount` (see FR-2).
