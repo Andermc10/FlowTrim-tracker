@@ -293,6 +293,12 @@ HU-40 (free hosting) in parallel; HU-91's release APK waits for it.
 - **HU-87** (FlowTrim-Mobile #7): the Payments tab joins `GET /api/subscriptions/upcoming` (order, countdown, alert
   window) with every page of `GET /api/subscriptions` (kind, instalments, payment link) by id. "Paid outside FlowTrim"
   sends no body. "Pay at provider ↗" re-checks `https://` without credentials and uses `Linking.openURL`.
+- **HU-90** (FlowTrim-Mobile #10): `@react-native-community/netinfo` 12.0.1 wired to TanStack `onlineManager`;
+  `PersistQueryClientProvider` with an AsyncStorage persister (7 days, buster `mobile-v1`) and a pure
+  `shouldPersistQuery` (Today, upcoming + all payments, current-month movements, budgets, goals list; successful
+  queries only). Accounts and categories are not persisted, so quick add / mark as paid opened offline show "You're
+  offline — connect to save." instead of a form. Mutations use `networkMode: 'always'` (fail at once, never queued);
+  `refetchOnReconnect: 'always'`. Sign-out removes the saved copy.
 - **HU-89** (FlowTrim-Mobile #9): `expo-notifications` 58.1.8 (adds `POST_NOTIFICATIONS` and `RECEIVE_BOOT_COMPLETED`).
   Pure `core/reminders/plan-reminders.ts`, native layer behind `ReminderDevice`, `RemindersProvider` (permission only
   on opt-in, cancel + forget on sign-out) and `ReminderSync` in the tabs layout (replace after every upcoming load,
